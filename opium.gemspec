@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["joshua.bowers+code@gmail.com"]
   spec.summary       = %q{A Parse.com ActiveModel implementation}
   spec.description   = %q{Provides an intuitive, Mongoid-inspired mapping layer being your application's object space and Parse.'}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/joshuabowers/opium"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
@@ -28,4 +28,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "pry-remote"
   spec.add_development_dependency "pry-nav"
   spec.add_development_dependency "coveralls"
+  
+  
 end
