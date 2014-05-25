@@ -29,5 +29,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "pry-nav"
   spec.add_development_dependency "coveralls"
   
-  
+  spec.add_dependency "activemodel", "~> 3.2.18"
+  spec.add_dependency "faraday", "~> 0.9.0"
 end
