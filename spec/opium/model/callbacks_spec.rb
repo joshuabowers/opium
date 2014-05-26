@@ -10,5 +10,9 @@ describe Opium::Model::Callbacks do
     subject::CALLBACKS.should_not be_empty
   end
   
-  
+  it "should respond to each of its CALLBACKS" do
+    subject::CALLBACKS.each do |callback|
+      model.should respond_to(callback)
+    end
+  end
 end
