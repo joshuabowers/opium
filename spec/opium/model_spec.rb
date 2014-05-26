@@ -15,6 +15,10 @@ describe Opium::Model do
     model.should respond_to( :define_model_callbacks )
   end
   
+  it "should respond_to :field" do
+    model.should respond_to( :field ).with(2).arguments
+  end
+  
   describe "instance" do
     subject { model.new }
     

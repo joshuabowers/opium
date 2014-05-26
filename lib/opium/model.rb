@@ -4,6 +4,7 @@ require 'opium/model/callbacks'
 require 'opium/model/validations'
 require 'opium/model/serialization'
 require 'opium/model/dirty'
+require 'opium/model/fieldable'
 
 module Opium
   module Model
@@ -17,6 +18,7 @@ module Opium
     include Validations
     include Serialization
     include Dirty
+    include Fieldable
     
     module ClassMethods
       
