@@ -5,7 +5,7 @@ describe Opium::Model::Callbacks do
   
   its( :constants ) { should include(:CALLBACKS) }
   
-  it do
+  it "should provide a list of its defined CALLBACKS" do
     subject::CALLBACKS.should_not be_nil
     subject::CALLBACKS.should_not be_empty
   end

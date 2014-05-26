@@ -2,7 +2,10 @@ module Opium
   module Model
     module Dirty
       extend ActiveSupport::Concern
-      include ActiveModel::Dirty
+      
+      included do
+        include ActiveModel::Dirty
+      end
       
       unless self.method_defined? :changes_applied
         def changes_applied
