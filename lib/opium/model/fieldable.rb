@@ -7,6 +7,7 @@ module Opium
         def field( name, options = {} )
           name = name.to_sym
           class_eval do
+            fields[name] = nil
             define_attribute_methods [name]
             define_method(name) do
               self.attributes[name]
@@ -20,6 +21,10 @@ module Opium
               end
             end
           end
+        end
+        
+        def fields
+          @fields ||= ActiveSupport::HashWithIndifferentAccess.new
         end
       end
     end
