@@ -2,6 +2,9 @@
 
 TODO: Write a gem description
 
+[![Build Status](https://travis-ci.org/joshuabowers/opium.svg?branch=master)](https://travis-ci.org/joshuabowers/opium)
+[![Coverage Status](https://img.shields.io/coveralls/joshuabowers/opium.svg)](https://coveralls.io/r/joshuabowers/opium)
+
 ## Installation
 
 Add this line to your application's Gemfile:
