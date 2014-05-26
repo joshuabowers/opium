@@ -8,8 +8,8 @@ module Opium
       module ClassMethods
         def field( name, options = {} )
           name = name.to_sym
+          fields[name] = Field.new( name, options[:type] || Object, options[:default] )
           class_eval do
-            fields[name] = Field.new( name, options[:type] || Object, options[:default] )
             define_attribute_methods [name]
             define_method(name) do
               self.attributes[name]
@@ -23,6 +23,7 @@ module Opium
               end
             end
           end
+          fields[name]
         end
         
         def fields
