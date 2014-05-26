@@ -1,3 +1,5 @@
+require 'opium/model/field'
+
 module Opium
   module Model
     module Fieldable
@@ -7,7 +9,7 @@ module Opium
         def field( name, options = {} )
           name = name.to_sym
           class_eval do
-            fields[name] = nil
+            fields[name] = Field.new( name, options[:type] || Object, options[:default] )
             define_attribute_methods [name]
             define_method(name) do
               self.attributes[name]
@@ -25,6 +27,10 @@ module Opium
         
         def fields
           @fields ||= ActiveSupport::HashWithIndifferentAccess.new
+        end
+        
+        def default_attributes
+          ActiveSupport::HashWithIndifferentAccess[ *fields.map {|key, field| [key, field.default]}.flatten ]
         end
       end
     end

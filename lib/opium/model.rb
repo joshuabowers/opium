@@ -16,9 +16,9 @@ module Opium
     include Naming
     include Callbacks
     include Validations
-    include Serialization
     include Dirty
     include Fieldable
+    include Serialization
     
     module ClassMethods
       
@@ -33,7 +33,7 @@ module Opium
     end
     
     def attributes=(value)
-      @attributes = ActiveSupport::HashWithIndifferentAccess.new value
+      @attributes = self.class.default_attributes.merge( value )
     end
   end
 end
