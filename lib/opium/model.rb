@@ -27,7 +27,8 @@ module Opium
     end
     
     def initialize( attributes = {} )
-      self.attributes = attributes
+      @attributes = ActiveSupport::HashWithIndifferentAccess.new
+      self.attributes = self.class.default_attributes.merge( attributes )
     end
   end
 end
