@@ -5,6 +5,7 @@ require 'opium/model/validations'
 require 'opium/model/serialization'
 require 'opium/model/dirty'
 require 'opium/model/fieldable'
+require 'opium/model/attributable'
 
 module Opium
   module Model
@@ -19,6 +20,7 @@ module Opium
     include Dirty
     include Fieldable
     include Serialization
+    include Attributable
     
     module ClassMethods
       
@@ -26,14 +28,6 @@ module Opium
     
     def initialize( attributes = {} )
       self.attributes = attributes
-    end
-    
-    def attributes
-      @attributes
-    end
-    
-    def attributes=(value)
-      @attributes = self.class.default_attributes.merge( value )
     end
   end
 end
