@@ -18,7 +18,13 @@ describe Opium::Model do
   describe "instance" do
     subject { model.new }
     
+    it { should respond_to( :attributes ) }
     it { should respond_to( :serializable_hash, :as_json, :from_json ) }
     it { should respond_to( :changes, :changed? ) }
+    
+    its(:attributes) do
+      should_not be_nil
+      should be_a_kind_of( Hash )
+    end
   end
 end

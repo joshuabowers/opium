@@ -18,8 +18,20 @@ module Opium
     include Serialization
     include Dirty
     
-    def ClassMethods
+    module ClassMethods
       
+    end
+    
+    def initialize( attributes = {} )
+      self.attributes = attributes
+    end
+    
+    def attributes
+      @attributes
+    end
+    
+    def attributes=(value)
+      @attributes = ActiveSupport::HashWithIndifferentAccess.new value
     end
   end
 end
