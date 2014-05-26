@@ -5,9 +5,9 @@ module Opium
     module Callbacks
       extend ActiveSupport::Concern
       
-      CALLBACKS = %i[before after around].map {|event| %i[save create update destroy].map {|action| :"#{event}_#{action}"}}.flatten +
-        %i[initialize find touch].map {|action| :"after_#{action}"} +
-        %i[before after].map {|event| :"#{event}_validation"}
+      CALLBACKS = %w[before after around].map {|event| %w[save create update destroy].map {|action| :"#{event}_#{action}"}}.flatten +
+        %w[initialize find touch].map {|action| :"after_#{action}"} +
+        %w[before after].map {|event| :"#{event}_validation"}
       
       included do
         extend ActiveModel::Callbacks
