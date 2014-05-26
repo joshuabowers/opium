@@ -1,5 +1,5 @@
 require "rubygems"
 require "active_model"
-require "active_support/concern"
+require "active_support"
 require "opium/version"
 require "opium/model"

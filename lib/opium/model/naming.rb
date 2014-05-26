@@ -7,9 +7,6 @@ module Opium
       extend ActiveSupport::Concern
       
       included do
-      end
-      
-      module ClassMethods
         extend ActiveModel::Naming        
       end
     end
