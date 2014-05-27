@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.version       = Opium::VERSION
   spec.authors       = ["Joshua Bowers"]
   spec.email         = ["joshua.bowers+code@gmail.com"]
-  spec.summary       = %q{A Parse.com ActiveModel implementation}
+  spec.summary       = %q{An Object Parse.com Mapping technology for defining models.}
   spec.description   = %q{Provides an intuitive, Mongoid-inspired mapping layer being your application's object space and Parse.'}
   spec.homepage      = "https://github.com/joshuabowers/opium"
   spec.license       = "MIT"
