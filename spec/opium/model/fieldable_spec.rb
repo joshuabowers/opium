@@ -65,7 +65,7 @@ describe Opium::Model::Fieldable do
     describe "instance" do
       subject { model.new }
       
-      [:name, :price].each do |field_name|
+      {name: "42", price: 42.0}.each do |field_name, expected_value|
         it "should have a getter and setter for its fields" do
           should respond_to( field_name ).with(0).arguments
           should respond_to( :"#{field_name}=" ).with(1).argument
@@ -84,6 +84,17 @@ describe Opium::Model::Fieldable do
           subject.send(:"#{field_name}=", "current")
           subject.should_not_receive :"#{field_name}_will_change!"
           subject.send(:"#{field_name}=", "current")
+        end
+        
+        it "should call the :to_ruby conversion method on the field type on setting" do
+          model.fields[field_name].type.should_receive(:to_ruby).with(model.fields[field_name].default)
+          model.fields[field_name].type.should_receive(:to_ruby).with("42")
+          subject.send(:"#{field_name}=", "42")
+        end
+        
+        it "should convert the value passed to its setter to the field's type" do
+          subject.send(:"#{field_name}=", "42")
+          subject.send(:"#{field_name}").should == expected_value
         end
       end
     end

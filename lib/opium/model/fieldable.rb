@@ -18,8 +18,9 @@ module Opium
           unless self.respond_to? "#{name}="
             class_eval do
               define_method("#{name}=") do |value|
-                send( "#{name}_will_change!" ) unless self.attributes[name] == value
-                self.attributes[name] = value
+                converted = self.class.fields[name].type.to_ruby(value)
+                send( "#{name}_will_change!" ) unless self.attributes[name] == converted
+                self.attributes[name] = converted
               end
             end
           end
