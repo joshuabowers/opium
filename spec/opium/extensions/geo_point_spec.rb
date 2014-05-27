@@ -37,6 +37,7 @@ describe GeoPoint do
       its(:longitude) { should == -117.117 }
       its(:to_geo_point) { should == subject }
       its(:to_parse) { should == { "__type" => "GeoPoint", "latitude" => 33.33, "longitude" => -117.117 } }
+      its(:to_s) { should == "33.33,-117.117" }
     end
 
     describe "with a hash value" do
@@ -48,6 +49,7 @@ describe GeoPoint do
       its(:longitude) { should == -117.117 }
       its(:to_geo_point) { should == subject }
       its(:to_parse) { should == { "__type" => "GeoPoint", "latitude" => 33.33, "longitude" => -117.117 } }
+      its(:to_s) { should == "33.33,-117.117" }
     end
   end
 end

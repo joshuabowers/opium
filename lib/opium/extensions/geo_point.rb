@@ -21,6 +21,10 @@ class GeoPoint
   def to_parse
     { "__type" => "GeoPoint", "latitude" => self.latitude, "longitude" => self.longitude }
   end
+  
+  def to_s
+    "#{self.latitude},#{self.longitude}"
+  end
 
   class << self
     def to_ruby(object)
