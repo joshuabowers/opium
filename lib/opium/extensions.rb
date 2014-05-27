@@ -1,3 +1,7 @@
 require 'opium/extensions/object'
 require 'opium/extensions/string'
+require 'opium/extensions/numeric'
 require 'opium/extensions/float'
+require 'opium/extensions/boolean'
+require 'opium/extensions/true_class'
+require 'opium/extensions/false_class'
