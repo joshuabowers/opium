@@ -29,7 +29,7 @@ describe String do
   
   describe "instance" do
     subject { "instance" }
-    it { should respond_to(:to_ruby, :to_parse, :to_bool).with(0).arguments }
+    it { should respond_to(:to_ruby, :to_parse, :to_bool, :to_geo_point).with(0).arguments }
     its(:to_ruby) { should == subject }
     its(:to_parse) { should == subject }
     
@@ -49,6 +49,17 @@ describe String do
     
     it "any non-boolean string should raise on :to_bool" do
       expect { subject.to_bool }.to raise_exception 
+    end
+    
+    it ":to_geo_point should be able to convert a 'lat, lng' value" do
+      result = "33.33, -117.117".to_geo_point
+      result.should be_a_kind_of(GeoPoint)
+      result.latitude.should == 33.33
+      result.longitude.should == -117.117
+    end
+    
+    it ":to_geo_point should raise exception if invalid" do
+      expect { "malformed".to_geo_point }.to raise_exception
     end
   end
 end

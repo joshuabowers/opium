@@ -5,6 +5,11 @@ class ::String
     raise ArgumentError.new("invalid value for Boolean: \"#{self}\"")
   end
   
+  def to_geo_point
+    return GeoPoint.new( self.split(',').map {|c| c.to_f} ) if self =~ /^[+-]?\d+(\.\d+)?\s*,\s*[+-]?\d+(\.\d+)?$/
+    raise ArgumentError.new("invalid value for GeoPoint: \"#{self}\"")
+  end
+  
   class << self
     def to_ruby(object)
       object.to_s if object
