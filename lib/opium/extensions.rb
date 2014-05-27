@@ -1,0 +1,1 @@
+require 'opium/extensions/object'
