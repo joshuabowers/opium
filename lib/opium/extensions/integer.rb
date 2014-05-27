@@ -1,10 +1,10 @@
-class Float
+class Integer
   class << self
     def to_ruby(object)
       if object.is_a? Symbol
-        object.to_s.to_f
+        object.to_s.to_i
       elsif object
-        object.to_f
+        object.to_i
       end
     end
     

@@ -10,8 +10,6 @@ class ::String
       object.to_s if object
     end
     
-    def to_parse(object)
-      object.to_s if object
-    end
+    alias_method :to_parse, :to_ruby
   end
 end
