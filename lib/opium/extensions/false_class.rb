@@ -4,8 +4,4 @@ class FalseClass
   def to_bool
     self
   end
-  
-  class << self
-    
-  end
 end
