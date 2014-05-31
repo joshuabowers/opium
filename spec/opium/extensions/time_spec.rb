@@ -19,11 +19,7 @@ describe Time do
       let(:objects) { [ Time.now.iso8601, DateTime.now, Time.now, Date.today ] }
       it do
         objects.each do |object|
-          if object.is_a? DateTime
-            subject.to_ruby(object).should be_a_kind_of( DateTime )
-          else
-            subject.to_ruby(object).should be_a_kind_of( Time )
-          end
+          subject.to_ruby(object).should be_a_kind_of( Time )
         end
       end
     end

@@ -8,6 +8,7 @@ class Time
   
   class << self
     def to_ruby(object)
+      object = object.utc if object.respond_to? :utc
       object.to_time if object
     end
     
