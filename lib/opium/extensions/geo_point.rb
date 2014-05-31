@@ -1,15 +1,14 @@
 class GeoPoint
   def initialize( value )
-    case value
-    when Hash
-      self.latitude = value[:latitude] || value['latitude']
-      self.longitude = value[:longitude] || value['longitude']
-    when Array
-      self.latitude = value.first
-      self.longitude = value.last
-    else
-      raise ArgumentError.new( "invalid value for GeoPoint: \"#{value}\"" )
-    end
+    self.latitude, self.longitude = *
+      case value
+      when Hash
+        [value[:latitude] || value['latitude'], value[:longitude] || value['longitude']]
+      when Array
+        [value.first, value.last]
+      else
+        raise ArgumentError.new( "invalid value for GeoPoint: \"#{value}\"" )
+      end
   end
   
   attr_accessor :latitude, :longitude
