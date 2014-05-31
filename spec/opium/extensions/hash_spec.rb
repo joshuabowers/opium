@@ -23,5 +23,44 @@ describe Hash do
         it { expect { subject.to_geo_point }.to raise_exception }
       end
     end
+    
+    describe "with __type key" do
+      describe "of Date" do
+        describe "with iso key" do
+          subject { { '__type' => 'Date', 'iso' => DateTime.now.iso8601 } }
+          
+          describe ":to_datetime" do
+            let(:result) { subject.to_datetime }
+            it { result.should be_a_kind_of( DateTime ) }
+          end
+          
+          describe ":to_date" do
+            let(:result) { subject.to_date }
+            it { result.should be_a_kind_of( Date ) }
+          end
+          
+          describe ":to_time" do
+            let(:result) { subject.to_time }
+            it { result.should be_a_kind_of( Time ) }
+          end
+        end
+        
+        describe "without iso key" do
+          subject { { '__type' => 'Date' } }
+
+          describe ":to_datetime" do
+            it { expect { subject.to_datetime }.to raise_exception }
+          end
+          
+          describe ":to_date" do
+            it { expect { subject.to_datetime }.to raise_exception }
+          end
+          
+          describe ":to_time" do
+            it { expect { subject.to_datetime }.to raise_exception }
+          end
+        end
+      end
+    end
   end
 end

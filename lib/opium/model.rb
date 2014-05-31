@@ -1,4 +1,5 @@
 require 'active_support/concern'
+require 'active_support/core_ext/string'
 require 'opium/model/naming'
 require 'opium/model/callbacks'
 require 'opium/model/validations'
