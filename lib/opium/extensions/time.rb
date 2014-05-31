@@ -1,4 +1,4 @@
-class Date
+class Time
   def to_parse
     {
       '__type' => 'Date',
@@ -8,11 +8,11 @@ class Date
   
   class << self
     def to_ruby(object)
-      object.to_date if object
+      object.to_time if object
     end
     
     def to_parse(object)
-      object.to_date.to_parse if object
+      object.to_time.to_parse if object
     end
   end
 end
