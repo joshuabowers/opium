@@ -15,6 +15,10 @@ module Opium
         end
       end
       
+      def readonly?
+        self.readonly == true
+      end
+      
       private
       
       attr_writer :name, :type, :default, :readonly

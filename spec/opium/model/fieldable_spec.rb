@@ -1,13 +1,18 @@
 require 'spec_helper'
 
 describe Opium::Model::Fieldable do
-  describe "in a model without fields" do
+  describe "in a model without explicit fields" do
     let( :model ) { Class.new { include Opium::Model } }
     
     it { model.should respond_to( :fields ).with(0).arguments }
-    it "should have no #fields" do
+    it "should have #fields [:id, :created_at, :updated_at]" do
       model.fields.should be_a_kind_of( Hash )
-      model.fields.should be_empty
+      model.fields.should_not be_empty
+      model.fields.keys.should =~ %w[id created_at updated_at]
+      model.fields.values.each do |f|
+        f.should be_a_kind_of( Opium::Model::Field )
+        f.should be_readonly
+      end
     end
   end
   
@@ -25,11 +30,11 @@ describe Opium::Model::Fieldable do
     it { model.should respond_to( :field ).with(2).arguments }
   
     it { model.should respond_to( :fields ).with(0).arguments }
-    
+        
     it "should have #fields for every #field" do
       model.fields.should be_a_kind_of( Hash )
       model.fields.should_not be_empty
-      model.fields.keys.should == %w[name price no_cast cannot_be_directly_changed]
+      model.fields.keys.should =~ %w[name price no_cast cannot_be_directly_changed id created_at updated_at]
       model.fields.values.each do |f|
         f.should_not be_nil
         f.should be_a_kind_of( Opium::Model::Field )
@@ -43,7 +48,7 @@ describe Opium::Model::Fieldable do
     end
     
     it "each #fields should have the type they were defined with" do
-      expected = {name: String, price: Float, no_cast: Object, cannot_be_directly_changed: Object}
+      expected = {name: String, price: Float, no_cast: Object, cannot_be_directly_changed: Object, id: String, created_at: DateTime, updated_at: DateTime}
       model.fields.values.each do |f|
         f.type.should == expected[ f.name.to_sym ]
       end
@@ -59,7 +64,7 @@ describe Opium::Model::Fieldable do
     it { model.should respond_to( :default_attributes ) }
     
     it "default_attributes should return its #fields default" do
-      expected = {"name" => "default", "price" => 10.0, "no_cast" => nil, "cannot_be_directly_changed" => nil}
+      expected = {"name" => "default", "price" => 10.0, "no_cast" => nil, "cannot_be_directly_changed" => nil, "id" => nil, "created_at" => nil, "updated_at" => nil}
       model.default_attributes.should == expected
     end
   
@@ -92,8 +97,7 @@ describe Opium::Model::Fieldable do
         end
         
         it "should call the :to_ruby conversion method on the field type on setting" do
-          model.fields[field_name].type.should_receive(:to_ruby).with(model.fields[field_name].default)
-          model.fields[field_name].type.should_receive(:to_ruby).with("42")
+          model.fields[field_name].type.should_receive(:to_ruby).at_least(:once)
           subject.send(:"#{field_name}=", "42")
         end
         

@@ -16,24 +16,36 @@ describe Opium::Model::Serialization do
   
   describe "instance" do
     describe "with no data" do
-      let( :params ) { { "name" => nil, "price" => nil } }
+      let( :params ) { { "id" => nil, "created_at" => nil, "updated_at" => nil, "name" => nil, "price" => nil } }
       subject { model.new }
       its(:as_json) { should == params }
-      its(:to_json) { should == params.to_json }
+      describe "to_json" do
+        it "should have no values in the JSON data" do
+          JSON.parse(subject.to_json).should include( params )
+        end
+      end
     end
     
     describe "with partial data" do
       let( :params ) { { "name" => "test", "price" => nil } }
       subject { model.new( name: "test" ) }
-      its(:as_json) { should == params }
-      its(:to_json) { should == params.to_json }
+      its(:as_json) { should include( params ) }
+      describe "to_json" do
+        it "should have the set values in the JSON data" do
+          JSON.parse(subject.to_json).should include( params )
+        end
+      end
     end
     
     describe "with full data" do
       let( :params ) { { "name" => "test", "price" => 75.0 } }
       subject { model.new( params ) }
-      its(:as_json) { should == params }
-      its(:to_json) { should == params.to_json }
+      its(:as_json) { should include( params ) }
+      describe "to_json" do
+        it "should have all values in the JSON data" do
+          JSON.parse(subject.to_json).should include( params )
+        end
+      end
     end
   end
 end

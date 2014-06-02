@@ -5,6 +5,12 @@ module Opium
     module Fieldable
       extend ActiveSupport::Concern
       
+      included do
+        field :id, type: String, readonly: true
+        field :created_at, type: DateTime, readonly: true
+        field :updated_at, type: DateTime, readonly: true
+      end
+      
       module ClassMethods
         def field( name, options = {} )
           name = name.to_sym
