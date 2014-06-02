@@ -8,7 +8,7 @@ module Opium
       module ClassMethods
         def field( name, options = {} )
           name = name.to_sym
-          fields[name] = Field.new( name, options[:type] || Object, options[:default] )
+          fields[name] = Field.new( name, options[:type] || Object, options[:default], options[:readonly] || false )
           class_eval do
             define_attribute_methods [name]
             define_method(name) do
@@ -22,6 +22,7 @@ module Opium
                 send( "#{name}_will_change!" ) unless self.attributes[name] == converted
                 self.attributes[name] = converted
               end
+              send(:private, "#{name}=") if options[:readonly]
             end
           end
           fields[name]

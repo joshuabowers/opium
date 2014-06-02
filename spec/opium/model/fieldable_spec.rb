@@ -18,6 +18,7 @@ describe Opium::Model::Fieldable do
         field :name, type: String, default: "default"
         field :price, type: Float, default: -> { 5.0 * 2 }
         field :no_cast
+        field :cannot_be_directly_changed, readonly: true
       end
     end
   
@@ -28,7 +29,7 @@ describe Opium::Model::Fieldable do
     it "should have #fields for every #field" do
       model.fields.should be_a_kind_of( Hash )
       model.fields.should_not be_empty
-      model.fields.keys.should == %w[name price no_cast]
+      model.fields.keys.should == %w[name price no_cast cannot_be_directly_changed]
       model.fields.values.each do |f|
         f.should_not be_nil
         f.should be_a_kind_of( Opium::Model::Field )
@@ -37,12 +38,12 @@ describe Opium::Model::Fieldable do
     
     it "each #fields should have a #name, #type, #default" do
       model.fields.values.each do |f|
-        f.should respond_to(:name, :type, :default)
+        f.should respond_to(:name, :type, :default, :readonly)
       end
     end
     
     it "each #fields should have the type they were defined with" do
-      expected = {name: String, price: Float, no_cast: Object}
+      expected = {name: String, price: Float, no_cast: Object, cannot_be_directly_changed: Object}
       model.fields.values.each do |f|
         f.type.should == expected[ f.name.to_sym ]
       end
@@ -58,12 +59,16 @@ describe Opium::Model::Fieldable do
     it { model.should respond_to( :default_attributes ) }
     
     it "default_attributes should return its #fields default" do
-      expected = {"name" => "default", "price" => 10.0, "no_cast" => nil}
+      expected = {"name" => "default", "price" => 10.0, "no_cast" => nil, "cannot_be_directly_changed" => nil}
       model.default_attributes.should == expected
     end
   
     describe "instance" do
       subject { model.new }
+      
+      it "should not have setters for readonly fields" do
+        should_not respond_to( :cannot_be_directly_changed= ) 
+      end
       
       {name: "42", price: 42.0}.each do |field_name, expected_value|
         it "should have a getter and setter for its fields" do

@@ -1,11 +1,11 @@
 module Opium
   module Model
     class Field
-      def initialize(name, type, default)
-        self.name, self.type, self.default = name, type, default
+      def initialize(name, type, default, readonly)
+        self.name, self.type, self.default, self.readonly = name, type, default, readonly
       end
       
-      attr_reader :name, :type
+      attr_reader :name, :type, :readonly
       
       def default
         if @default.respond_to? :call
@@ -17,7 +17,7 @@ module Opium
       
       private
       
-      attr_writer :name, :type, :default
+      attr_writer :name, :type, :default, :readonly
     end
   end
 end
