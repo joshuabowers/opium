@@ -1,4 +1,4 @@
-class DateTime
+class DateTime < Date
   def to_parse
     {
       '__type' => 'Date',
