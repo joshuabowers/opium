@@ -8,6 +8,15 @@ module Opium
       included do
       end
       
+      class ParseError < StandardError
+        def initialize( code, error )
+          super( error )
+          @code = code
+        end
+        
+        attr_reader :code
+      end
+      
       module ClassMethods
         def connection
           @@connection ||= Faraday.new( url: 'https://api.parse.com/1/' ) do |faraday|
@@ -29,6 +38,8 @@ module Opium
           @resource_name ||= "#{object_prefix}/#{model_name.camelize}"
           resource_id ? [@resource_name, resource_id].join('/') : @resource_name
         end
+        
+        private
         
         # This is going to need to distinguish between two different usage scenarios:
         # 1) data is a resource id:
@@ -66,12 +77,9 @@ module Opium
         def check_for_error(&block)
           raise ArgumentError, "no block given" unless block_given?
           result = block.call.with_indifferent_access
-          if result[:code] && result[:error]
-          end
+          raise ParseError.new( result[:code], result[:error] ) if result[:code] && result[:error]
           result
         end
-                        
-        private :http_get, :http_post, :http_put, :http_delete
       end
     end
   end
