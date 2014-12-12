@@ -19,6 +19,14 @@ describe Opium::Model do
     model.should respond_to( :field ).with(2).arguments
   end
   
+  it "should respond_to :delete_all" do
+    model.should respond_to( :delete_all ).with(1).argument
+  end
+  
+  it "should respond_to :find" do
+    model.should respond_to( :find ).with(1).argument
+  end
+  
   describe "instance" do
     subject { model.new }
     
