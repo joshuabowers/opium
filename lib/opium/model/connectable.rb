@@ -40,37 +40,20 @@ module Opium
         end
         
         private
-        
-        # This is going to need to distinguish between two different usage scenarios:
-        # 1) data is a resource id:
-        # => in this scenario, the resource id should be passed off to #resource_name.
-        # 2) data is a query:
-        # => in this scenario, the query needs to be url-encoded and added as a param to the request.
-        def http_get( options = {} )
-          raise ArgumentError, "expecting either :id or :query" unless options[:id] || options[:query]
+                
+        def http( method, options )
           check_for_error do
-            connection.get resource_name( options[:id] ) do |request|
+            connection.send( method, resource_name( options[:id] ) ) do |request|
               if options[:query]
                 options[:query].each do |key, value|
                   request.params[key] = value
                 end
               end
+              if [:post, :put].any? method
+                request.headers['Content-Type'] = 'application/json'
+                request.body = options[:data]
+              end
             end
-          end
-        end
-        
-        def http_post
-          check_for_error do
-          end
-        end
-        
-        def http_put
-          check_for_error do
-          end
-        end
-        
-        def http_delete
-          check_for_error do
           end
         end
         
