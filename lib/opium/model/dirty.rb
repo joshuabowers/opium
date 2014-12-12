@@ -20,6 +20,10 @@ module Opium
           @changed_attributes = ActiveSupport::HashWithIndifferentAccess.new      
         end
       end
+      
+      def save( options = {} )
+        (defined?( super ) ? super( options ) : true).tap { changes_applied }
+      end
     end
   end
 end

@@ -30,6 +30,8 @@ describe Opium::Model::Fieldable do
     it { model.should respond_to( :field ).with(2).arguments }
   
     it { model.should respond_to( :fields ).with(0).arguments }
+    
+    it { model.should respond_to( :fields_by_parse_name ).with(0).arguments }
         
     it "should have #fields for every #field" do
       model.fields.should be_a_kind_of( Hash )
@@ -41,9 +43,9 @@ describe Opium::Model::Fieldable do
       end 
     end
     
-    it "each #fields should have a #name, #type, #default" do
+    it "each #fields should have a #name, #as, #type, #default, #readonly" do
       model.fields.values.each do |f|
-        f.should respond_to(:name, :type, :default, :readonly)
+        f.should respond_to(:name, :as, :type, :default, :readonly)
       end
     end
     
@@ -58,6 +60,20 @@ describe Opium::Model::Fieldable do
       expected = {name: "default", price: 10.0, no_cast: nil}
       model.fields.values.each do |f|
         f.default.should == expected[ f.name.to_sym ]
+      end
+    end
+    
+    it "each #fields should convert ruby names to parse names" do
+      expected = {name: "name", price: "price", no_cast: "noCast", cannot_be_directly_changed: "cannotBeDirectlyChanged", id: "objectId", created_at: "createdAt", updated_at: "updatedAt"}
+      model.fields.values.each do |f|
+        f.name_to_parse.should == expected[ f.name.to_sym ]
+      end
+    end
+    
+    it "should return the appropriate field from #parse_field_names" do
+      expected = {name: :name, price: :price, noCast: :no_cast, cannotBeDirectlyChanged: :cannot_be_directly_changed, objectId: :id, createdAt: :created_at, updatedAt: :updated_at}
+      model.fields_by_parse_name.each do |parse_name, field|
+        field.name == expected[ parse_name.to_sym ]
       end
     end
     

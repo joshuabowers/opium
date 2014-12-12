@@ -16,8 +16,14 @@ module Opium
         end
       end
       
-      def save( skip_validations = false )
-        
+      def save( options = {} )
+        if !options[:validates] || valid?
+          if new_record?
+            create
+          else
+            update
+          end
+        end && true
       end
       
       def destroy
@@ -26,6 +32,32 @@ module Opium
       
       def delete
         
+      end
+      
+      def new_record?
+        self.id.nil?
+      end
+      
+      def persisted?
+        !self.changed?
+      end
+      
+      private
+      
+      # Problem which needs addressing: both create and update need to be able to obtain a set of parse converted
+      # attributes to pass over the HTTP channel. This would require both to use the parse names for the associated
+      # fields, as well as the to_parse converted values for those fields.
+      def create
+        self.attributes = self.class.http_post self.to_json( except: [:id, :created_at, :updated_at] )
+      end
+      
+      def update
+        # self.attributes = self.class.http_put self.to_json( except: [:id, :created_at, :udpated_at] )
+      end
+      
+      def attributes_to_parse( options = {} )
+        options[:except] ||= fields.select {|f| f.readonly? }.map {|f| f.name} if options[:readonly]
+        self.as_json( options ).map {|k, v| [fields[k].name_to_parse, v.to_parse]}
       end
     end
   end

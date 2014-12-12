@@ -1,5 +1,7 @@
 require 'active_support/concern'
 require 'active_support/core_ext/string'
+require 'active_support/core_ext/hash/indifferent_access'
+require 'active_support/inflector'
 require 'opium/model/naming'
 require 'opium/model/connectable'
 require 'opium/model/persistable'

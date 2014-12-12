@@ -7,7 +7,7 @@ module Opium
       end
       
       module ClassMethods
-        def find( ids )
+        def find( id )
           
         end
         

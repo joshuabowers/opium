@@ -13,4 +13,5 @@ end
 
 require 'pry'
 require 'rspec/its'
+require 'webmock/rspec'
 require 'opium'

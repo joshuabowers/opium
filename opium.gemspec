@@ -23,6 +23,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec"
   spec.add_development_dependency "rspec-nc"
   spec.add_development_dependency "rspec-its"
+  spec.add_development_dependency "webmock"
   spec.add_development_dependency "guard"
   spec.add_development_dependency "guard-rspec"
   spec.add_development_dependency "pry"
@@ -33,4 +34,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "activemodel", "~> 3.2.18"
   spec.add_dependency "gem_config", "~> 0.3.1"
   spec.add_dependency "faraday", "~> 0.9.0"
+  spec.add_dependency "faraday_middleware", "~> 0.9.1"
 end

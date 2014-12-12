@@ -6,7 +6,7 @@ module Opium
       extend ActiveSupport::Concern
       
       included do
-        field :id, type: String, readonly: true
+        field :id, type: String, readonly: true, as: :object_id
         field :created_at, type: DateTime, readonly: true
         field :updated_at, type: DateTime, readonly: true
       end
@@ -14,7 +14,7 @@ module Opium
       module ClassMethods
         def field( name, options = {} )
           name = name.to_sym
-          fields[name] = Field.new( name, options[:type] || Object, options[:default], options[:readonly] || false )
+          fields[name] = Field.new( name, options[:type] || Object, options[:default], options[:readonly] || false, options[:as] )
           class_eval do
             define_attribute_methods [name]
             define_method(name) do
@@ -36,6 +36,10 @@ module Opium
         
         def fields
           @fields ||= ActiveSupport::HashWithIndifferentAccess.new
+        end
+        
+        def fields_by_parse_name
+          @fields_by_parse_name ||= fields.map {|name, field| [field.name_to_parse, field]}.to_h.with_indifferent_access
         end
         
         def default_attributes
