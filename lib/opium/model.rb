@@ -1,6 +1,7 @@
 require 'active_support/concern'
 require 'active_support/core_ext/string'
 require 'opium/model/naming'
+require 'opium/model/connectable'
 require 'opium/model/persistable'
 require 'opium/model/callbacks'
 require 'opium/model/validations'
@@ -18,6 +19,7 @@ module Opium
     end
     
     include Naming
+    include Connectable
     include Persistable
     include Callbacks
     include Validations

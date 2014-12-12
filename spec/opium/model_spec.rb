@@ -27,6 +27,10 @@ describe Opium::Model do
     model.should respond_to( :find ).with(1).argument
   end
   
+  it "should respond_to :connection" do
+    model.should respond_to( :connection )
+  end
+  
   describe "instance" do
     subject { model.new }
     
