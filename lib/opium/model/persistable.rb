@@ -39,7 +39,7 @@ module Opium
       end
       
       def persisted?
-        !self.changed?
+        !new_record? && !self.changed?
       end
       
       private

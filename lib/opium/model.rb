@@ -34,10 +34,11 @@ module Opium
     module ClassMethods
       
     end
-    
+
     def initialize( attributes = {} )
       @attributes = ActiveSupport::HashWithIndifferentAccess.new
       self.attributes = self.class.default_attributes.merge( attributes )
-    end
+      reset_changes
+    end    
   end
 end
