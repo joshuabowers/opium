@@ -54,11 +54,6 @@ module Opium
       def update
         # self.attributes = self.class.http_put self.to_json( except: [:id, :created_at, :udpated_at] )
       end
-      
-      def attributes_to_parse( options = {} )
-        options[:except] ||= fields.select {|f| f.readonly? }.map {|f| f.name} if options[:readonly]
-        self.as_json( options ).map {|k, v| [fields[k].name_to_parse, v.to_parse]}
-      end
     end
   end
 end

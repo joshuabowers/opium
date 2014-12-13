@@ -72,7 +72,7 @@ module Opium
         end
         
         def convert_parse_field_names(&block)
-          yield.map {|key, value| [self.fields_by_parse_name[key].name.to_s, value]}.to_h
+          Hash[*yield.map {|key, value| [self.fields_by_parse_name[key].name.to_s, value]}.flatten]
         end
       end
     end
