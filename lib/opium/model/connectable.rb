@@ -44,6 +44,10 @@ module Opium
           http( :post, data: data )
         end
         
+        def http_put( data )
+          http( :put, data: data )          
+        end
+        
         private
                 
         def http( method, options )
@@ -57,6 +61,7 @@ module Opium
               if [:post, :put].include? method
                 request.headers['Content-Type'] = 'application/json'
                 request.body = options[:data]
+                request.body = request.body.to_json unless request.body.is_a?(String)
               end
             end
           end

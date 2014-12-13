@@ -54,5 +54,32 @@ describe Opium::Model::Persistable do
         subject.should be_persisted
       end
     end
+    
+    describe 'when saving an existing model' do
+      subject { Game.new( id: 'abcd1234', created_at: Time.now - 3600, title: 'Skyrim' ) }
+      
+      its(:id) { should_not be_nil }
+      its(:created_at) { should_not be_nil }
+      
+      it { should_not be_a_new_record }
+      it { should be_persisted }
+      
+      it 'should have its updated_at fields updated' do
+        stub_request( :put, 'https://api.parse.com/1/classes/Game' ).with(
+          body: { releasedOn: { '__type' => 'Date', 'iso' => '2011-11-11' }, releasePrice: 59.99 },
+          headers: { 'Content-Type' => 'application/json' }
+        ).to_return(
+          body: { updatedAt: Time.now.to_s }.to_json,
+          status: 200,
+          headers: { 'Content-Type' => 'application/json', Location: 'https://api.parse.com/1/classes/Game/abcd1234' }
+        )
+        
+        subject.attributes = { released_on: '2011-11-11', release_price: 59.99 }
+        subject.save.should == true
+        subject.should_not be_a_new_record
+        subject.should be_persisted
+        subject.updated_at.should_not be_nil
+      end
+    end
   end
 end
