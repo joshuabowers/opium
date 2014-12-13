@@ -1,6 +1,3 @@
-require 'active_support/concern'
-require 'active_model'
-
 module Opium
   module Model
     module Naming
