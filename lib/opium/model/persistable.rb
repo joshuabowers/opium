@@ -26,13 +26,13 @@ module Opium
         end && true
       end
       
-      def destroy
-        
-      end
-      
       def delete
-        
+        self.tap do
+          self.class.http_delete id unless new_record?
+          self.freeze
+        end
       end
+      alias_method :destroy, :delete
       
       def new_record?
         self.id.nil?
@@ -49,7 +49,7 @@ module Opium
       end
       
       def update
-        self.attributes = self.class.http_put self.attributes_to_parse( only: changes.keys )
+        self.attributes = self.class.http_put id, self.attributes_to_parse( only: changes.keys )
       end
     end
   end

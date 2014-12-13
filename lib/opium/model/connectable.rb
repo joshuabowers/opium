@@ -44,8 +44,12 @@ module Opium
           http( :post, data: data )
         end
         
-        def http_put( data )
-          http( :put, data: data )          
+        def http_put( id, data )
+          http( :put, id: id, data: data )          
+        end
+        
+        def http_delete( id )
+          http( :delete, id: id )
         end
         
         private
@@ -69,7 +73,8 @@ module Opium
         
         def check_for_error(&block)
           raise ArgumentError, "no block given" unless block_given?
-          result = yield.body.with_indifferent_access
+          result = yield.body
+          result = result.is_a?(Hash) ? result.with_indifferent_access : {}
           raise ParseError.new( result[:code], result[:error] ) if result[:code] && result[:error]
           result
         end
