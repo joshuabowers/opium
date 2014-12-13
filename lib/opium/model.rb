@@ -39,6 +39,11 @@ module Opium
       @attributes = ActiveSupport::HashWithIndifferentAccess.new
       self.attributes = self.class.default_attributes.merge( attributes )
       reset_changes
-    end    
+    end
+    
+    def inspect
+      inspected_fields = self.attributes.map {|k, v| [k, v.inspect].join(': ')}.join(', ')
+      "#<#{self.class.model_name} #{inspected_fields}>"
+    end
   end
 end
