@@ -28,10 +28,10 @@ describe Opium::Model::Fieldable do
     end
   
     it { model.should respond_to( :field ).with(2).arguments }
-  
     it { model.should respond_to( :fields ).with(0).arguments }
-    
     it { model.should respond_to( :fields_by_parse_name ).with(0).arguments }
+    it { model.should respond_to( :ruby_canonical_field_names ) }
+    it { model.should respond_to( :parse_canonical_field_names ) }
         
     it "should have #fields for every #field" do
       model.fields.should be_a_kind_of( Hash )
@@ -70,10 +70,24 @@ describe Opium::Model::Fieldable do
       end
     end
     
-    it "should return the appropriate field from #parse_field_names" do
+    it "should return the appropriate field from #fields_by_parse_name" do
       expected = {name: :name, price: :price, noCast: :no_cast, cannotBeDirectlyChanged: :cannot_be_directly_changed, objectId: :id, createdAt: :created_at, updatedAt: :updated_at}
       model.fields_by_parse_name.each do |parse_name, field|
         field.name == expected[ parse_name.to_sym ]
+      end
+    end
+    
+    it "should return the canonical ruby form of a given field name" do
+      expected = {name: 'name', price: 'price', noCast: 'no_cast', cannotBeDirectlyChanged: 'cannot_be_directly_changed', objectId: 'id', createdAt: 'created_at', updatedAt: 'updated_at'}
+      expected.each do |field_alias, expected_field_name|
+        model.ruby_canonical_field_names[field_alias].should == expected_field_name
+      end
+    end
+    
+    it "should return the canonical parse form of a given field name" do
+      expected = {name: 'name', price: 'price', no_cast: 'noCast', cannot_be_directly_changed: 'cannotBeDirectlyChanged', id: 'objectId', created_at: 'createdAt', updated_at: 'updatedAt'}
+      expected.each do |field_alias, expected_field_name|
+        model.parse_canonical_field_names[field_alias].should == expected_field_name
       end
     end
     

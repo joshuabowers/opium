@@ -20,7 +20,7 @@ module Opium
       end
       
       def name_to_parse
-        (self.as || self.name).to_s.camelize(:lower)
+        @name_to_parse ||= (self.as || self.name).to_s.camelize(:lower)
       end
       
       private

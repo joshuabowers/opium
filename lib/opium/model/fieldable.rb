@@ -15,6 +15,8 @@ module Opium
         def field( name, options = {} )
           name = name.to_sym
           fields[name] = Field.new( name, options[:type] || Object, options[:default], options[:readonly] || false, options[:as] )
+          ruby_canonical_field_names[name] = ruby_canonical_field_names[fields[name].name_to_parse] = name.to_s
+          parse_canonical_field_names[name] = parse_canonical_field_names[fields[name].name_to_parse] = fields[name].name_to_parse.to_s
           class_eval do
             define_attribute_methods [name]
             define_method(name) do
@@ -40,6 +42,14 @@ module Opium
         
         def fields_by_parse_name
           @fields_by_parse_name ||= ActiveSupport::HashWithIndifferentAccess[ *fields.map {|name, field| [field.name_to_parse, field]}.flatten ]
+        end
+        
+        def ruby_canonical_field_names
+          @ruby_canonical_field_names ||= ActiveSupport::HashWithIndifferentAccess.new
+        end
+        
+        def parse_canonical_field_names
+          @parse_canonical_field_names ||= ActiveSupport::HashWithIndifferentAccess.new
         end
         
         def default_attributes
