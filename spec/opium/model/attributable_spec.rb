@@ -31,8 +31,8 @@ describe Opium::Model::Attributable do
         subject.attributes_to_parse( except: [:id, :updated_at] ).should =~ { 'title' => 'Little Brother', 'createdAt' => subject.created_at.to_parse }
       end
       
-      it 'when called with readonly, should exclude all readonly fields' do
-        subject.attributes_to_parse( readonly: true ).should =~ { 'title' => 'Little Brother' }
+      it 'when called with not_readonly, should exclude all readonly fields' do
+        subject.attributes_to_parse( not_readonly: true ).should =~ { 'title' => 'Little Brother' }
       end
     end
   end
