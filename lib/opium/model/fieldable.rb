@@ -40,10 +40,6 @@ module Opium
           @fields ||= ActiveSupport::HashWithIndifferentAccess.new
         end
         
-        def fields_by_parse_name
-          @fields_by_parse_name ||= ActiveSupport::HashWithIndifferentAccess[ *fields.map {|name, field| [field.name_to_parse, field]}.flatten ]
-        end
-        
         def ruby_canonical_field_names
           @ruby_canonical_field_names ||= ActiveSupport::HashWithIndifferentAccess.new
         end

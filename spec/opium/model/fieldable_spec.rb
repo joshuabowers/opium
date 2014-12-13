@@ -29,7 +29,6 @@ describe Opium::Model::Fieldable do
   
     it { model.should respond_to( :field ).with(2).arguments }
     it { model.should respond_to( :fields ).with(0).arguments }
-    it { model.should respond_to( :fields_by_parse_name ).with(0).arguments }
     it { model.should respond_to( :ruby_canonical_field_names ) }
     it { model.should respond_to( :parse_canonical_field_names ) }
         
@@ -69,14 +68,7 @@ describe Opium::Model::Fieldable do
         f.name_to_parse.should == expected[ f.name.to_sym ]
       end
     end
-    
-    it "should return the appropriate field from #fields_by_parse_name" do
-      expected = {name: :name, price: :price, noCast: :no_cast, cannotBeDirectlyChanged: :cannot_be_directly_changed, objectId: :id, createdAt: :created_at, updatedAt: :updated_at}
-      model.fields_by_parse_name.each do |parse_name, field|
-        field.name == expected[ parse_name.to_sym ]
-      end
-    end
-    
+        
     it "should return the canonical ruby form of a given field name" do
       expected = {name: 'name', price: 'price', noCast: 'no_cast', cannotBeDirectlyChanged: 'cannot_be_directly_changed', objectId: 'id', createdAt: 'created_at', updatedAt: 'updated_at'}
       expected.each do |field_alias, expected_field_name|
