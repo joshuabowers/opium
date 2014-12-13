@@ -39,7 +39,7 @@ module Opium
         end
         
         def fields_by_parse_name
-          @fields_by_parse_name ||= fields.map {|name, field| [field.name_to_parse, field]}.to_h.with_indifferent_access
+          @fields_by_parse_name ||= ActiveSupport::HashWithIndifferentAccess[ *fields.map {|name, field| [field.name_to_parse, field]}.flatten ]
         end
         
         def default_attributes
