@@ -48,7 +48,7 @@ module Opium
       # attributes to pass over the HTTP channel. This would require both to use the parse names for the associated
       # fields, as well as the to_parse converted values for those fields.
       def create
-        self.attributes = self.class.http_post self.to_json( except: [:id, :created_at, :updated_at] )
+        self.attributes = self.class.http_post self.attributes_to_parse( except: [:id, :created_at, :updated_at] ).to_json
       end
       
       def update

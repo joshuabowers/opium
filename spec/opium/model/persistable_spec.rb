@@ -22,17 +22,16 @@ describe Opium::Model::Persistable do
   
   describe 'within a model' do
     before do
-      stub_const( 'Book', Class.new do
+      stub_const( 'Game', Class.new do
         include Opium::Model
         field :title, type: String
-        field :author, type: String
-        field :pages, type: Integer
-        field :price, type: Float        
+        field :released_on, type: Date
+        field :release_price, type: Float
       end )
     end
     
     describe 'when saving a new model' do
-      subject { Book.new( title: 'Little Brother', author: 'Cory Doctorow', pages: 382, price: 17.95 ) }
+      subject { Game.new( title: 'Skyrim', released_on: '2011-11-11', release_price: '59.99' ) }
       
       its(:id) { should be_nil }
       its(:created_at) { should be_nil }
@@ -41,13 +40,13 @@ describe Opium::Model::Persistable do
       it { should_not be_persisted }
       
       it 'should have its object_id and created_at fields updated' do
-        stub_request( :post, 'https://api.parse.com/1/classes/Book' ).with(
-          body: { title: 'Little Brother', author: 'Cory Doctorow', pages: 382, price: 17.95 },
+        stub_request( :post, 'https://api.parse.com/1/classes/Game' ).with(
+          body: { title: 'Skyrim', releasedOn: { '__type' => 'Date', 'iso' => '2011-11-11' }, releasePrice: 59.99 },
           headers: { 'Content-Type' => 'application/json' }
         ).to_return( 
           body: { objectId: 'abcd1234', createdAt: Time.now.to_s }.to_json, 
           status: 200, 
-          headers: { 'Content-Type' => 'application/json', Location: 'https://api.parse.com/1/classes/Book/abcd1234' } 
+          headers: { 'Content-Type' => 'application/json', Location: 'https://api.parse.com/1/classes/Game/abcd1234' } 
         )
         
         subject.save.should == true
