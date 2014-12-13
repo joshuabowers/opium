@@ -23,13 +23,13 @@ module Opium
     include Naming
     include Connectable
     include Persistable
-    include Callbacks
     include Validations
     include Dirty
     include Fieldable
     include Serialization
     include Attributable
     include Queryable
+    include Callbacks
     
     module ClassMethods
       
