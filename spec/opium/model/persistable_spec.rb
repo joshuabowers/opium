@@ -14,6 +14,7 @@ describe Opium::Model::Persistable do
     subject { model.new }
     
     it { should respond_to( :save ).with(1).argument }
+    it { should respond_to( :save!).with(0).arguments }
     it { should respond_to( :destroy ) }
     it { should respond_to( :delete ) }
     it { should respond_to( :new_record? ) }
@@ -27,6 +28,8 @@ describe Opium::Model::Persistable do
         field :title, type: String
         field :released_on, type: Date
         field :release_price, type: Float
+        
+        validates :release_price, numericality: { greater_than: 0 }
       end )
     end
     
@@ -79,6 +82,15 @@ describe Opium::Model::Persistable do
         subject.should_not be_a_new_record
         subject.should be_persisted
         subject.updated_at.should_not be_nil
+      end
+    end
+    
+    describe 'when saving an invalid model' do
+      subject { Game.new( title: 'Skyrim', release_price: -10.99 ) }
+      
+      it ':save should return false and have :errors' do
+        subject.save.should ==  false
+        subject.errors.should_not be_empty
       end
     end
     

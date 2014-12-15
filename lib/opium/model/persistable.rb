@@ -17,13 +17,11 @@ module Opium
       end
       
       def save( options = {} )
-        if !options[:validates] || valid?
-          if new_record?
-            create
-          else
-            update
-          end
-        end && true
+        create_or_update( options )
+      end
+      
+      def save!
+        
       end
       
       def delete
@@ -43,6 +41,16 @@ module Opium
       end
       
       private
+      
+      def create_or_update( options )
+        if options[:validates] == false || valid?
+          if new_record?
+            create
+          else
+            update
+          end
+        end.present? && true
+      end
       
       def create
         self.attributes = self.class.http_post self.attributes_to_parse( except: [:id, :created_at, :updated_at] )
