@@ -61,9 +61,6 @@ describe Opium::Model::Persistable do
       its(:id) { should_not be_nil }
       its(:created_at) { should_not be_nil }
       
-      it { should_not be_a_new_record }
-      it { should be_persisted }
-      
       it 'should have its updated_at fields updated' do
         stub_request( :put, 'https://api.parse.com/1/classes/Game/abcd1234' ).with(
           body: { releasedOn: { '__type' => 'Date', 'iso' => '2011-11-11' }, releasePrice: 59.99 },
@@ -74,7 +71,10 @@ describe Opium::Model::Persistable do
           headers: { 'Content-Type' => 'application/json', Location: 'https://api.parse.com/1/classes/Game/abcd1234' }
         )
         
+        subject.should_not be_a_new_record
+        subject.should be_persisted
         subject.attributes = { released_on: '2011-11-11', release_price: 59.99 }
+        subject.should_not be_persisted
         subject.save.should == true
         subject.should_not be_a_new_record
         subject.should be_persisted
