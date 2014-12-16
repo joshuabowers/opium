@@ -49,7 +49,7 @@ module Opium
           else
             update
           end
-        end.present? && true
+        end.present?
       end
       
       def create
