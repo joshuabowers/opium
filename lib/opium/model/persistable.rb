@@ -6,6 +6,9 @@ module Opium
       included do
       end
       
+      class InvalidError < StandardError
+      end
+      
       module ClassMethods
         def destroy_all( query = nil )
           
@@ -21,7 +24,7 @@ module Opium
       end
       
       def save!
-        
+        create_or_update( validates: true ) || raise( InvalidError, 'failed to save, as model is invalid' )
       end
       
       def delete

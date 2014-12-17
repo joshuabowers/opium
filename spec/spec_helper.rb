@@ -15,3 +15,5 @@ require 'pry'
 require 'rspec/its'
 require 'webmock/rspec'
 require 'opium'
+
+I18n.config.enforce_available_locales = true

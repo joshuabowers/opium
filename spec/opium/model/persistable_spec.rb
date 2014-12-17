@@ -33,16 +33,29 @@ describe Opium::Model::Persistable do
       end )
     end
     
+    describe ':new_record?' do
+      subject { Game.new }
+      
+      it 'should be true in a model without an id' do
+        subject.should be_a_new_record
+      end
+      
+      it 'should be false in a model with an id' do
+        subject.attributes = { id: 'abcd1234' }
+        subject.should_not be_a_new_record
+      end
+    end
+    
+    describe 'when changing the attributes of a model' do
+      subject { Game.new( id: 'abcd1234' ) }
+      
+      it { expect { subject.attributes = { title: 'Skyrim' } }.to change( subject, :persisted? ).from(true).to(false) }
+    end
+    
     describe 'when saving a new model' do
       subject { Game.new( title: 'Skyrim', released_on: '2011-11-11', release_price: '59.99' ) }
       
-      its(:id) { should be_nil }
-      its(:created_at) { should be_nil }
-      
-      it { should be_a_new_record }
-      it { should_not be_persisted }
-      
-      it 'should have its object_id and created_at fields updated' do
+      before do
         stub_request( :post, 'https://api.parse.com/1/classes/Game' ).with(
           body: { title: 'Skyrim', releasedOn: { '__type' => 'Date', 'iso' => '2011-11-11' }, releasePrice: 59.99 },
           headers: { 'Content-Type' => 'application/json' }
@@ -51,7 +64,15 @@ describe Opium::Model::Persistable do
           status: 200, 
           headers: { 'Content-Type' => 'application/json', Location: 'https://api.parse.com/1/classes/Game/abcd1234' } 
         )
-        
+      end
+      
+      its(:id) { should be_nil }
+      its(:created_at) { should be_nil }
+      
+      it { should be_a_new_record }
+      it { should_not be_persisted }
+      
+      it 'should have its object_id and created_at fields updated' do
         subject.save.should == true
         subject.should_not be_a_new_record
         subject.should be_persisted
@@ -61,10 +82,7 @@ describe Opium::Model::Persistable do
     describe 'when saving an existing model' do
       subject { Game.new( id: 'abcd1234', created_at: Time.now - 3600, title: 'Skyrim' ) }
       
-      its(:id) { should_not be_nil }
-      its(:created_at) { should_not be_nil }
-      
-      it 'should have its updated_at fields updated' do
+      before do
         stub_request( :put, 'https://api.parse.com/1/classes/Game/abcd1234' ).with(
           body: { releasedOn: { '__type' => 'Date', 'iso' => '2011-11-11' }, releasePrice: 59.99 },
           headers: { 'Content-Type' => 'application/json' }
@@ -73,15 +91,31 @@ describe Opium::Model::Persistable do
           status: 200,
           headers: { 'Content-Type' => 'application/json', Location: 'https://api.parse.com/1/classes/Game/abcd1234' }
         )
-        
-        subject.should_not be_a_new_record
-        subject.should be_persisted
+      end
+      
+      before :each do
         subject.attributes = { released_on: '2011-11-11', release_price: 59.99 }
-        subject.should_not be_persisted
+      end
+      
+      it 'should have its updated_at fields updated' do        
         subject.save.should == true
-        subject.should_not be_a_new_record
         subject.should be_persisted
         subject.updated_at.should_not be_nil
+      end
+      
+      it ':save! should not raise an exception' do
+        subject.release_price.should_not be_nil
+        expect { subject.save! }.to_not raise_exception
+      end
+    end
+    
+    describe 'when saving a model with validates: false' do
+      subject { Game.new( title: 'Skyrim' ) }
+      
+      it 'should not receive :valid?, but should receive :create' do
+        subject.should_not receive(:valid?)
+        subject.should receive(:create)
+        subject.save( validates: false )
       end
     end
     
@@ -89,8 +123,12 @@ describe Opium::Model::Persistable do
       subject { Game.new( title: 'Skyrim', release_price: -10.99 ) }
       
       it ':save should return false and have :errors' do
-        subject.save.should ==  false
+        subject.save.should == false
         subject.errors.should_not be_empty
+      end
+      
+      it ':save! should raise an exception' do
+        expect { subject.save! }.to raise_exception
       end
     end
     
