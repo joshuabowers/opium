@@ -7,7 +7,9 @@ module Opium
         include ActiveModel::MassAssignmentSecurity
       end
       
-      attr_reader :attributes
+      def attributes
+        @attributes ||= self.class.default_attributes
+      end
       
       def attributes=(values)
         sanitize_for_mass_assignment( rubyize_field_names( values ) ).each do |k, v|

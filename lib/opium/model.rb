@@ -17,7 +17,9 @@ module Opium
   module Model
     extend ActiveSupport::Concern
             
-    included do
+    def initialize( attributes = {} )
+      self.attributes = attributes
+      reset_changes
     end
     
     include Naming
@@ -30,17 +32,7 @@ module Opium
     include Attributable
     include Queryable
     include Callbacks
-    
-    module ClassMethods
-      
-    end
-
-    def initialize( attributes = {} )
-      @attributes = ActiveSupport::HashWithIndifferentAccess.new
-      self.attributes = self.class.default_attributes.merge( attributes )
-      reset_changes
-    end
-    
+            
     def inspect
       inspected_fields = self.attributes.map {|k, v| [k, v.inspect].join(': ')}.join(', ')
       "#<#{self.class.model_name} #{inspected_fields}>"

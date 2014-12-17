@@ -15,7 +15,7 @@ module Opium
         define_model_callbacks :save, :create, :update, :destroy
         
         wrap_callbacks_around :save, :destroy
-        wrap_callbacks_around :create, :update, private: true
+        wrap_callbacks_around :initialize, :create, :update, private: true
       end
       
       module ClassMethods
