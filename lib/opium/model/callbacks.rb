@@ -13,6 +13,25 @@ module Opium
         
         define_model_callbacks :initialize, :find, :touch, only: :after
         define_model_callbacks :save, :create, :update, :destroy
+        
+        wrap_callbacks_around :save, :destroy
+        wrap_callbacks_around :create, :update, private: true
+      end
+      
+      module ClassMethods
+        def wrap_callbacks_around( *methods )
+          options = methods.last.is_a?(::Hash) ? methods.pop : {}
+          methods.each do |method|
+            class_eval do
+              define_method method do |*args|
+                run_callbacks( method ) do
+                  defined?( super ) ? super( *args ) : false
+                end
+              end
+              send( :private, method ) if options[:private]
+            end
+          end
+        end
       end
     end
   end
