@@ -8,17 +8,19 @@ describe Opium::Model::Persistable do
   
     it { should respond_to( :destroy_all ).with(1).argument }
     it { should respond_to( :delete_all ).with(1).argument }
+    it { should respond_to( :create, :create! ).with(1).argument }
   end
     
   describe 'instance' do
     subject { model.new }
     
     it { should respond_to( :save ).with(1).argument }
-    it { should respond_to( :save!).with(0).arguments }
+    it { should respond_to( :save! ).with(0).arguments }
+    it { should respond_to( :update_attributes, :update_attributes! ).with(1).argument }
+    it { should respond_to( :touch ) }
     it { should respond_to( :destroy ) }
     it { should respond_to( :delete ) }
-    it { should respond_to( :new_record? ) }
-    it { should respond_to( :persisted? ) }
+    it { should respond_to( :new_record?, :persisted? ) }
   end
   
   describe 'within a model' do

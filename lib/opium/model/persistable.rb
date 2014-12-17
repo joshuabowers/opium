@@ -10,6 +10,14 @@ module Opium
       end
       
       module ClassMethods
+        def create( attributes = {} )
+          
+        end
+        
+        def create!( attributes = {} )
+          
+        end
+        
         def destroy_all( query = nil )
           
         end
@@ -25,6 +33,18 @@ module Opium
       
       def save!
         create_or_update( validates: true ) || raise( InvalidError, 'failed to save, as model is invalid' )
+      end
+      
+      def update_attributes( attributes = {} )
+        
+      end
+      
+      def update_attributes!( attributes = {} )
+        
+      end
+      
+      def touch
+        
       end
       
       def delete
