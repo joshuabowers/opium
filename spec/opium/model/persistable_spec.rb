@@ -54,6 +54,55 @@ describe Opium::Model::Persistable do
       it { expect { subject.attributes = { title: 'Skyrim' } }.to change( subject, :persisted? ).from(true).to(false) }
     end
     
+    describe 'a new model can be created with' do
+      before do
+        stub_request( :post, 'https://api.parse.com/1/classes/Game' ).with(
+          body: { title: 'Skyrim', releasedOn: { '__type' => 'Date', 'iso' => '2011-11-11' }, releasePrice: 59.99 },
+          headers: { 'Content-Type' => 'application/json' }
+        ).to_return( 
+          body: { objectId: 'abcd1234', createdAt: Time.now.to_s }.to_json, 
+          status: 200, 
+          headers: { 'Content-Type' => 'application/json', Location: 'https://api.parse.com/1/classes/Game/abcd1234' } 
+        )
+      end
+      
+      describe ':create' do      
+        it 'which should return a persisted? model' do
+          result = Game.create( title: 'Skyrim', released_on: '2011-11-11', release_price: 59.99 )
+          result.should_not be_a_new_record
+          result.should be_persisted
+        end
+      end
+      
+      describe ':create!' do
+        it 'which should return a persisted? model' do
+          result = Game.create( title: 'Skyrim', released_on: '2011-11-11', release_price: 59.99 )
+          result.should_not be_a_new_record
+          result.should be_persisted
+        end
+      end
+    end
+    
+    describe 'attepting to' do
+      describe ':create an invalid model' do
+        it 'should not raise an exception' do
+          expect { Game.create( release_price: -10.00 ) }.to_not raise_exception
+        end
+        
+        it 'should have errors' do
+          result = Game.create( release_price: -10.00 )
+          result.should_not be_persisted
+          result.errors.should_not be_empty
+        end
+      end
+      
+      describe ':create! an invalid model' do
+        it 'should raise an exception' do
+          expect { Game.create!( release_price: -10.00 ) }.to raise_exception
+        end
+      end
+    end
+    
     describe 'when saving a new model' do
       subject { Game.new( title: 'Skyrim', released_on: '2011-11-11', release_price: '59.99' ) }
       
@@ -68,13 +117,11 @@ describe Opium::Model::Persistable do
         )
       end
       
-      its(:id) { should be_nil }
-      its(:created_at) { should be_nil }
-      
-      it { should be_a_new_record }
-      it { should_not be_persisted }
-      
       it 'should have its object_id and created_at fields updated' do
+        subject.id.should be_nil
+        subject.created_at.should be_nil
+        subject.should be_a_new_record
+        subject.should_not be_persisted
         subject.save.should == true
         subject.should_not be_a_new_record
         subject.should be_persisted

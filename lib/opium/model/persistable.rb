@@ -11,11 +11,11 @@ module Opium
       
       module ClassMethods
         def create( attributes = {} )
-          
+          new( attributes ).tap {|model| model.save}
         end
         
         def create!( attributes = {} )
-          
+          new( attributes ).tap {|model| model.save!}
         end
         
         def destroy_all( query = nil )
