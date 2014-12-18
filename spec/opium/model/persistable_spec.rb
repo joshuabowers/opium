@@ -205,6 +205,25 @@ describe Opium::Model::Persistable do
       end
     end
     
+    describe ':touch' do
+      subject { Game.new( id: 'abcd1234', title: 'Skyrim' ) }
+      
+      before do
+        stub_request( :put, 'https://api.parse.com/1/classes/Game/abcd1234' ).with(
+          body: { },
+          headers: { 'Content-Type' => 'application/json' }
+        ).to_return(
+          body: { updatedAt: '2014-12-18T15:00:00Z' }.to_json,
+          status: 200,
+          headers: { 'Content-Type' => 'application/json', Location: 'https://api.parse.com/1/classes/Game/abcd1234' }
+        )
+      end
+      
+      it do
+        expect { subject.touch }.to change( subject, :updated_at ).from( nil ).to( '2014-12-18T15:00:00Z'.to_datetime )
+      end
+    end
+    
     describe 'when deleting a new model' do
       subject { Game.new( title: 'Skyrim' ) }
       

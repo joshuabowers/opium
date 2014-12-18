@@ -46,7 +46,7 @@ module Opium
       end
       
       def touch
-        
+        save( validates: false )
       end
       
       def delete
