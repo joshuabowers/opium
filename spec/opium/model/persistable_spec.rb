@@ -181,6 +181,30 @@ describe Opium::Model::Persistable do
       end
     end
     
+    describe ':update_attributes' do
+      subject { Game.new( id: 'abcd1234', title: 'Skyrim' ) }
+      
+      let(:new_attributes) { { released_on: '2011-11-11', release_price: 59.99 } }
+      
+      it 'should alter the attributes and save the model' do
+        subject.should receive(:attributes=).with( new_attributes )
+        subject.should receive(:save)
+        subject.update_attributes( new_attributes )
+      end
+    end
+    
+    describe ':update_attributes!' do
+      subject { Game.new( id: 'abcd1234', title: 'Skyrim' ) }
+      
+      let(:new_attributes) { { released_on: '2011-11-11', release_price: 59.99 } }
+      
+      it 'should alter the attributes and save! the model' do
+        subject.should receive(:attributes=).with( new_attributes )
+        subject.should receive(:save!)
+        subject.update_attributes!( new_attributes )
+      end
+    end
+    
     describe 'when deleting a new model' do
       subject { Game.new( title: 'Skyrim' ) }
       
