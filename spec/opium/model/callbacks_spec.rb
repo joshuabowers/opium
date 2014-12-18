@@ -40,4 +40,5 @@ describe Opium::Model::Callbacks do
   it_should_behave_like 'its callbacks should be invoked for', :create, private: true
   it_should_behave_like 'its callbacks should be invoked for', :update, private: true
   it_should_behave_like 'its callbacks should be invoked for', :destroy
+  it_should_behave_like 'its callbacks should be invoked for', :touch
 end
