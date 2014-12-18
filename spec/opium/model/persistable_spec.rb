@@ -158,6 +158,34 @@ describe Opium::Model::Persistable do
       end
     end
     
+    describe 'when saving a model causes a ParseError' do
+      subject { Game.new( id: 'deadbeef', created_at: Time.now - 3600, title: 'Skyrim' ) }
+      
+      before do
+        stub_request( :put, 'https://api.parse.com/1/classes/Game/deadbeef' ).with(
+          body: { releasePrice: 599.99 },
+          headers: { 'Content-Type' => 'application/json' }
+        ).to_return(
+          body: { code: 404, error: 'Could not locate a "Game" with id of "deadbeef".' }.to_json,
+          status: 404,
+          headers: { 'Content-Type' => 'application/json' }
+        )
+      end
+      
+      before(:each) do
+        subject.release_price = 599.99
+      end
+      
+      it { expect { subject.save }.to_not raise_exception }
+      
+      it ':save should return false and have errors' do
+        subject.save.should == false
+        subject.errors.should_not be_empty
+      end
+      
+      it { expect { subject.save! }.to raise_exception }
+    end
+    
     describe 'when saving a model with validates: false' do
       subject { Game.new( title: 'Skyrim' ) }
       

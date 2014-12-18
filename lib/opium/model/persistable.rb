@@ -29,6 +29,9 @@ module Opium
       
       def save( options = {} )
         create_or_update( options )
+      rescue Exception => e
+        errors.add( :base, e.to_s )
+        false
       end
       
       def save!
