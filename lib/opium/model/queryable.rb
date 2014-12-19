@@ -66,7 +66,7 @@ module Opium
         end
         
         def criteria
-          Marshal.load(Marshal.dump(default_scope))
+          Marshal.load( Marshal.dump( default_scope ) )
         end
         
         def order( options = {} )
