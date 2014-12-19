@@ -11,7 +11,9 @@ require 'opium/model/serialization'
 require 'opium/model/dirty'
 require 'opium/model/fieldable'
 require 'opium/model/attributable'
+require 'opium/model/criteria'
 require 'opium/model/queryable'
+require 'opium/model/scopable'
 
 module Opium
   module Model
@@ -32,6 +34,7 @@ module Opium
     include Attributable
     include Queryable
     include Callbacks
+    include Scopable
             
     def inspect
       inspected_fields = self.attributes.map {|k, v| [k, v.inspect].join(': ')}.join(', ')
