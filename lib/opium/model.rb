@@ -21,7 +21,7 @@ module Opium
       self.attributes = attributes
       reset_changes
     end
-    
+        
     include Naming
     include Connectable
     include Persistable

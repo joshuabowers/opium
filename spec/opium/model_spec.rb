@@ -16,6 +16,7 @@ describe Opium::Model do
   it { should respond_to( :field ).with(2).arguments }
   it { should respond_to( :delete_all, :find ).with(1).argument }
   it { should respond_to( :connection ) }
+  it { should respond_to( :human_attribute_name, :lookup_ancestors ) }
   
   describe 'instance' do
     subject { Event.new }
@@ -24,6 +25,7 @@ describe Opium::Model do
     it { should respond_to( :serializable_hash, :as_json, :from_json ) }
     it { should respond_to( :changes, :changed? ) }
     it { should respond_to( :inspect ) }
+    it { should respond_to( :to_key, :to_model ) }
     
     its(:attributes) do
       should_not be_nil
