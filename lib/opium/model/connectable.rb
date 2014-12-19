@@ -40,6 +40,10 @@ module Opium
           resource_id ? [@resource_name, resource_id].join('/') : @resource_name
         end
         
+        def http_get( options = {} )
+          http( :get, options )
+        end
+        
         def http_post( data )
           http( :post, data: data )
         end

@@ -8,7 +8,7 @@ module Opium
       
       module ClassMethods
         def find( id )
-          
+          new self.http_get( id: id )
         end
         
         def where( constraint )
