@@ -11,8 +11,8 @@ require 'opium/model/serialization'
 require 'opium/model/dirty'
 require 'opium/model/fieldable'
 require 'opium/model/attributable'
-require 'opium/model/criteria'
 require 'opium/model/queryable'
+require 'opium/model/criteria'
 require 'opium/model/scopable'
 
 module Opium

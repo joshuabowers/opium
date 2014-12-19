@@ -7,12 +7,10 @@ module Opium
       end
       
       module ClassMethods        
-        def all
-          
-        end
-        
-        def and
-          
+        def all( constraints = {} )
+          constraints.map do |key, value|
+            where( key => { '$all' => value } )
+          end
         end
         
         def between
@@ -68,20 +66,26 @@ module Opium
         end
         
         def criteria
-          
+          Marshal.load(Marshal.dump(default_scope))
         end
         
         def order( options = {} )
           
         end
         
-        def limit
-          
+        def limit( value )
+          criteria.update_constraint( :limit, value )
+        end
+        
+        def skip( value )
+          criteria.update_constraint( :skip, value )
         end
         
         def where( *constraints )
-          Criteria.new
+          criteria
         end
+        
+        alias_method :and, :where
       end
     end
   end

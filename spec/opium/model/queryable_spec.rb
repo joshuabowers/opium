@@ -19,6 +19,6 @@ describe Opium::Model::Queryable do
     it { should respond_to( :where ).with(1).argument }
     it { should respond_to( :criteria ) }
     it { should respond_to( :order ).with(1).argument }
-    it { should respond_to( :limit ) }
+    it { should respond_to( :limit, :skip ) }
   end
 end
