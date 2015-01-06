@@ -22,6 +22,9 @@ describe Opium::Model::Scopable do
         
         scope :under_10, where( release_price: { '$lte' => 10.0 } )
         scope :recent, -> { where( created_at: { '$gte' => Time.now - 3600 } ) }
+        scope :under do |limit|
+          where( release_price: { '$lte' => limit } )
+        end
         
         default_scope order( title: :asc )
       end )
@@ -57,11 +60,17 @@ describe Opium::Model::Scopable do
     describe ':scope' do
       it 'should create a method for each scope' do
         Game.should respond_to( :under_10, :recent )
+        Game.should respond_to( :under ).with(1).argument 
       end
       
       it 'each scope should be a criteria' do
         Game.under_10.should be_a( Opium::Model::Criteria )
         Game.recent.should be_a( Opium::Model::Criteria )
+        Game.under( 20 ).should be_a( Opium::Model::Criteria )
+      end
+      
+      it 'should not allow scopes without a criteria or block' do
+        expect { Game.scope :no_criteria_or_block }.to raise_exception(ArgumentError)
       end
     end
     
@@ -73,6 +82,14 @@ describe Opium::Model::Scopable do
       it 'should set a criteria if passed one' do
         criteria = Opium::Model::Criteria.new
         Game.default_scope( criteria ).should == criteria
+      end
+      
+      it 'should accept procs, which yield a criteria' do
+        Game.default_scope( -> { Opium::Model::Criteria.new } ).should be_a( Opium::Model::Criteria )
+      end
+      
+      it 'should accept a block, which yields a criteria' do
+        Game.default_scope { Opium::Model::Criteria.new }.should be_a( Opium::Model::Criteria )
       end
     end
   end
