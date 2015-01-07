@@ -29,6 +29,8 @@ describe Opium::Model::Queryable do
         field :title, type: String
         field :price, type: Float
         
+        stub(:model_name).and_return( 'Game' )
+        
         default_scope order( title: :asc )
       end )
     end
@@ -77,7 +79,9 @@ describe Opium::Model::Queryable do
       end
       
       it 'should set the "order" constraint to string' do
-        pending
+        criteria = subject.order( title: :asc )
+        criteria.constraints.should have_key( 'order' )
+        criteria.constraints['order'].should == 'title'
       end
     end
   end

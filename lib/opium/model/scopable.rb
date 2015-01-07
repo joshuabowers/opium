@@ -26,7 +26,7 @@ module Opium
         
         def default_scope( criteria = nil, &block )
           @default_scope = block || criteria if block_given? || criteria.present?
-          s = @default_scope || Criteria.new( self.model_name )
+          s = @default_scope || unscoped
           s.is_a?( Proc ) ? s.call : s
         end
         
@@ -35,7 +35,23 @@ module Opium
         end
         
         def unscoped
+          if block_given?
+            scoping { yield }
+          else
+            blank_criteria
+          end
+        end
+        
+        def blank_criteria
           Criteria.new( self.model_name )
+        end
+        
+        def scoping
+          if block_given?
+            yield
+          else
+            blank_criteria
+          end
         end
       end
     end

@@ -65,6 +65,18 @@ describe Opium::Model::Scopable do
         criteria.should be_a( Opium::Model::Criteria )
         criteria.should be_empty
       end
+      
+      it 'if passed a block, should make scope calls within the block be unscoped, and return the result of the block' do
+        Game.default_scope.constraints.keys.should include('order')
+        criteria = Game.unscoped do
+          Game.limit( 10 ).tap do |inner|
+            inner.constraints.should =~ { 'limit' => 10 }
+          end
+        end
+        criteria.should be_a( Opium::Model::Criteria )
+        criteria.constraints.should =~ { 'limit' => 10 }
+        criteria.constraints.keys.should_not include('order')
+      end
     end
     
     describe ':scope' do

@@ -66,11 +66,12 @@ module Opium
         end
         
         def criteria
-          Marshal.load( Marshal.dump( default_scope ) )
+          Marshal.load( Marshal.dump( scoping ) )
         end
         
         def order( options = {} )
-          criteria
+          ordering = options.map {|key, value| (['-', 'desc', '-1'].include?( value.to_s ) ? '-' : '' ) + key.to_s }.join(',')
+          criteria.update_constraint( :order, ordering )
         end
         
         def limit( value )
