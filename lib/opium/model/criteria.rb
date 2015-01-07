@@ -3,6 +3,16 @@ module Opium
     class Criteria
       include Opium::Model::Queryable::ClassMethods
       
+      def initialize( model_name )
+        @model_name = model_name
+      end
+      
+      attr_reader :model_name
+      
+      def model
+        @model ||= @model_name.constantize
+      end
+      
       def constraints
         @constraints ||= {}.with_indifferent_access
       end
@@ -14,6 +24,10 @@ module Opium
             constraints[constraint].deep_merge!( value )
           end
         end
+      end
+      
+      def empty?
+        constraints.empty?
       end
       
       def criteria

@@ -20,13 +20,15 @@ describe Opium::Model::Scopable do
         field :title, type: String
         field :release_price, type: Float
         
+        stub( :model_name ).and_return('Game' )
+        
+        default_scope order( title: :asc )
+        
         scope :under_10, where( release_price: { '$lte' => 10.0 } )
         scope :recent, -> { where( created_at: { '$gte' => Time.now - 3600 } ) }
         scope :under do |limit|
           where( release_price: { '$lte' => limit } )
         end
-        
-        default_scope order( title: :asc )
       end )
     end
     
@@ -57,6 +59,14 @@ describe Opium::Model::Scopable do
       end
     end
     
+    describe ':unscoped' do
+      it 'should return an empty Criteria' do
+        criteria = Game.unscoped
+        criteria.should be_a( Opium::Model::Criteria )
+        criteria.should be_empty
+      end
+    end
+    
     describe ':scope' do
       it 'should create a method for each scope' do
         Game.should respond_to( :under_10, :recent )
@@ -79,17 +89,21 @@ describe Opium::Model::Scopable do
         Game.default_scope.should be_a( Opium::Model::Criteria )
       end
       
+      it 'should have a :model equal to its creating model' do
+        Game.default_scope.model.should == Game
+      end
+      
       it 'should set a criteria if passed one' do
-        criteria = Opium::Model::Criteria.new
+        criteria = Opium::Model::Criteria.new( 'Game' )
         Game.default_scope( criteria ).should == criteria
       end
       
       it 'should accept procs, which yield a criteria' do
-        Game.default_scope( -> { Opium::Model::Criteria.new } ).should be_a( Opium::Model::Criteria )
+        Game.default_scope( -> { Game.limit( 5 ) } ).should be_a( Opium::Model::Criteria )
       end
       
       it 'should accept a block, which yields a criteria' do
-        Game.default_scope { Opium::Model::Criteria.new }.should be_a( Opium::Model::Criteria )
+        Game.default_scope { Game.limit( 5 ) }.should be_a( Opium::Model::Criteria )
       end
     end
   end

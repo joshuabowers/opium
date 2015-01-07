@@ -70,7 +70,7 @@ module Opium
         end
         
         def order( options = {} )
-          
+          criteria
         end
         
         def limit( value )
