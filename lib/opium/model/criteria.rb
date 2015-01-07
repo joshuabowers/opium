@@ -16,6 +16,10 @@ module Opium
       def criteria
         Marshal.load(Marshal.dump(self))
       end
+      
+      def ==( other )
+        other.is_a?( self.class ) && self.constraints == other.constraints
+      end
     end
   end
 end

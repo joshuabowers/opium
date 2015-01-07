@@ -21,4 +21,28 @@ describe Opium::Model::Queryable do
     it { should respond_to( :order ).with(1).argument }
     it { should respond_to( :limit, :skip ) }
   end
+  
+  describe 'within a model' do
+    before do
+      stub_const( 'Game', Class.new do
+        include Opium::Model
+        field :title, type: String
+        field :price, type: Float
+        
+        default_scope order( title: :asc )
+      end )
+    end
+    
+    describe ':criteria' do
+      subject { Game }
+      it 'should be the :default_scope' do
+        subject.criteria.should == subject.default_scope 
+        subject.criteria.should == subject.criteria
+      end
+      it 'should be duplicated between calls' do
+        subject.criteria.should_not equal( subject.default_scope ) 
+        subject.criteria.should_not equal( subject.criteria )
+      end
+    end
+  end
 end
