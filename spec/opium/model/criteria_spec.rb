@@ -15,6 +15,18 @@ describe Opium::Model::Criteria do
       subject.constraints.should have_key( :order )
       subject.constraints[:order].should == ['title', 1]
     end
+    
+    it 'should merge hash-valued constraints' do
+      subject.constraints['where'] = { score: { '$lte' => 321 } }
+      subject.update_constraint( 'where', price: { '$gte' => 123 } )
+      subject.constraints['where'].should =~ { 'score' => { '$lte' => 321 }, 'price' => { '$gte' => 123 } }
+    end
+    
+    it 'should deep merge hash-valued constraints' do
+      subject.constraints['where'] = { score: { '$lte' => 321 } }
+      subject.update_constraint( 'where', score: { '$gte' => 123 } )
+      subject.constraints['where'].should =~ { 'score' => { '$lte' => 321, '$gte' => 123 } }
+    end
   end
   
   describe ':==' do

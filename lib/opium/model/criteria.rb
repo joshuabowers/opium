@@ -9,7 +9,10 @@ module Opium
       
       def update_constraint( constraint, value )
         self.tap do
-          constraints[constraint] = value
+          constraints[constraint] = value if constraints[constraint].nil? || !value.is_a?( Hash )
+          if constraints[constraint].is_a?(Hash) || value.is_a?(Hash)
+            constraints[constraint].deep_merge!( value )
+          end
         end
       end
       

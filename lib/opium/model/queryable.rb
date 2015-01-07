@@ -8,9 +8,9 @@ module Opium
       
       module ClassMethods        
         def all( constraints = {} )
-          constraints.map do |key, value|
-            where( key => { '$all' => value } )
-          end
+          # constraints.map do |key, value|
+          #   where( key => { '$all' => value } )
+          # end
         end
         
         def between
