@@ -20,24 +20,25 @@ describe Opium::Model::Criteria do
   end
   
   describe ':update_constraint' do    
-    it 'should alter the specified constraint, and return the Criteria' do
+    it 'should chain the criteria and alter the specified constraint on the copy' do
       result = subject.update_constraint( :order, ['title', 1] )
       result.should be_a( Opium::Model::Criteria )
-      result.should equal( subject )
-      subject.constraints.should have_key( :order )
-      subject.constraints[:order].should == ['title', 1]
+      result.should_not equal( subject )
+      result.should_not == subject
+      result.constraints.should have_key( :order )
+      result.constraints[:order].should == ['title', 1]
     end
     
     it 'should merge hash-valued constraints' do
       subject.constraints['where'] = { score: { '$lte' => 321 } }
-      subject.update_constraint( 'where', price: { '$gte' => 123 } )
-      subject.constraints['where'].should =~ { 'score' => { '$lte' => 321 }, 'price' => { '$gte' => 123 } }
+      result = subject.update_constraint( 'where', price: { '$gte' => 123 } )
+      result.constraints['where'].should =~ { 'score' => { '$lte' => 321 }, 'price' => { '$gte' => 123 } }
     end
     
     it 'should deep merge hash-valued constraints' do
       subject.constraints['where'] = { score: { '$lte' => 321 } }
-      subject.update_constraint( 'where', score: { '$gte' => 123 } )
-      subject.constraints['where'].should =~ { 'score' => { '$lte' => 321, '$gte' => 123 } }
+      result = subject.update_constraint( 'where', score: { '$gte' => 123 } )
+      result.constraints['where'].should =~ { 'score' => { '$lte' => 321, '$gte' => 123 } }
     end
   end
   
@@ -61,8 +62,8 @@ describe Opium::Model::Criteria do
       subject.criteria.should == subject
     end
     
-    it 'should be a duplicate of self' do
-      subject.criteria.should_not equal( subject )
+    it 'should not be a duplicate of self' do
+      subject.criteria.should equal( subject )
     end
   end
   
@@ -88,7 +89,7 @@ describe Opium::Model::Criteria do
     end
     
     it 'should not be empty if it has constraints' do
-      subject.update_constraint( :limit, 10 )
+      subject.constraints[:limit] = 10
       subject.should_not be_empty
     end
   end
