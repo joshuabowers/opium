@@ -41,7 +41,7 @@ module Opium
       end
       
       def ==( other )
-        other.is_a?( self.class ) && self.constraints == other.constraints
+        other.is_a?( self.class ) && self.model_name == other.model_name && self.constraints == other.constraints
       end
     end
   end
