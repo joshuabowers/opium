@@ -17,7 +17,6 @@ describe Opium::Model::Queryable do
     it { should respond_to( :or, :nor ) }
     it { should respond_to( :select, :dont_select ) }
     it { should respond_to( :where ).with(1).argument }
-    it { should respond_to( :criteria ) }
     it { should respond_to( :order ).with(1).argument }
     it { should respond_to( :limit, :skip ).with(1).argument }
   end
@@ -36,19 +35,7 @@ describe Opium::Model::Queryable do
     end
     
     subject { Game }
-    
-    describe ':criteria' do
-      it 'should be the :default_scope' do
-        subject.criteria.should == subject.default_scope 
-        subject.criteria.should == subject.criteria
-      end
-      
-      it 'should be duplicated between calls' do
-        subject.criteria.should_not equal( subject.default_scope ) 
-        subject.criteria.should_not equal( subject.criteria )
-      end
-    end
-    
+        
     describe ':limit' do
       it 'should return a criteria' do
         subject.limit( 5 ).should be_a( Opium::Model::Criteria )

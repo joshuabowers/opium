@@ -7,6 +7,7 @@ describe Opium::Model::Scopable do
     subject { model }
     
     it { should respond_to( :find ).with(1).argument }
+    it { should respond_to( :criteria ) }
     it { should respond_to( :scope ).with(2).arguments }
     it { should respond_to( :default_scope ).with(1).argument }
     it { should respond_to( :scoped ) }
@@ -56,6 +57,18 @@ describe Opium::Model::Scopable do
       
       it 'should raise an error if an id does not exist' do
         expect { Game.find( 'deadbeef' ) }.to raise_exception
+      end
+    end
+    
+    describe ':criteria' do
+      it 'should be the :default_scope' do
+        subject.criteria.should == subject.default_scope 
+        subject.criteria.should == subject.criteria
+      end
+      
+      it 'should be duplicated between calls' do
+        subject.criteria.should_not equal( subject.default_scope ) 
+        subject.criteria.should_not equal( subject.criteria )
       end
     end
     

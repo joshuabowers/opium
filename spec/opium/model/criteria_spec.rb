@@ -4,10 +4,20 @@ describe Opium::Model::Criteria do
   subject { Opium::Model::Criteria.new( 'Object' ) }
   
   it { should be_a( Opium::Model::Queryable::ClassMethods ) }
+  it { should respond_to( :chain ) }
   it { should respond_to( :constraints ) }
   it { should respond_to( :update_constraint ).with(2).arguments }
   it { should respond_to( :model, :model_name ) }
   it { should respond_to( :empty? ) }
+  
+  describe ':chain' do
+    it 'should return a copy of the object' do
+      result = subject.chain
+      result.should be_a( Opium::Model::Criteria )
+      result.should == subject
+      result.should_not equal( subject )
+    end
+  end
   
   describe ':update_constraint' do    
     it 'should alter the specified constraint, and return the Criteria' do

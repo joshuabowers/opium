@@ -11,6 +11,10 @@ module Opium
           new self.http_get( id: id )
         end
         
+        def criteria
+          Marshal.load( Marshal.dump( scoping ) )
+        end
+        
         def scope( scope_name, criteria = nil, &block )
           class_eval do
             method_body = if block_given? || criteria.is_a?(Proc)

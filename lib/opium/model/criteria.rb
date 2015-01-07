@@ -2,6 +2,8 @@ module Opium
   module Model
     class Criteria
       include Opium::Model::Queryable::ClassMethods
+      class_attribute :models
+      self.models = {}.with_indifferent_access
       
       def initialize( model_name )
         @model_name = model_name
@@ -10,7 +12,11 @@ module Opium
       attr_reader :model_name
       
       def model
-        @model ||= @model_name.constantize
+        models[model_name] ||= model_name.constantize
+      end
+      
+      def chain
+        Marshal.load( Marshal.dump( self ) )
       end
       
       def constraints
