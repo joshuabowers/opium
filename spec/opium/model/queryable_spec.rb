@@ -34,6 +34,10 @@ describe Opium::Model::Queryable do
       end )
     end
     
+    after do
+      Opium::Model::Criteria.models.clear
+    end
+    
     subject { Game }
     
     describe ':where' do
@@ -51,6 +55,17 @@ describe Opium::Model::Queryable do
       it 'should deep merge the "where" constraint on successive calls' do
         subject.where( price: { '$lte' => 5 } ).where( price: { '$gte' => 1 } ).tap do |criteria|
           criteria.constraints['where'].should =~ { 'price' => { '$lte' => 5, '$gte' => 1 } }
+        end
+      end
+      
+      it 'should ensure that specified fields exist on the model' do
+        expect { subject.where( does_not_exist: true ) }.to raise_exception
+      end
+      
+      it 'should map ruby names to parse names and ruby values to parse values' do
+        time = Time.now - 1000
+        subject.where( created_at: { '$gte' => time } ).tap do |criteria|
+          criteria.constraints['where'].should =~ { 'createdAt' => { '$gte' => time.to_parse } }
         end
       end
     end

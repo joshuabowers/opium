@@ -4,6 +4,16 @@ describe Hash do
   subject { Hash }
   
   describe "instance" do
+    describe ":to_parse" do
+      subject { { 'foo' => GeoPoint.new( latitude: 33.33, longitude: -117.117 ) } }
+      
+      it 'should return a new hash, with :to_parse called on each value' do
+        subject.to_parse.tap do |result|
+          result.should =~ { 'foo' => { '__type' => 'GeoPoint', 'latitude' => 33.33, 'longitude' => -117.117 } }
+        end
+      end
+    end
+    
     describe "with latitude and longitude keys" do
       describe ":to_geo_point" do
         subject { { latitude: 33.33, longitude: -117.117 } }

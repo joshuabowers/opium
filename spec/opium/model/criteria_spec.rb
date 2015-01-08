@@ -1,6 +1,10 @@
 require 'spec_helper.rb'
 
 describe Opium::Model::Criteria do
+  after do
+    Opium::Model::Criteria.models.clear
+  end
+  
   subject { Opium::Model::Criteria.new( 'Object' ) }
   
   it { should be_a( Opium::Model::Queryable::ClassMethods ) }

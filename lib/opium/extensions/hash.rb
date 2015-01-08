@@ -16,6 +16,10 @@ class Hash
     retrieve_iso_key.to_time
   end
   
+  def to_parse
+    Hash[ *self.map {|key, value| [key, value.to_parse] }.flatten ]
+  end
+  
   private
   
   def retrieve_iso_key
