@@ -14,8 +14,7 @@ module Opium
         end
         
         def between( constraints )
-          where( imbue_field_constraints_with_operator( constraints.map {|key, range| [key, range.begin]}, '$gte' ) ) \
-          .where( imbue_field_constraints_with_operator( constraints.map {|key, range| [key, range.end]}, '$lte' ) )
+          gte( constraints.map {|key, range| [key, range.begin] } ).lte( constraints.map {|key, range| [key, range.end ] } )
         end
         
         def exists
