@@ -66,9 +66,26 @@ describe Opium::Model::Queryable do
       end
       
       it 'should set the "order" constraint to string' do
-        criteria = subject.order( title: :asc )
+        criteria = subject.unscoped.order( title: :asc )
         criteria.constraints.should have_key( 'order' )
         criteria.constraints['order'].should == 'title'
+      end
+      
+      it 'should negate the field if given something which evaluates to "desc", "-1", or "-"' do
+        [:desc, -1, '-'].each do |direction|
+          criteria = subject.unscoped.order( title: direction )
+          criteria.constraints['order'].should == '-title'
+        end
+      end
+      
+      it 'should combine multiple orderings via a comma' do
+        criteria = subject.unscoped.order( title: 1, price: -1 )
+        criteria.constraints['order'].should == 'title,-price'
+      end
+      
+      it 'should concatenate successive orderings' do
+        criteria = subject.unscoped.order( title: 1 ).order( price: -1 )
+        criteria.constraints['order'].should == 'title,-price'
       end
     end
   end

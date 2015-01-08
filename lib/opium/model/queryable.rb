@@ -66,7 +66,8 @@ module Opium
         end
         
         def order( options = {} )
-          ordering = options.map {|key, value| (['-', 'desc', '-1'].include?( value.to_s ) ? '-' : '' ) + key.to_s }.join(',')
+          previous = criteria.constraints[:order]
+          ordering = ([previous].compact + options.map {|key, value| (['-', 'desc', '-1'].include?( value.to_s ) ? '-' : '' ) + key.to_s }).join(',')
           criteria.update_constraint( :order, ordering )
         end
         
