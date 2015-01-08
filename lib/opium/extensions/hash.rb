@@ -17,7 +17,7 @@ class Hash
   end
   
   def to_parse
-    Hash[ *self.map {|key, value| [key, value.to_parse] }.flatten ]
+    Hash[ *self.map {|key, value| [key, value.to_parse] }.flatten( 1 ) ]
   end
   
   private

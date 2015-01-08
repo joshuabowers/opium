@@ -7,46 +7,44 @@ module Opium
       end
       
       module ClassMethods        
-        def all( constraints = {} )
-          # constraints.map do |key, value|
-          #   where( key => { '$all' => value } )
-          # end
+        def all( constraints )
+          imbued_where( arrayize( constraints ), '$all' )
         end
         
         def between( constraints )
           gte( constraints.map {|key, range| [key, range.begin] } ).lte( constraints.map {|key, range| [key, range.end ] } )
         end
         
-        def exists
-          
+        def exists( constraints )
+          imbued_where( constraints.map {|key, value| [key, value.to_bool] }, '$exists' )
         end
         
         def gt( constraints )
-          where( imbue_field_constraints_with_operator( constraints, '$gt' ) )          
+          imbued_where( constraints, '$gt' )
         end
         
         def gte( constraints )
-          where( imbue_field_constraints_with_operator( constraints, '$gte' ) )
+          imbued_where( constraints, '$gte' )
         end
         
         def lt( constraints )
-          where( imbue_field_constraints_with_operator( constraints, '$lt' ) )
+          imbued_where( constraints, '$lt' )
         end
         
         def lte( constraints )
-          where( imbue_field_constraints_with_operator( constraints, '$lte' ) )
+          imbued_where( constraints, '$lte' )
         end
         
-        def in
-          
+        def in( constraints )
+          imbued_where( arrayize( constraints ), '$in' )
         end
         
-        def nin
-          
+        def nin( constraints )
+          imbued_where( arrayize( constraints ), '$nin' )
         end
         
-        def ne
-          
+        def ne( constraints )
+          imbued_where( constraints, '$ne' )
         end
         
         def or
@@ -107,11 +105,19 @@ module Opium
         end
         
         def translate_to_parse( constraints )
-          Hash[ *constraints.map {|key, value| [translate_name( key ), value.to_parse] }.flatten ]
+          Hash[ *constraints.map {|key, value| [translate_name( key ), value.to_parse] }.flatten( 1 ) ]
+        end
+        
+        def arrayize( constraints )
+          constraints.map {|key, value| [key, value.to_a]}
+        end
+        
+        def imbued_where( constraints, operator )
+          where( imbue_field_constraints_with_operator( constraints, operator ) )
         end
         
         def imbue_field_constraints_with_operator( constraints, operator )
-          Hash[ *constraints.map {|key, value| [key, { operator => value }] }.flatten ]
+          Hash[ *constraints.map {|key, value| [key, { operator => value }] }.flatten( 1 ) ]
         end
       end
     end

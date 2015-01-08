@@ -6,14 +6,14 @@ describe Opium::Model::Queryable do
   describe 'the class' do
     subject { model }
     
-    it { should respond_to( :all ) }
-    it { should respond_to( :and ) }
+    it { should respond_to( :all ).with(1).argument }
+    it { should respond_to( :and ).with(1).argument }
     it { should respond_to( :between ).with(1).argument }
-    it { should respond_to( :exists ) }
+    it { should respond_to( :exists ).with(1).argument }
     it { should respond_to( :gt, :gte ).with(1).argument }
     it { should respond_to( :lt, :lte ).with(1).argument }
-    it { should respond_to( :in, :nin ) }
-    it { should respond_to( :ne ) }
+    it { should respond_to( :in, :nin ).with(1).argument }
+    it { should respond_to( :ne ).with(1).argument }
     it { should respond_to( :or, :nor ) }
     it { should respond_to( :select, :dont_select ) }
     it { should respond_to( :where ).with(1).argument }
@@ -70,54 +70,61 @@ describe Opium::Model::Queryable do
       end
     end
     
-    describe ':gte' do
-      it 'should return a criteria' do
-        subject.gte( price: 5 ).should be_a( Opium::Model::Criteria )
+    describe ':and' do
+      it 'should be an alias for :where' do
+        subject.method( :and ).should == subject.method( :where )
       end
+    end
+    
+    shared_examples_for 'a chainable criteria clause' do |method|
+      describe ":#{method}" do
+        it 'should return a criteria' do
+          subject.send( method, price: 5, title: 'Skyrim' ).should be_a( Opium::Model::Criteria )
+        end
       
-      it 'should add a "$gte" clause to the where constraint for each member of the hash' do
-        subject.gte( price: 5, title: 'Skyrim' ).tap do |criteria|
-          criteria.constraints.should have_key( 'where' )
-          criteria.constraints['where'].should =~ { 'price' => { '$gte' => 5 }, 'title' => { '$gte' => 'Skyrim' } }
+        it "should add a \"$#{method}\" clause to the where constraint for each member of the hash" do
+          subject.send( method, price: 5, title: 'Skyrim' ).tap do |criteria|
+            criteria.constraints.should have_key( 'where' )
+            criteria.constraints['where'].should =~ { 'price' => { "$#{method}" => 5 }, 'title' => { "$#{method}" => 'Skyrim' } }
+          end
         end
       end
     end
     
-    describe ':lte' do
-      it 'should return a criteria' do
-        subject.lte( price: 5 ).should be_a( Opium::Model::Criteria )
-      end
-      
-      it 'should add a "$lte" clause to the where constraint for each member of the hash' do
-        subject.lte( price: 5, title: 'Skyrim' ).tap do |criteria|
-          criteria.constraints.should have_key( 'where' )
-          criteria.constraints['where'].should =~ { 'price' => { '$lte' => 5 }, 'title' => { '$lte' => 'Skyrim' } }
+    it_should_behave_like 'a chainable criteria clause', :gte
+    it_should_behave_like 'a chainable criteria clause', :lte
+    it_should_behave_like 'a chainable criteria clause', :gt
+    it_should_behave_like 'a chainable criteria clause', :lt
+    it_should_behave_like 'a chainable criteria clause', :ne
+    
+    shared_examples_for 'a chainable array-valued criteria clause' do |method|
+      describe ":#{method}" do
+        it 'should return a criteria' do
+          subject.send( method, price: [1, 2, 3, 4] ).should be_a( Opium::Model::Criteria )
         end
-      end
-    end
-
-    describe ':gt' do
-      it 'should return a criteria' do
-        subject.gt( price: 5 ).should be_a( Opium::Model::Criteria )
-      end
-      
-      it 'should add a "$gt" clause to the where constraint for each member of the hash' do
-        subject.gt( price: 5, title: 'Skyrim' ).tap do |criteria|
-          criteria.constraints.should have_key( 'where' )
-          criteria.constraints['where'].should =~ { 'price' => { '$gt' => 5 }, 'title' => { '$gt' => 'Skyrim' } }
+        
+        it "should add a \"$#{method}\" clause to the where constraint for each member of the hash, converting pair values to arrays" do
+          subject.send( method, price: 1..4, title: ['Skyrim', 'Oblivion'] ).tap do |criteria|
+            criteria.constraints.should have_key( 'where' )
+            criteria.constraints['where'].should =~ { 'price' => { "$#{method}" => [1, 2, 3, 4] }, 'title' => { "$#{method}" => ['Skyrim', 'Oblivion'] } }
+          end
         end
       end
     end
     
-    describe ':lt' do
+    it_should_behave_like 'a chainable array-valued criteria clause', :all
+    it_should_behave_like 'a chainable array-valued criteria clause', :in
+    it_should_behave_like 'a chainable array-valued criteria clause', :nin
+    
+    describe ':exists' do
       it 'should return a criteria' do
-        subject.lt( price: 5 ).should be_a( Opium::Model::Criteria )
+        subject.exists( price: true ).should be_a( Opium::Model::Criteria )
       end
       
-      it 'should add a "$lt" clause to the where constraint for each member of the hash' do
-        subject.lt( price: 5, title: 'Skyrim' ).tap do |criteria|
+      it 'should add a "$exist" clause for each hash pair, set to the truthiness of the pair value' do
+        subject.exists( price: true, title: 'no' ).tap do |criteria|
           criteria.constraints.should have_key( 'where' )
-          criteria.constraints['where'].should =~ { 'price' => { '$lt' => 5 }, 'title' => { '$lt' => 'Skyrim' } }
+          criteria.constraints['where'].should =~ { 'price' => { '$exists' => true }, 'title' => { '$exists' => false } }
         end
       end
     end
