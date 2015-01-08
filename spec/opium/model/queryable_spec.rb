@@ -10,8 +10,8 @@ describe Opium::Model::Queryable do
     it { should respond_to( :and ) }
     it { should respond_to( :between ) }
     it { should respond_to( :exists ) }
-    it { should respond_to( :gt, :gte ) }
-    it { should respond_to( :lt, :lte ) }
+    it { should respond_to( :gt, :gte ).with(1).argument }
+    it { should respond_to( :lt, :lte ).with(1).argument }
     it { should respond_to( :in, :nin ) }
     it { should respond_to( :ne ) }
     it { should respond_to( :or, :nor ) }
@@ -51,6 +51,58 @@ describe Opium::Model::Queryable do
       it 'should deep merge the "where" constraint on successive calls' do
         subject.where( price: { '$lte' => 5 } ).where( price: { '$gte' => 1 } ).tap do |criteria|
           criteria.constraints['where'].should =~ { 'price' => { '$lte' => 5, '$gte' => 1 } }
+        end
+      end
+    end
+    
+    describe ':gte' do
+      it 'should return a criteria' do
+        subject.gte( price: 5 ).should be_a( Opium::Model::Criteria )
+      end
+      
+      it 'should add a "$gte" clause to the where constraint for each member of the hash' do
+        subject.gte( price: 5, title: 'Skyrim' ).tap do |criteria|
+          criteria.constraints.should have_key( 'where' )
+          criteria.constraints['where'].should =~ { 'price' => { '$gte' => 5 }, 'title' => { '$gte' => 'Skyrim' } }
+        end
+      end
+    end
+    
+    describe ':lte' do
+      it 'should return a criteria' do
+        subject.lte( price: 5 ).should be_a( Opium::Model::Criteria )
+      end
+      
+      it 'should add a "$lte" clause to the where constraint for each member of the hash' do
+        subject.lte( price: 5, title: 'Skyrim' ).tap do |criteria|
+          criteria.constraints.should have_key( 'where' )
+          criteria.constraints['where'].should =~ { 'price' => { '$lte' => 5 }, 'title' => { '$lte' => 'Skyrim' } }
+        end
+      end
+    end
+
+    describe ':gt' do
+      it 'should return a criteria' do
+        subject.gt( price: 5 ).should be_a( Opium::Model::Criteria )
+      end
+      
+      it 'should add a "$gt" clause to the where constraint for each member of the hash' do
+        subject.gt( price: 5, title: 'Skyrim' ).tap do |criteria|
+          criteria.constraints.should have_key( 'where' )
+          criteria.constraints['where'].should =~ { 'price' => { '$gt' => 5 }, 'title' => { '$gt' => 'Skyrim' } }
+        end
+      end
+    end
+    
+    describe ':lt' do
+      it 'should return a criteria' do
+        subject.lt( price: 5 ).should be_a( Opium::Model::Criteria )
+      end
+      
+      it 'should add a "$lt" clause to the where constraint for each member of the hash' do
+        subject.lt( price: 5, title: 'Skyrim' ).tap do |criteria|
+          criteria.constraints.should have_key( 'where' )
+          criteria.constraints['where'].should =~ { 'price' => { '$lt' => 5 }, 'title' => { '$lt' => 'Skyrim' } }
         end
       end
     end
