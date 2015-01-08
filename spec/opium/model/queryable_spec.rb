@@ -35,6 +35,25 @@ describe Opium::Model::Queryable do
     end
     
     subject { Game }
+    
+    describe ':where' do
+      it 'should return a criteria' do
+        subject.where( price: { '$lte' => 5 } ).should be_a( Opium::Model::Criteria )
+      end
+      
+      it 'should set the "where" constraint to the provided value' do
+        subject.where( price: { '$lte' => 5 } ).tap do |criteria|
+          criteria.constraints.should have_key( 'where' )
+          criteria.constraints['where'].should =~ { 'price' => { '$lte' => 5 } }
+        end
+      end
+      
+      it 'should deep merge the "where" constraint on successive calls' do
+        subject.where( price: { '$lte' => 5 } ).where( price: { '$gte' => 1 } ).tap do |criteria|
+          criteria.constraints['where'].should =~ { 'price' => { '$lte' => 5, '$gte' => 1 } }
+        end
+      end
+    end
         
     describe ':limit' do
       it 'should return a criteria' do
@@ -42,9 +61,10 @@ describe Opium::Model::Queryable do
       end
       
       it 'should set the "limit" constraint to the provided value' do
-        criteria = subject.limit( 100 )
-        criteria.constraints.should have_key( 'limit' )
-        criteria.constraints['limit'].should == 100
+        subject.limit( 100 ).tap do |criteria|
+          criteria.constraints.should have_key( 'limit' )
+          criteria.constraints['limit'].should == 100
+        end
       end
     end
     
@@ -54,9 +74,10 @@ describe Opium::Model::Queryable do
       end
       
       it 'should set the "skip" constraint to the provided value' do
-        criteria = subject.skip( 100 )
-        criteria.constraints.should have_key( 'skip' )
-        criteria.constraints['skip'].should == 100
+        subject.skip( 100 ).tap do |criteria|
+          criteria.constraints.should have_key( 'skip' )
+          criteria.constraints['skip'].should == 100
+        end
       end
     end
     
@@ -65,27 +86,31 @@ describe Opium::Model::Queryable do
         subject.order( title: :asc ).should be_a( Opium::Model::Criteria )
       end
       
-      it 'should set the "order" constraint to string' do
-        criteria = subject.unscoped.order( title: :asc )
-        criteria.constraints.should have_key( 'order' )
-        criteria.constraints['order'].should == 'title'
+      it 'should set the "order" constraint to a string' do
+        subject.unscoped.order( title: :asc ).tap do |criteria|
+          criteria.constraints.should have_key( 'order' )
+          criteria.constraints['order'].should == 'title'
+        end
       end
       
       it 'should negate the field if given something which evaluates to "desc", "-1", or "-"' do
         [:desc, -1, '-'].each do |direction|
-          criteria = subject.unscoped.order( title: direction )
-          criteria.constraints['order'].should == '-title'
+          subject.unscoped.order( title: direction ).tap do |criteria|
+            criteria.constraints['order'].should == '-title'
+          end
         end
       end
       
       it 'should combine multiple orderings via a comma' do
-        criteria = subject.unscoped.order( title: 1, price: -1 )
-        criteria.constraints['order'].should == 'title,-price'
+        subject.unscoped.order( title: 1, price: -1 ).tap do |criteria|
+          criteria.constraints['order'].should == 'title,-price'
+        end
       end
       
       it 'should concatenate successive orderings' do
-        criteria = subject.unscoped.order( title: 1 ).order( price: -1 )
-        criteria.constraints['order'].should == 'title,-price'
+        subject.unscoped.order( title: 1 ).order( price: -1 ).tap do |criteria|
+          criteria.constraints['order'].should == 'title,-price'
+        end
       end
     end
   end

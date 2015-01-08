@@ -79,8 +79,8 @@ module Opium
           criteria.update_constraint( :skip, value )
         end
         
-        def where( *constraints )
-          criteria
+        def where( constraints = {} )
+          criteria.update_constraint( :where, constraints )
         end
         
         alias_method :and, :where
