@@ -8,7 +8,7 @@ describe Opium::Model::Queryable do
     
     it { should respond_to( :all ) }
     it { should respond_to( :and ) }
-    it { should respond_to( :between ) }
+    it { should respond_to( :between ).with(1).argument }
     it { should respond_to( :exists ) }
     it { should respond_to( :gt, :gte ).with(1).argument }
     it { should respond_to( :lt, :lte ).with(1).argument }
@@ -118,6 +118,19 @@ describe Opium::Model::Queryable do
         subject.lt( price: 5, title: 'Skyrim' ).tap do |criteria|
           criteria.constraints.should have_key( 'where' )
           criteria.constraints['where'].should =~ { 'price' => { '$lt' => 5 }, 'title' => { '$lt' => 'Skyrim' } }
+        end
+      end
+    end
+    
+    describe ':between' do
+      it 'should return a criteria' do
+        subject.between( price: 5..10 ).should be_a( Opium::Model::Criteria )
+      end
+      
+      it 'should add "$gte" and "$lte" clauses for the min/max of the range value associated with each key' do
+        subject.between( price: 5..10 ).tap do |criteria|
+          criteria.constraints.should have_key( 'where' )
+          criteria.constraints['where'].should =~ { 'price' => { '$gte' => 5, '$lte' => 10 } }
         end
       end
     end
