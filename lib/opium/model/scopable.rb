@@ -12,7 +12,7 @@ module Opium
         end
         
         def criteria
-          Marshal.load( Marshal.dump( scoping ) )
+          @_unscoped ? blank_criteria : default_scope
         end
         
         def scope( scope_name, criteria = nil, &block )
@@ -29,9 +29,9 @@ module Opium
         end
         
         def default_scope( criteria = nil, &block )
-          @default_scope = block || criteria if block_given? || criteria.present?
-          s = @default_scope || unscoped
-          s.is_a?( Proc ) ? s.call : s
+          @default_scope = block || criteria if block_given? || criteria
+          s = @default_scope || blank_criteria
+          s.is_a?( Proc ) ? unscoped { s.call } : s
         end
         
         def scoped
@@ -40,22 +40,17 @@ module Opium
         
         def unscoped
           if block_given?
-            scoping { yield }
-          else
-            blank_criteria
-          end
-        end
-        
-        def blank_criteria
-          Criteria.new( self.model_name )
-        end
-        
-        def scoping
-          if block_given?
+            @_unscoped = true
             yield
           else
             blank_criteria
           end
+        ensure
+          @_unscoped = false
+        end
+        
+        def blank_criteria
+          Criteria.new( self.model_name )
         end
       end
     end

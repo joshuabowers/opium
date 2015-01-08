@@ -21,7 +21,7 @@ describe Opium::Model::Scopable do
         field :title, type: String
         field :release_price, type: Float
         
-        stub( :model_name ).and_return('Game' )
+        stub( :model_name ).and_return( 'Game' )
         
         default_scope order( title: :asc )
         
@@ -62,13 +62,12 @@ describe Opium::Model::Scopable do
     
     describe ':criteria' do
       it 'should be the :default_scope' do
-        subject.criteria.should == subject.default_scope 
-        subject.criteria.should == subject.criteria
+        Game.criteria.should == Game.default_scope 
+        Game.criteria.should == Game.criteria
       end
       
-      it 'should be duplicated between calls' do
-        subject.criteria.should_not equal( subject.default_scope ) 
-        subject.criteria.should_not equal( subject.criteria )
+      it 'should not be duplicated between calls' do
+        Game.criteria.should equal( Game.criteria )
       end
     end
     
@@ -115,20 +114,25 @@ describe Opium::Model::Scopable do
       end
       
       it 'should have a :model equal to its creating model' do
-        Game.default_scope.model.should == Game
+        Game.default_scope.model_name.should == 'Game'
       end
       
       it 'should set a criteria if passed one' do
-        criteria = Opium::Model::Criteria.new( 'Game' )
-        Game.default_scope( criteria ).should == criteria
+        expected = Game.unscoped
+        Game.default_scope( expected )
+        Game.default_scope.should == expected
       end
       
       it 'should accept procs, which yield a criteria' do
+        expected = Game.unscoped.limit( 5 )
         Game.default_scope( -> { Game.limit( 5 ) } ).should be_a( Opium::Model::Criteria )
+        Game.default_scope.should == expected
       end
       
       it 'should accept a block, which yields a criteria' do
+        expected = Game.unscoped.limit( 5 )
         Game.default_scope { Game.limit( 5 ) }.should be_a( Opium::Model::Criteria )
+        Game.default_scope.should == expected
       end
     end
   end
