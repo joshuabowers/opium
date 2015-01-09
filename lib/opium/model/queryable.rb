@@ -11,6 +11,8 @@ module Opium
           imbued_where( arrayize( constraints ), '$all' )
         end
         
+        alias_method :all_in, :all
+        
         def between( constraints )
           gte( constraints.map {|key, range| [key, range.begin] } ).lte( constraints.map {|key, range| [key, range.end ] } )
         end
@@ -39,6 +41,8 @@ module Opium
           imbued_where( arrayize( constraints ), '$in' )
         end
         
+        alias_method :any_in, :in
+        
         def nin( constraints )
           imbued_where( arrayize( constraints ), '$nin' )
         end
@@ -51,16 +55,22 @@ module Opium
           
         end
         
-        def nor
-          
-        end
-        
         def select
           
         end
         
         def dont_select
           
+        end
+        
+        def keys( *field_names )
+          validate_fields_exist( field_names )
+          criteria.update_constraint( :keys, field_names.map(&method(:translate_name)).join(',') )
+        end
+        
+        # Should be noted that pluck is an immediate query execution, so doesn't play well with further chainable criteria        
+        def pluck( field_name )
+
         end
         
         def order( options )
@@ -93,9 +103,10 @@ module Opium
           self
         end
         
-        def validate_fields_exist( constraints )
-          unless constraints.keys.all? {|field_name| model.fields.key? field_name }
-            not_fields = constraints.keys.reject {|field_name| model.fields.key? field_name }
+        def validate_fields_exist( field_names )
+          field_names = field_names.keys if field_names.respond_to? :keys
+          unless field_names.all? {|field_name| model.fields.key? field_name }
+            not_fields = field_names.reject {|field_name| model.fields.key? field_name }
             raise ArgumentError, "#{not_fields.join(', ')} #{not_fields.length > 1 ? 'are not fields' : 'is not a field'} on this model; fields = #{model.fields.keys.inspect}"
           end
         end

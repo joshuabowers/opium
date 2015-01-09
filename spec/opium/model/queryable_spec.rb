@@ -6,16 +6,17 @@ describe Opium::Model::Queryable do
   describe 'the class' do
     subject { model }
     
-    it { should respond_to( :all ).with(1).argument }
+    it { should respond_to( :all, :all_in ).with(1).argument }
     it { should respond_to( :and ).with(1).argument }
     it { should respond_to( :between ).with(1).argument }
     it { should respond_to( :exists ).with(1).argument }
     it { should respond_to( :gt, :gte ).with(1).argument }
     it { should respond_to( :lt, :lte ).with(1).argument }
-    it { should respond_to( :in, :nin ).with(1).argument }
+    it { should respond_to( :in, :any_in, :nin ).with(1).argument }
     it { should respond_to( :ne ).with(1).argument }
-    it { should respond_to( :or, :nor ) }
+    it { should respond_to( :or ) }
     it { should respond_to( :select, :dont_select ) }
+    it { should respond_to( :keys, :pluck ).with(1).argument }
     it { should respond_to( :where ).with(1).argument }
     it { should respond_to( :order ).with(1).argument }
     it { should respond_to( :limit, :skip ).with(1).argument }
@@ -69,13 +70,7 @@ describe Opium::Model::Queryable do
         end
       end
     end
-    
-    describe ':and' do
-      it 'should be an alias for :where' do
-        subject.method( :and ).should == subject.method( :where )
-      end
-    end
-    
+        
     shared_examples_for 'a chainable criteria clause' do |method|
       describe ":#{method}" do
         it 'should return a criteria' do
@@ -115,7 +110,19 @@ describe Opium::Model::Queryable do
     it_should_behave_like 'a chainable array-valued criteria clause', :all
     it_should_behave_like 'a chainable array-valued criteria clause', :in
     it_should_behave_like 'a chainable array-valued criteria clause', :nin
+
+    shared_examples_for 'an aliased method' do |aliased, method|
+      describe ":#{aliased}" do
+        it "should be an alias for :#{method}" do
+          subject.method( aliased ).should == subject.method( method )
+        end
+      end
+    end
     
+    it_should_behave_like 'an aliased method', :and, :where
+    it_should_behave_like 'an aliased method', :all_in, :all
+    it_should_behave_like 'an aliased method', :any_in, :in
+        
     describe ':exists' do
       it 'should return a criteria' do
         subject.exists( price: true ).should be_a( Opium::Model::Criteria )
@@ -139,6 +146,23 @@ describe Opium::Model::Queryable do
           criteria.constraints.should have_key( 'where' )
           criteria.constraints['where'].should =~ { 'price' => { '$gte' => 5, '$lte' => 10 } }
         end
+      end
+    end
+    
+    describe ':keys' do
+      it 'should return a criteria' do
+        subject.keys( :price ).should be_a( Opium::Model::Criteria )
+      end
+      
+      it 'should set the "keys" constraint to the provided set of fields, whose names should be parsized' do
+        subject.keys( :price, :updated_at ).tap do |criteria|
+          criteria.constraints.should have_key( 'keys' )
+          criteria.constraints['keys'].should == 'price,updatedAt'
+        end
+      end
+      
+      it 'should raise if a specified field does not exist' do
+        expect { subject.keys( :does_not_exist ) }.to raise_exception
       end
     end
         
