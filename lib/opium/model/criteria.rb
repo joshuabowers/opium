@@ -44,6 +44,23 @@ module Opium
         other.is_a?( self.class ) && self.model_name == other.model_name && self.constraints == other.constraints
       end
       
+      def each
+        unless block_given?
+          to_enum(:each)
+        else
+          response = self.model.http_get( query: self.constraints )
+          if response && response['results']
+            response['results'].each do |attributes|
+              yield self.model.new( attributes )
+            end
+          end
+        end
+      end
+      
+      def to_a
+        each.to_a
+      end
+      
       def to_parse
         {}.with_indifferent_access.tap do |result|
           result[:query] = { where: constraints[:where], className: model_name } if constraints[:where]

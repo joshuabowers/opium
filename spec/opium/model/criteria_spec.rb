@@ -1,6 +1,24 @@
 require 'spec_helper.rb'
 
 describe Opium::Model::Criteria do
+  before do
+    stub_const( 'Game', Class.new do
+      include Opium::Model
+      field :title, type: String
+      field :price, type: Float
+      
+      stub( :model_name ).and_return( 'Game' )
+    end )
+    
+    stub_request( :get, 'https://api.parse.com/1/classes/Game' ).with( body: {} ).
+      to_return( status: 200, headers: { 'Content-Type' => 'application/json' }, body: {
+        results: [
+          { objectId: 'abcd1234', createdAt: Time.now - 50000, title: 'Skyrim', price: 45.99 },
+          { objectId: 'efgh5678', createdAt: Time.now - 10000, title: 'Terraria', price: 15.99 }
+        ]
+      }.to_json )
+  end
+  
   after do
     Opium::Model::Criteria.models.clear
   end
@@ -14,6 +32,8 @@ describe Opium::Model::Criteria do
   it { should respond_to( :model, :model_name ) }
   it { should respond_to( :empty? ) }
   it { should respond_to( :to_parse ) }
+  it { should respond_to( :each ) }
+  it { should respond_to( :to_a ) }
   
   describe ':chain' do
     it 'should return a copy of the object' do
@@ -73,12 +93,6 @@ describe Opium::Model::Criteria do
   end
   
   describe ':model' do
-    before do
-      stub_const( 'Game', Class.new do
-        include Opium::Model
-      end )
-    end
-    
     subject { Opium::Model::Criteria.new( 'Game' ) }
     
     it 'should be the constantized version of :model_name' do
@@ -99,17 +113,33 @@ describe Opium::Model::Criteria do
     end
   end
   
-  describe ':to_parse' do
-    before do
-      stub_const( 'Game', Class.new do
-        include Opium::Model
-        field :title, type: String
-        field :price, type: Float
-        
-        stub( :model_name ).and_return( 'Game' )
-      end )
+  describe ':each' do
+    subject { Game.criteria }
+    
+    describe 'without a block' do
+      it 'should return an Enumerator' do
+        subject.each.should be_a( Enumerator )
+      end
     end
     
+    describe 'with a block' do
+      it 'should call its :model\'s :http_get' do
+        subject.model.should receive(:http_get).with(query: subject.constraints)
+        subject.each {|model| }
+      end
+      
+      it 'should yield to its block any results it finds' do
+        expect {|b| subject.each &b }.to yield_control.twice
+      end
+      
+      it 'should yield to its block Opium::Model objects (Game in context)' do
+        expect {|b| subject.each &b }.to yield_successive_args(Opium::Model, Opium::Model)
+        expect {|b| subject.each &b }.to yield_successive_args(Game, Game)
+      end
+    end
+  end
+  
+  describe ':to_parse' do
     it 'should be a hash' do
       Game.criteria.to_parse.should be_a( Hash )
     end
