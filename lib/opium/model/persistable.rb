@@ -68,6 +68,14 @@ module Opium
         !new_record? && !self.changed?
       end
       
+      def pointer
+        @pointer ||= Pointer.new( model: self.class, id: id )
+      end
+      
+      def to_parse
+        pointer.to_parse
+      end
+      
       private
       
       def create_or_update( options )

@@ -21,6 +21,7 @@ describe Opium::Model::Persistable do
     it { should respond_to( :destroy ) }
     it { should respond_to( :delete ) }
     it { should respond_to( :new_record?, :persisted? ) }
+    it { should respond_to( :pointer, :to_parse ) }
   end
   
   describe 'within a model' do
@@ -279,6 +280,30 @@ describe Opium::Model::Persistable do
         
         subject.delete
         subject.should be_frozen
+      end
+    end
+    
+    describe ':pointer' do
+      subject { Game.new( id: 'abcd1234' ) }
+
+      it 'should be an Opium::Pointer' do
+        subject.pointer.should be_a( Opium::Pointer )
+      end
+      
+      it 'should have the :id of the instance' do
+        subject.pointer.id.should == subject.id
+      end
+      
+      it 'should have the :model_name of the instance class' do
+        subject.pointer.model_name.should == subject.class.model_name
+      end
+    end
+    
+    describe ':to_parse' do
+      subject { Game.new( id: 'abcd1234' ) }
+      
+      it 'should be a pointer hash' do
+        subject.to_parse.should == subject.pointer.to_parse
       end
     end
   end
