@@ -15,7 +15,7 @@ describe Opium::Model::Queryable do
     it { should respond_to( :in, :any_in, :nin ).with(1).argument }
     it { should respond_to( :ne ).with(1).argument }
     it { should respond_to( :or ) }
-    it { should respond_to( :select, :dont_select ) }
+    it { should respond_to( :select, :dont_select ).with(1).argument }
     it { should respond_to( :keys, :pluck ).with(1).argument }
     it { should respond_to( :where ).with(1).argument }
     it { should respond_to( :order ).with(1).argument }
@@ -145,6 +145,42 @@ describe Opium::Model::Queryable do
         subject.between( price: 5..10 ).tap do |criteria|
           criteria.constraints.should have_key( 'where' )
           criteria.constraints['where'].should =~ { 'price' => { '$gte' => 5, '$lte' => 10 } }
+        end
+      end
+    end
+    
+    describe ':select' do
+      it 'should return a criteria' do
+        subject.select( title: subject.between( price: 5..10 ).keys( :title ) ).should be_a( Opium::Model::Criteria )
+      end
+      
+      it 'should add a "$select" clause for each hash key, setting the value to a query expression based off the pair-value criteria' do
+        subject.select( title: subject.between( price: 5..10 ).keys( :title ) ).tap do |criteria|
+          criteria.constraints.should have_key( 'where' )
+          criteria.constraints['where'].should =~ {
+            'title' => { '$select' => { 
+              'query' => { 'className' => 'Game', 'where' => { 'price' => { '$gte' => 5, '$lte' => 10 } } }, 
+              'key' => 'title' 
+              } }
+          }
+        end
+      end
+    end
+
+    describe ':dont_select' do
+      it 'should return a criteria' do
+        subject.dont_select( title: subject.between( price: 5..10 ).keys( :title ) ).should be_a( Opium::Model::Criteria )
+      end
+      
+      it 'should add a "$donSelect" clause for each hash key, setting the value to a query expression based off the pair-value criteria' do
+        subject.dont_select( title: subject.between( price: 5..10 ).keys( :title ) ).tap do |criteria|
+          criteria.constraints.should have_key( 'where' )
+          criteria.constraints['where'].should =~ {
+            'title' => { '$dontSelect' => { 
+              'query' => { 'className' => 'Game', 'where' => { 'price' => { '$gte' => 5, '$lte' => 10 } } }, 
+              'key' => 'title' 
+              } }
+          }
         end
       end
     end

@@ -13,6 +13,7 @@ describe Opium::Model::Criteria do
   it { should respond_to( :update_constraint ).with(2).arguments }
   it { should respond_to( :model, :model_name ) }
   it { should respond_to( :empty? ) }
+  it { should respond_to( :to_parse ) }
   
   describe ':chain' do
     it 'should return a copy of the object' do
@@ -95,6 +96,36 @@ describe Opium::Model::Criteria do
     it 'should not be empty if it has constraints' do
       subject.constraints[:limit] = 10
       subject.should_not be_empty
+    end
+  end
+  
+  describe ':to_parse' do
+    before do
+      stub_const( 'Game', Class.new do
+        include Opium::Model
+        field :title, type: String
+        field :price, type: Float
+        
+        stub( :model_name ).and_return( 'Game' )
+      end )
+    end
+    
+    it 'should be a hash' do
+      Game.criteria.to_parse.should be_a( Hash )
+    end
+    
+    it 'should have a "query" key, if a "where" constraint exists, containing a "where" and a "className"' do
+      Game.between( price: 5..10 ).to_parse.tap do |criteria|
+        criteria.should have_key( 'query' )
+        criteria['query'].should =~ { 'where' => { 'price' => { '$gte' => 5, '$lte' => 10 } }, 'className' => 'Game' }
+      end
+    end
+    
+    it 'should have a "key" key, if a "keys" constraint exists' do
+      Game.keys( :price ).to_parse.tap do |criteria|
+        criteria.should have_key( 'key' )
+        criteria['key'].should == 'price'
+      end
     end
   end
 end

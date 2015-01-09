@@ -43,6 +43,13 @@ module Opium
       def ==( other )
         other.is_a?( self.class ) && self.model_name == other.model_name && self.constraints == other.constraints
       end
+      
+      def to_parse
+        {}.with_indifferent_access.tap do |result|
+          result[:query] = { where: constraints[:where], className: model_name } if constraints[:where]
+          result[:key] = constraints[:keys] if constraints[:keys]
+        end
+      end
     end
   end
 end

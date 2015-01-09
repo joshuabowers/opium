@@ -55,12 +55,12 @@ module Opium
           
         end
         
-        def select
-          
+        def select( constraints )
+          imbued_where( constraints, '$select' )
         end
         
-        def dont_select
-          
+        def dont_select( constraints )
+          imbued_where( constraints, '$dontSelect' )
         end
         
         def keys( *field_names )
