@@ -69,7 +69,7 @@ module Opium
       end
       
       def pointer
-        @pointer ||= Pointer.new( model: self.class, id: id )
+        @pointer ||= Pointer.new( model: self.class, id: id ) unless new_record?
       end
       
       def to_parse
