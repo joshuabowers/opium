@@ -14,7 +14,7 @@ describe Opium::Model::Queryable do
     it { should respond_to( :lt, :lte ).with(1).argument }
     it { should respond_to( :in, :any_in, :nin ).with(1).argument }
     it { should respond_to( :ne ).with(1).argument }
-    it { should respond_to( :or ) }
+    it { should respond_to( :or ).with(1).argument }
     it { should respond_to( :select, :dont_select ).with(1).argument }
     it { should respond_to( :keys, :pluck ).with(1).argument }
     it { should respond_to( :where ).with(1).argument }
@@ -180,6 +180,21 @@ describe Opium::Model::Queryable do
               'query' => { 'className' => 'Game', 'where' => { 'price' => { '$gte' => 5, '$lte' => 10 } } }, 
               'key' => 'title' 
               } }
+          }
+        end
+      end
+    end
+    
+    describe ':or' do
+      it 'should return a criteria' do
+        subject.or( { title: 'Skyrim' }, { title: 'Oblivion' } ).should be_a( Opium::Model::Criteria )
+      end
+      
+      it 'should add an "$or" clause to the "where" constraint, whose contents are an array of all specified subqueries' do
+        subject.or( { title: 'Skyrim' }, { title: 'Oblivion' } ).tap do |criteria|
+          criteria.constraints.should have_key( 'where' )
+          criteria.constraints['where'].should =~ {
+            '$or' => [ { 'title' => 'Skyrim' }, { 'title' => 'Oblivion' } ]
           }
         end
       end

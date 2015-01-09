@@ -51,8 +51,8 @@ module Opium
           imbued_where( constraints, '$ne' )
         end
         
-        def or
-          
+        def or( *subqueries )
+          where( '$or' => subqueries )
         end
         
         def select( constraints )
@@ -105,14 +105,14 @@ module Opium
         
         def validate_fields_exist( field_names )
           field_names = field_names.keys if field_names.respond_to? :keys
-          unless field_names.all? {|field_name| model.fields.key? field_name }
+          unless field_names.all? {|field_name| model.fields.key?( field_name ) || field_name =~ /^\$/ }
             not_fields = field_names.reject {|field_name| model.fields.key? field_name }
             raise ArgumentError, "#{not_fields.join(', ')} #{not_fields.length > 1 ? 'are not fields' : 'is not a field'} on this model"
           end
         end
         
         def translate_name( field_name )
-          model.parse_canonical_field_names[ field_name ]
+          field_name =~ /^\$/ ? field_name : model.parse_canonical_field_names[ field_name ]
         end
         
         def translate_to_parse( constraints )
