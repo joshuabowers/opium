@@ -35,5 +35,13 @@ describe Opium::Model::Attributable do
         subject.attributes_to_parse( not_readonly: true ).should =~ { 'title' => 'Little Brother' }
       end
     end
+    
+    describe ':attributes=' do
+      it 'should still store unrecognized fields in the attributes hash' do
+        expect { subject.attributes = { unknownField: 42 } }.to_not raise_exception
+        subject.attributes.should have_key('unknownField')
+        subject.attributes['unknownField'].should == 42
+      end
+    end
   end
 end

@@ -31,6 +31,10 @@ module Opium
           end
         end
         
+        def reset_connection!
+          @@connection = nil
+        end
+        
         def object_prefix
           'classes'
         end
@@ -59,11 +63,11 @@ module Opium
         private
                 
         def http( method, options )
-          check_for_error do
+          check_for_error( options ) do
             connection.send( method, resource_name( options[:id] ) ) do |request|
               if options[:query]
                 options[:query].each do |key, value|
-                  request.params[key] = value
+                  request.params[key] = key.to_s == 'where' ? value.to_json : value
                 end
               end
               if [:post, :put].include? method
@@ -75,11 +79,14 @@ module Opium
           end
         end
         
-        def check_for_error(&block)
+        def check_for_error( options = {}, &block )
           raise ArgumentError, "no block given" unless block_given?
-          result = yield.body
-          result = result.is_a?(Hash) ? result.with_indifferent_access : {}
-          raise ParseError.new( result[:code], result[:error] ) if result[:code] && result[:error]
+          result = yield
+          unless options[:raw_response]
+            result = result.body
+            result = result.is_a?(Hash) ? result.with_indifferent_access : {}
+            raise ParseError.new( result[:code], result[:error] ) if result[:code] && result[:error]
+          end
           result
         end
       end

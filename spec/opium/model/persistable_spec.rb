@@ -36,6 +36,10 @@ describe Opium::Model::Persistable do
       end )
     end
     
+    after do
+      Opium::Model::Criteria.models.clear
+    end
+    
     describe ':new_record?' do
       subject { Game.new }
       

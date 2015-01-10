@@ -13,7 +13,11 @@ module Opium
       
       def attributes=(values)
         sanitize_for_mass_assignment( rubyize_field_names( values ) ).each do |k, v|
-          send( "#{k}=", v )
+          if self.class.fields[k]
+            send( "#{k}=", v )
+          else
+            attributes[k] = v
+          end
         end
       end
       
@@ -25,7 +29,7 @@ module Opium
       private
       
       def rubyize_field_names( hash )
-        Hash[*hash.map {|k, v| [self.class.ruby_canonical_field_names[k], v]}.flatten]
+        Hash[*hash.map {|k, v| [self.class.ruby_canonical_field_names[k] || k, v]}.flatten]
       end
     end
   end
