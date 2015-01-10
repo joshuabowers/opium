@@ -14,6 +14,7 @@ describe Opium::Model::Connectable do
     
   describe 'in a model' do
     subject { Model }
+    let( :response ) { double('Response').tap {|r| allow(r).to receive(:body) } }
     
     it { should respond_to( :connection ) }
     it { should respond_to( :reset_connection! ) }
@@ -49,12 +50,12 @@ describe Opium::Model::Connectable do
       end
       
       it 'should execute a :get on :connection' do
-        subject.connection.should_receive(:get) { OpenStruct.new body: {} }.with( 'classes/Model' )
+        subject.connection.should_receive(:get) { response }.with( 'classes/Model' )
         subject.http_get
       end
       
       it 'should use a resource id if passed an :id option' do
-        subject.connection.should_receive(:get) { OpenStruct.new body: {} }.with( 'classes/Model/abcd1234' )
+        subject.connection.should_receive(:get) { response }.with( 'classes/Model/abcd1234' )
         subject.http_get id: 'abcd1234'
       end
       
@@ -78,21 +79,21 @@ describe Opium::Model::Connectable do
     
     describe ':http_post' do
       it 'should execute a :post on :connection' do
-        subject.connection.should_receive(:post) { OpenStruct.new body: {} }
+        subject.connection.should_receive(:post) { response }
         subject.http_post( {} )
       end
     end
     
     describe ':http_put' do
       it 'should execute a :put on :connection' do
-        subject.connection.should_receive(:put) { OpenStruct.new body: {} }
+        subject.connection.should_receive(:put) { response }
         subject.http_put( 'abcd1234', {} )
       end
     end
     
     describe ':http_delete' do
       it 'should execute a :delete on :connection' do
-        subject.connection.should_receive(:delete) { OpenStruct.new body: {} }
+        subject.connection.should_receive(:delete) { response }
         subject.http_delete( 'abcd1234' )
       end
     end
