@@ -5,3 +5,4 @@ require "opium/version"
 require "opium/configuration"
 require "opium/extensions"
 require "opium/model"
+require "opium/railtie" if defined?( Rails )
