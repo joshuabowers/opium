@@ -5,25 +5,31 @@ module Opium
       
       included do
         include ActiveModel::Dirty
+        # alias_method_chain :initialize, :dirty
+        # alias_method_chain :save, :dirty
       end
       
-      unless self.method_defined? :changes_applied
-        def changes_applied
-          @previously_changed = changes
-          @changed_attributes = ActiveSupport::HashWithIndifferentAccess.new
-        end
-      end
-        
-      unless self.method_defined? :reset_changes
-        def reset_changes
-          @previously_changed = ActiveSupport::HashWithIndifferentAccess.new
-          @changed_attributes = ActiveSupport::HashWithIndifferentAccess.new      
-        end
+      # def initialize_with_dirty( attributes = {} )
+      #   initialize_without_dirty( attributes )
+      #   clear_changes_information
+      # end
+      #
+      # def save_with_dirty( options = {} )
+      #   save_without_dirty( options ).tap { changes_applied }
+      # end
+      
+      def initialize( attributes = {} )
+        super( attributes ).tap { clear_changes_information }
       end
       
       def save( options = {} )
-        (defined?( super ) ? super( options ) : true).tap { changes_applied }
+        super( options ).tap { changes_applied }
       end
+      
+            
+      # def save( options = {} )
+      #   (defined?( super ) ? super( options ) : true).tap { changes_applied }
+      # end
     end
   end
 end

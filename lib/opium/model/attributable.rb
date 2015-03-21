@@ -4,7 +4,7 @@ module Opium
       extend ActiveSupport::Concern
       
       included do
-        include ActiveModel::MassAssignmentSecurity
+        include ActiveModel::ForbiddenAttributesProtection
       end
       
       def attributes
@@ -13,7 +13,8 @@ module Opium
       
       def attributes=(values)
         sanitize_for_mass_assignment( rubyize_field_names( values ) ).each do |k, v|
-          if self.class.fields[k]
+          field_info = self.class.fields[k]
+          if field_info.present? && !field_info.readonly
             send( "#{k}=", v )
           else
             attributes[k] = v

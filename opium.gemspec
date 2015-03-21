@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Joshua Bowers"]
   spec.email         = ["joshua.bowers+code@gmail.com"]
   spec.summary       = %q{An Object Parse.com Mapping technology for defining models.}
-  spec.description   = %q{Provides an intuitive, Mongoid-inspired mapping layer being your application's object space and Parse.'}
+  spec.description   = %q{Provides an intuitive, Mongoid-inspired mapping layer betwwen your application's object space and Parse.'}
   spec.homepage      = "https://github.com/joshuabowers/opium"
   spec.license       = "MIT"
 
@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "pry-nav"
   spec.add_development_dependency "coveralls"
   
-  spec.add_dependency "activemodel", "~> 3.2.18"
+  spec.add_dependency "activemodel", "~> 4.2.0"
   spec.add_dependency "gem_config", "~> 0.3.1"
   spec.add_dependency "faraday", "~> 0.9.0"
   spec.add_dependency "faraday_middleware", "~> 0.9.1"

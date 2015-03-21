@@ -52,6 +52,10 @@ module Opium
         def blank_criteria
           Criteria.new( self.model_name )
         end
+        
+        def with_scope( criteria )
+          
+        end
       end
     end
   end

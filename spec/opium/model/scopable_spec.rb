@@ -12,6 +12,7 @@ describe Opium::Model::Scopable do
     it { should respond_to( :default_scope ).with(1).argument }
     it { should respond_to( :scoped ) }
     it { should respond_to( :unscoped ) }
+    it { should respond_to( :with_scope ).with(1).argument }
   end
   
   describe 'within a model' do
@@ -134,6 +135,9 @@ describe Opium::Model::Scopable do
         Game.default_scope { Game.limit( 5 ) }.should be_a( Opium::Model::Criteria )
         Game.default_scope.should == expected
       end
+    end
+    
+    describe ':with_scope' do
     end
   end
 end

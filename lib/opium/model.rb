@@ -3,11 +3,11 @@ require 'active_support/core_ext/string'
 require 'active_support/core_ext/hash/indifferent_access'
 require 'active_support/core_ext/hash/deep_merge'
 require 'active_support/inflector'
-require 'opium/model/naming'
+# require 'opium/model/naming'
 require 'opium/model/connectable'
 require 'opium/model/persistable'
 require 'opium/model/callbacks'
-require 'opium/model/validations'
+# require 'opium/model/validations'
 require 'opium/model/serialization'
 require 'opium/model/dirty'
 require 'opium/model/fieldable'
@@ -19,16 +19,18 @@ require 'opium/model/scopable'
 module Opium
   module Model
     extend ActiveSupport::Concern
-            
+        
+    include ActiveModel::Model
+    
     def initialize( attributes = {} )
       self.attributes = attributes
-      reset_changes
+      # reset_changes
     end
         
-    include Naming
+    # include Naming
     include Connectable
     include Persistable
-    include Validations
+    # include Validations
     include Dirty
     include Fieldable
     include Serialization
