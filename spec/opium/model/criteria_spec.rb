@@ -2,12 +2,12 @@ require 'spec_helper.rb'
 
 describe Opium::Model::Criteria do
   before do
-    stub_const( 'Game', Class.new do
+    stub_const( 'Game', Class.new do |klass|
       include Opium::Model
       field :title, type: String
       field :price, type: Float
       
-      stub( :model_name ).and_return( 'Game' )
+      stub('model_name').and_return(ActiveModel::Name.new(klass, nil, 'Game'))
     end )
     
     stub_request( :get, 'https://api.parse.com/1/classes/Game' ).with( body: {} ).

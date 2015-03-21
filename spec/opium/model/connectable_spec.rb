@@ -2,9 +2,9 @@ require 'spec_helper.rb'
 
 describe Opium::Model::Connectable do
   before do
-    stub_const( 'Model', Class.new do
+    stub_const( 'Model', Class.new do |klass|
       include Opium::Model::Connectable
-      stub('model_name').and_return('Model')
+      stub('model_name').and_return(ActiveModel::Name.new(klass, nil, 'Model'))
     end )
   end
   

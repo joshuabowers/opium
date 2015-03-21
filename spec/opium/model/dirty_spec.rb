@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Opium::Model::Dirty do
-  let( :model ) { Class.new { def initialize(a = {}); end; stub(:save); include Opium::Model::Dirty; } }
+  let( :model ) { Class.new { def initialize(a = {}); end; def save(o = {}); end; include Opium::Model::Dirty; } }
   
   describe "instance" do
     subject { model.new }

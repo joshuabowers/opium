@@ -17,12 +17,12 @@ describe Opium::Model::Scopable do
   
   describe 'within a model' do
     before do
-      stub_const( 'Game', Class.new do 
+      stub_const( 'Game', Class.new do |klass|
         include Opium::Model
         field :title, type: String
         field :release_price, type: Float
         
-        stub( :model_name ).and_return( 'Game' )
+        stub('model_name').and_return(ActiveModel::Name.new(klass, nil, 'Game'))
         
         default_scope order( title: :asc )
         

@@ -23,12 +23,13 @@ module Opium
           options = methods.last.is_a?(::Hash) ? methods.pop : {}
           methods.each do |method|
             class_eval do
-              define_method method do |*args|
+              define_method "#{method}_with_callback" do |*args|
                 run_callbacks( method ) do
-                  defined?( super ) ? super( *args ) : false
+                  send( "#{method}_without_callback", *args )
                 end
               end
               send( :private, method ) if options[:private]
+              alias_method_chain method, :callback
             end
           end
         end

@@ -22,23 +22,22 @@ module Opium
         
     include ActiveModel::Model
     
-    def initialize( attributes = {} )
-      self.attributes = attributes
-      # reset_changes
+    included do
+      define_method :initialize do |attributes = {}|
+        self.attributes = attributes
+      end
+      
+      include Connectable
+      include Persistable
+      include Dirty
+      include Fieldable
+      include Serialization
+      include Attributable
+      include Queryable
+      include Callbacks
+      include Scopable
     end
         
-    # include Naming
-    include Connectable
-    include Persistable
-    # include Validations
-    include Dirty
-    include Fieldable
-    include Serialization
-    include Attributable
-    include Queryable
-    include Callbacks
-    include Scopable
-            
     def inspect
       inspected_fields = self.attributes.map {|k, v| [k, v.inspect].join(': ')}.join(', ')
       "#<#{self.class.model_name} #{inspected_fields}>"

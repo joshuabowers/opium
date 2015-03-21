@@ -40,7 +40,7 @@ module Opium
         end
         
         def resource_name( resource_id = nil )
-          @resource_name ||= "#{object_prefix}/#{model_name.camelize}"
+          @resource_name ||= "#{object_prefix}/#{model_name.name}"
           resource_id ? [@resource_name, resource_id].join('/') : @resource_name
         end
         

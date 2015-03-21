@@ -1,7 +1,31 @@
 require 'spec_helper'
 
 describe Opium::Model::Callbacks do
-  let( :model ) { Class.new { include Opium::Model::Callbacks } }
+  let( :model ) { 
+    Class.new do
+      def initialize( a = {} )
+      end
+      
+      def save( o = {} )
+      end
+      
+      def destroy
+      end
+      
+      def touch
+      end
+      
+      def create
+      end
+      
+      def update
+      end
+      
+      private :create, :update
+      
+      include Opium::Model::Callbacks
+    end
+  }
   
   its( :constants ) { should include(:CALLBACKS) }
   

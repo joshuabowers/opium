@@ -6,7 +6,7 @@ module Opium
       self.models = {}.with_indifferent_access
       
       def initialize( model_name )
-        @model_name = model_name
+        @model_name = model_name.respond_to?(:name) ? model_name.name : model_name
       end
       
       attr_reader :model_name
