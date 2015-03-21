@@ -14,7 +14,7 @@ module Opium
       def attributes=(values)
         sanitize_for_mass_assignment( rubyize_field_names( values ) ).each do |k, v|
           field_info = self.class.fields[k]
-          if field_info.present? && !field_info.readonly
+          if field_info.present?
             send( "#{k}=", v )
           else
             attributes[k] = v

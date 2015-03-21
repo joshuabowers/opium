@@ -3,11 +3,9 @@ require 'active_support/core_ext/string'
 require 'active_support/core_ext/hash/indifferent_access'
 require 'active_support/core_ext/hash/deep_merge'
 require 'active_support/inflector'
-# require 'opium/model/naming'
 require 'opium/model/connectable'
 require 'opium/model/persistable'
 require 'opium/model/callbacks'
-# require 'opium/model/validations'
 require 'opium/model/serialization'
 require 'opium/model/dirty'
 require 'opium/model/fieldable'
@@ -23,10 +21,6 @@ module Opium
     include ActiveModel::Model
     
     included do
-      define_method :initialize do |attributes = {}|
-        self.attributes = attributes
-      end
-      
       include Connectable
       include Persistable
       include Dirty
@@ -36,6 +30,10 @@ module Opium
       include Queryable
       include Callbacks
       include Scopable
+    end
+    
+    def initialize( attributes = {} )
+      self.attributes = attributes
     end
         
     def inspect
