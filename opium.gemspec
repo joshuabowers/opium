@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Joshua Bowers"]
   spec.email         = ["joshua.bowers+code@gmail.com"]
   spec.summary       = %q{An Object Parse.com Mapping technology for defining models.}
-  spec.description   = %q{Provides an intuitive, Mongoid-inspired mapping layer betwwen your application's object space and Parse.'}
+  spec.description   = %q{Provides an intuitive, Mongoid-inspired mapping layer between your application's object space and Parse.'}
   spec.homepage      = "https://github.com/joshuabowers/opium"
   spec.license       = "MIT"
 
