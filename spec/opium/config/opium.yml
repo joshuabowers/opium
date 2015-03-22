@@ -1,0 +1,5 @@
+test:
+  app_id: abcd1234
+  api_key: efgh5678
+  master_key: 9012ijkl
+  log_network_responses: true

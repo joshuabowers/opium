@@ -23,10 +23,10 @@ module Opium
           @@connection ||= Faraday.new( url: 'https://api.parse.com/1/' ) do |faraday|
             faraday.request :multipart
             faraday.request :url_encoded
-            faraday.response :logger if Opium.configuration.log_network_responses
+            faraday.response :logger if Opium.config.log_network_responses
             faraday.response :json, content_type: /\bjson$/
-            faraday.headers['X-Parse-Application-Id'] = Opium.configuration.app_id
-            faraday.headers['X-Parse-REST-API-Key'] = Opium.configuration.api_key
+            faraday.headers['X-Parse-Application-Id'] = Opium.config.app_id
+            faraday.headers['X-Parse-REST-API-Key'] = Opium.config.api_key
             faraday.adapter Faraday.default_adapter
           end
         end
