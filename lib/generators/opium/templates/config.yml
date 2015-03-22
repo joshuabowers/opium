@@ -1,0 +1,27 @@
+development:
+  # The Application ID for your Parse app. Mandatory
+  app_id: PARSE-APP-ID
+    
+  # The REST API key for your Parse app. Mandatory
+  api_key: PARSE-API-KEY
+    
+  # Your Parse app's master key setting. You may omit this, 
+  # but you will be unable to edit Users except by ACL rules
+  master_key: PARSE-MASTER-KEY
+    
+  # Any communications done with parse will either be (true) displayed or (false) silenced
+  log_network_responses: true
+    
+test:
+  app_id: PARSE-TEST-APP-ID
+  api_key: PARSE-TEST-API-KEY
+  master_key: PARSE-TEST-MASTER-KEY
+  log_network_responses: true
+
+# You could hardcode the values for the production Parse app here, but it is suggested
+# you set these through the suggested environment variables.
+production:
+  app_id: <%= ENV['PARSE_APP_ID'] %>
+  api_key: <%= ENV['PARSE_API_KEY'] %>
+  master_key: <%= ENV['PARSE_MASTER_KEY'] %>
+  log_network_responses: false
