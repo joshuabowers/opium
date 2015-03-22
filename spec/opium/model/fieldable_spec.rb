@@ -42,9 +42,9 @@ describe Opium::Model::Fieldable do
       end 
     end
     
-    it "each #fields should have a #name, #as, #type, #default, #readonly" do
+    it "each #fields should have a #name, #as, #type, #default, #readonly, #readonly?" do
       model.fields.values.each do |f|
-        f.should respond_to(:name, :as, :type, :default, :readonly)
+        f.should respond_to(:name, :as, :type, :default, :readonly, :readonly?)
       end
     end
     

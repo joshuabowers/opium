@@ -40,8 +40,8 @@ module Opium
         end
         
         def resource_name( resource_id = nil )
-          @resource_name ||= "#{object_prefix}/#{model_name.name}"
-          resource_id ? [@resource_name, resource_id].join('/') : @resource_name
+          @resource_name ||= Pathname.new( object_prefix ).join( model_name.name.demodulize )
+          ( resource_id ? @resource_name.join( resource_id ) : @resource_name ).to_s
         end
         
         def http_get( options = {} )

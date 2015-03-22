@@ -41,6 +41,14 @@ describe Opium::Model::Connectable do
       it 'should be able to include a resource id' do
         subject.resource_name('abc123').should == 'classes/Model/abc123'
       end
+      
+      it 'should demodulize the model_name' do
+        namespaced_model = subject
+        namespaced_model.stub(:model_name).and_return(ActiveModel::Name.new(subject, nil, 'Namespace::Model'))
+        namespaced_model.should_receive(:resource_name).and_call_original
+        namespaced_model.model_name.name.should == 'Namespace::Model'
+        namespaced_model.resource_name.should == 'classes/Model'
+      end
     end
     
     describe ':http_get' do
