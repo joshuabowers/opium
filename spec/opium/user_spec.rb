@@ -5,7 +5,7 @@ describe Opium::User do
   
   it { should be_an( Opium::Model ) }
   
-  %i[username password email email_verified].each do |field_name|
+  [:username, :password, :email, :email_verified].each do |field_name|
     it { described_class.fields.should have_key( field_name ) }
   end
   
