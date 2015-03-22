@@ -15,6 +15,14 @@ describe Opium::Model::Dirty do
         include Opium::Model
         field :title, type: String
       end )
+      stub_request(:post, "https://api.parse.com/1/classes/Game").with(
+        body: "{\"title\":\"Skyrim\"}",
+        headers: {'Content-Type'=>'application/json'}
+      ).to_return(
+        body: { objectId: 'abcd1234', createdAt: Time.now.to_s }.to_json, 
+        status: 200, 
+        headers: { 'Content-Type' => 'application/json', Location: 'https://api.parse.com/1/classes/Game/abcd1234' } 
+      )
     end
     
     subject { Game.new( title: 'Skyrim' ) }
