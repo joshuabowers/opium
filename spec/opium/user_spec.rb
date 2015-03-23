@@ -123,6 +123,7 @@ describe Opium::User do
   
   describe 'instance' do
     subject { Opium::User.new( id: 'abcd1234', session_token: 'super-secret-session-id', usernmae: 'user', email: 'user@email.com' ) }
+    # subject { Opium::User.new( id: 'abcd1234', session_token: nil, username: 'user', email: 'user@email.com' ) }
     
     it { should respond_to( :reset_password, :reset_password! ) }
     
@@ -156,6 +157,27 @@ describe Opium::User do
         it { expect { subject.reset_password! }.to_not raise_exception }
         it { subject.reset_password!.should == true }
       end
+    end
+    
+    describe ':save!' do
+      before do
+        stub_request(:put, "https://api.parse.com/1/users/abcd1234").with(
+          :body => "{}",
+          :headers => {'Content-Type'=>'application/json', 'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Rest-Api-Key'=>'PARSE_API_KEY', 'X-Parse-Sesson-Token'=>'super-secret-session-id'}
+        ).to_return(:status => 200, :body => {updatedAt: Time.now}.to_json, :headers => {content_type: 'application/json'})
+      end
+      
+      it { expect { subject.save! }.to_not raise_exception }
+    end
+    
+    describe ':delete' do
+      before do
+        stub_request(:delete, "https://api.parse.com/1/users/abcd1234").with(
+          :headers => {'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Rest-Api-Key'=>'PARSE_API_KEY', 'X-Parse-Sesson-Token'=>'super-secret-session-id'}
+        ).to_return(:status => 200, :body => "", :headers => {})
+      end
+      
+      it { expect { subject.delete }.to_not raise_exception }
     end
   end
 end

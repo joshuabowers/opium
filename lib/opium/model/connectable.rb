@@ -74,8 +74,8 @@ module Opium
           http( :put, {id: id}.merge(options), &infuse_request_with( data ) )          
         end
         
-        def http_delete( id )
-          http( :delete, id: id )
+        def http_delete( id, options = {} )
+          http( :delete, {id: id}.merge(options) )
         end
         
         def requires_heightened_privileges!
@@ -112,10 +112,14 @@ module Opium
             if options[:headers]
               request.headers.merge! options[:headers]
             end
-            if method != :get && requires_heightened_privileges? && Opium.config.master_key
-              request.headers.merge!( x_parse_master_key: Opium.config.master_key ) 
-              request.headers.delete :x_parse_rest_api_key
+
+            unless request.headers.include?( 'X-Parse-Session-Token' )
+              if method != :get && requires_heightened_privileges? && Opium.config.master_key
+                request.headers[:x_parse_master_key] = Opium.config.master_key
+                request.headers.delete(:x_parse_rest_api_key)
+              end
             end
+            
             further_operations.call( request ) if block_given?
           end
         end

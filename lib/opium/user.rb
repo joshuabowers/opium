@@ -9,6 +9,8 @@ module Opium
     field :session_token, type: String, readonly: true
     
     no_object_prefix!
+    requires_heightened_privileges!
+    add_header_to [:put, :delete], :x_parse_sesson_token, :session_token.to_proc
     
     class << self
       # Note that this will eat any ParseErrors which get raised, and not perform any logging.

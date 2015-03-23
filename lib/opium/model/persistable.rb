@@ -26,8 +26,37 @@ module Opium
           
         end
         
-        def add_header_to( method, header, value, options = {} )
+        def added_headers
+          @added_headers ||= {}.with_indifferent_access
+        end
+        
+        def add_header_to( methods, header, value, options = {} )
+          Array( methods ).each do |method|
+            added_headers[method] = { header: header, value: value, options: options }
+            
+            added_headers[method][:options][:only] = Array( options[:only] )
+            added_headers[method][:options][:except] = Array( options[:except] )
+          end
+          nil
+        end
+        
+        def get_header_for( method, context, owner = nil )
+          return {} unless added_headers[method]
           
+          eval_only = !added_headers[method][:options][:only].empty?
+          eval_except = !added_headers[method][:options][:except].empty?
+          
+          within_only = added_headers[method][:options][:only].include?( context )
+          within_except = added_headers[method][:options][:except].include?( context )
+          
+          value = added_headers[method][:value]
+          value = value.call( owner ) if owner && value.respond_to?( :call )
+          
+          if value && ( ( !eval_only && !eval_except ) || ( eval_only && within_only ) || ( eval_except && !within_except ) )
+            { headers: { added_headers[method][:header] => value } } 
+          else
+            {}
+          end
         end
       end
       
@@ -58,7 +87,8 @@ module Opium
       
       def delete
         self.tap do
-          self.class.http_delete id unless new_record?
+          headers = self.class.get_header_for( :delete, :delete, self )
+          self.class.http_delete id, headers unless new_record?
           self.freeze
         end
       end
@@ -93,11 +123,13 @@ module Opium
       end
       
       def create
-        self.attributes = self.class.http_post self.attributes_to_parse( except: [:id, :created_at, :updated_at] )
+        headers = self.class.get_header_for( :post, :create, self )
+        self.attributes = self.class.http_post self.attributes_to_parse( except: [:id, :created_at, :updated_at] ), headers
       end
       
       def update
-        self.attributes = self.class.http_put id, self.attributes_to_parse( only: changes.keys )
+        headers = self.class.get_header_for( :put, :update, self )
+        self.attributes = self.class.http_put id, self.attributes_to_parse( only: changes.keys ), headers
       end
     end
   end

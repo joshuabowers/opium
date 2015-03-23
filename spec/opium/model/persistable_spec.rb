@@ -10,6 +10,58 @@ describe Opium::Model::Persistable do
     it { should respond_to( :delete_all ).with(1).argument }
     it { should respond_to( :create, :create! ).with(1).argument }
     it { should respond_to( :add_header_to ).with(4).arguments }
+    it { should respond_to( :added_headers ) }
+    it { should respond_to( :get_header_for ).with(2).arguments }
+    
+    describe ':added_headers' do
+      it { subject.added_headers.should be_a( Hash ) }
+    end
+    
+    describe ':add_header_to' do
+      after { subject.added_headers.clear }
+      
+      it { expect { subject.add_header_to :put, :x_header, 42 }.to_not raise_exception }
+      it { subject.add_header_to(:delete, :x_header, 37, only: :delete).should be_nil }
+      
+      it 'should add header information to :added_headers' do
+        subject.add_header_to( :put, :x_header, 42, except: :update )
+        subject.added_headers.should have_key(:put)
+        subject.added_headers[:put].should include( :header, :value, :options )
+      end
+    end
+    
+    describe ':get_header_for' do
+      after { subject.added_headers.clear }
+      
+      it 'should return an empty hash if a method has no added headers' do
+        subject.get_header_for( :put, :update ).should == {}
+      end
+      
+      it 'should return an empty hash if a context is not within the only list for a method' do
+        subject.add_header_to( :put, :x_header, 42, only: [:foo, :bar] )
+        subject.get_header_for( :put, :baz ).should == {}
+      end
+      
+      it 'should return an empty hash if a context is within the except list for a method' do
+        subject.add_header_to( :put, :x_header, 42, except: [:foo, :bar] )
+        subject.get_header_for( :put, :foo ).should == {}
+      end
+      
+      it 'should return a headers hash if context-free' do
+        subject.add_header_to( :put, :x_header, 42 )
+        subject.get_header_for( :put, :update ).should == { headers: { x_header: 42 } }
+      end
+      
+      it 'should return a headers hash if a context is within the only list for a method' do
+        subject.add_header_to( :put, :x_header, 42, only: :update )
+        subject.get_header_for( :put, :update ).should == { headers: { x_header: 42 } }
+      end
+      
+      it 'should return a headers hash if a context is not within the except list for a method' do
+        subject.add_header_to( :put, :x_header, 42, except: :foo )
+        subject.get_header_for( :put, :update ).should == { headers: { x_header: 42 } }
+      end
+    end
   end
     
   describe 'instance' do
@@ -276,7 +328,7 @@ describe Opium::Model::Persistable do
       subject { Game.new( id: 'abcd1234', title: 'Skyrim' ) }
       
       it 'should receive :http_delete' do
-        subject.class.should receive( :http_delete ).with('abcd1234')
+        subject.class.should receive( :http_delete ).with('abcd1234', {})
         subject.delete
       end
       
