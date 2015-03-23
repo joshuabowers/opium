@@ -8,12 +8,9 @@ module Opium
     field :email_verified, type: Boolean
     field :session_token, type: String, readonly: true
     
+    no_object_prefix!
+    
     class << self
-      # Parse doesn't route User objects through /classes/, instead treating them as a top-level class.
-      def object_prefix
-        ''
-      end
-      
       def authenticate( username, password )
       
       end

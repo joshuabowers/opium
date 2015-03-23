@@ -4,7 +4,7 @@ class Array
   end
   
   def to_geo_point
-    return GeoPoint.new(self) if self.length == 2
-    raise ArgumentError.new( "invalid value for GeoPoint: \"#{self}\"" )
+    return GeoPoint.new(self) if self.size == 2
+    fail ArgumentError, %(invalid value for GeoPoint: "#{ self.inspect }"), caller
   end
 end

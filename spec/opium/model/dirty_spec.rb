@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Opium::Model::Dirty do
   let( :model ) { Class.new { def initialize(a = {}); end; def save(o = {}); end; include Opium::Model::Dirty; } }
   
-  describe "instance" do
+  describe 'instance' do
     subject { model.new }
     
     it { should respond_to( :changed?, :changed, :changed_attributes ) }
@@ -31,7 +31,7 @@ describe Opium::Model::Dirty do
       subject.should_not be_changed
     end
     
-    it "when saved, should receive #changes_applied" do
+    it 'when saved, should receive #changes_applied' do
       subject.should receive(:changes_applied)
       subject.save
     end    

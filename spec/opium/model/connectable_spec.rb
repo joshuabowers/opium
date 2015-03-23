@@ -19,6 +19,7 @@ describe Opium::Model::Connectable do
     it { should respond_to( :connection ) }
     it { should respond_to( :reset_connection! ) }
     it { should respond_to( :object_prefix ) }
+    it { should respond_to( :no_object_prefix! ) }
     it { should respond_to( :resource_name ).with(1).argument }
     it { should respond_to( :http_get, :http_post, :http_delete ).with(1).argument }
     it { should respond_to( :http_put ).with(2).arguments }

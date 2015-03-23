@@ -36,7 +36,12 @@ module Opium
         end
         
         def object_prefix
-          'classes'
+          @object_prefix ||= 'classes'
+        end
+        
+        # Parse doesn't route User objects through /classes/, instead treating them as a top-level class.
+        def no_object_prefix!
+          @object_prefix = ''
         end
         
         def resource_name( resource_id = nil )
@@ -80,7 +85,7 @@ module Opium
         end
         
         def check_for_error( options = {}, &block )
-          raise ArgumentError, "no block given" unless block_given?
+          fail ArgumentError, 'no block given' unless block_given?
           result = yield
           unless options[:raw_response]
             result = result.body
