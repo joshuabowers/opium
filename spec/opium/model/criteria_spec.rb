@@ -164,7 +164,7 @@ describe Opium::Model::Criteria do
     describe 'if :cache?' do
       subject { Game.criteria.cache }
       
-      it 'should call its :model\'s :http_get only once' do
+      it 'each should call its :model\'s :http_get only once' do
         subject.model.should receive(:http_get).with(query: subject.constraints).once
         subject.each {|model| }
         subject.each {|model| }
@@ -185,6 +185,21 @@ describe Opium::Model::Criteria do
         subject.each {|model| }
         subject.each.count
       end
+    end
+  end
+  
+  describe ':uncache' do
+    subject { Game.criteria.cache }
+    
+    it 'each should call its :model\'s :http_get twice' do
+      subject.model.should receive(:http_get).with(query: subject.constraints).twice
+      subject.each {|model| }
+      subject.uncache.each {|model| }
+    end
+    
+    it 'should delete its @cache' do
+      subject.each {|model| }
+      subject.uncache.instance_variable_get(:@cache).should be_nil
     end
   end
     

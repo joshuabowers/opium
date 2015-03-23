@@ -84,6 +84,12 @@ module Opium
         end
       end
       
+      def uncache
+        super.tap do |criteria|
+          criteria.instance_variable_set(:@cache, nil)
+        end
+      end
+      
       private
       
       def update_hash_value( hash_name, key, value )
