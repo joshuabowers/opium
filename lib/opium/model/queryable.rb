@@ -97,6 +97,18 @@ module Opium
         
         alias_method :and, :where
         
+        def cache
+          criteria.update_variable( :cache, true )
+        end
+        
+        def uncache
+          criteria.update_variable( :cache, false )
+        end
+        
+        def cached?
+          criteria.variables[:cache]
+        end
+        
         private
         
         def model

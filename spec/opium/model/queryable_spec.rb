@@ -20,6 +20,7 @@ describe Opium::Model::Queryable do
     it { should respond_to( :where ).with(1).argument }
     it { should respond_to( :order ).with(1).argument }
     it { should respond_to( :limit, :skip ).with(1).argument }
+    it { should respond_to( :cache, :uncache, :cached? ) }
   end
   
   describe 'within a model' do
@@ -273,6 +274,28 @@ describe Opium::Model::Queryable do
         subject.unscoped.order( title: 1 ).order( price: -1 ).tap do |criteria|
           criteria.constraints['order'].should == 'title,-price'
         end
+      end
+    end
+    
+    describe ':cache' do
+      after { subject.uncache }
+      
+      it 'should return a criteria' do
+        subject.cache.should be_an( Opium::Model::Criteria )
+      end
+      
+      it 'should cause :cached? to return true' do
+        subject.cache.cached?.should == true
+      end
+    end
+    
+    describe ':uncache' do
+      it 'should return a criteria' do
+        subject.uncache.should be_an( Opium::Model::Criteria )
+      end
+      
+      it 'should cause :cached? to return false' do
+        subject.uncache.cached?.should == false
       end
     end
   end

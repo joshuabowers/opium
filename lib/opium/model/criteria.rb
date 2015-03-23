@@ -24,12 +24,23 @@ module Opium
       end
       
       def update_constraint( constraint, value )
-        chain.tap do |c|
-          c.constraints[constraint] = value if c.constraints[constraint].nil? || !value.is_a?( Hash )
-          if c.constraints[constraint].is_a?(Hash) || value.is_a?(Hash)
-            c.constraints[constraint].deep_merge!( value )
-          end
-        end
+        chain.tap {|c| c.update_constraint!( constraint, value )}
+      end
+      
+      def update_constraint!( constraint, value )
+        update_hash_value :constraints, constraint, value
+      end
+      
+      def variables
+        @variables ||= {}.with_indifferent_access
+      end
+      
+      def update_variable( variable, value )
+        chain.tap {|c| c.update_variable!( variable, value )}
+      end
+      
+      def update_variable!( variable, value )
+        update_hash_value :variables, variable, value
       end
       
       def empty?
@@ -41,7 +52,7 @@ module Opium
       end
       
       def ==( other )
-        other.is_a?( self.class ) && self.model_name == other.model_name && self.constraints == other.constraints
+        other.is_a?( self.class ) && self.model_name == other.model_name && self.constraints == other.constraints && self.variables == other.variables
       end
       
       def each
@@ -65,6 +76,17 @@ module Opium
         {}.with_indifferent_access.tap do |result|
           result[:query] = { where: constraints[:where], className: model_name } if constraints[:where]
           result[:key] = constraints[:keys] if constraints[:keys]
+        end
+      end
+      
+      private
+      
+      def update_hash_value( hash_name, key, value )
+        hash = self.send( hash_name )
+        if hash[key].nil? || !value.is_a?(Hash)
+          hash[key] = value
+        elsif hash[key].is_a?(Hash) || value.is_a?(Hash)
+          hash[key].deep_merge!( value )
         end
       end
     end

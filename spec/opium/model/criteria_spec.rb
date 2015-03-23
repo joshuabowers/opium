@@ -27,8 +27,8 @@ describe Opium::Model::Criteria do
   
   it { should be_a( Opium::Model::Queryable::ClassMethods ) }
   it { should respond_to( :chain ) }
-  it { should respond_to( :constraints ) }
-  it { should respond_to( :update_constraint ).with(2).arguments }
+  it { should respond_to( :constraints, :variables ) }
+  it { should respond_to( :update_constraint, :update_variable ).with(2).arguments }
   it { should respond_to( :model, :model_name ) }
   it { should respond_to( :empty? ) }
   it { should respond_to( :to_parse ) }
@@ -67,6 +67,18 @@ describe Opium::Model::Criteria do
     end
   end
   
+  describe ':update_variable' do
+    it 'should chain the criteria and alter the specified instance variable on the copy' do
+      result = subject.update_variable( :cache, true )
+      result.should be_an( Opium::Model::Criteria )
+      result.should_not equal( subject )
+      result.should_not == subject
+      result.constraints.should_not have_key( :cache )
+      result.variables.should have_key( :cache )
+      result.variables[:cache].should == true
+    end
+  end
+  
   describe ':==' do
     let( :first ) { Opium::Model::Criteria.new( 'Object' ).update_constraint( :order, ['title', 1] ) }
     let( :second ) { Opium::Model::Criteria.new( 'Object' ).update_constraint( :order, ['title', 1] ) }
@@ -77,6 +89,11 @@ describe Opium::Model::Criteria do
     
     it 'should be based on the criteria constraints' do
       first.should == second
+    end
+    
+    it 'should be based on the criteria variables' do
+      third = first.update_variable( :cache, true )
+      second.should_not == third
     end
   end
   
