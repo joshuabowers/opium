@@ -140,7 +140,7 @@ describe Opium::Model::Criteria do
     end
     
     describe 'with a block' do
-      it 'should call its :model\'s :http_get' do
+      it "should call its :model's :http_get" do
         subject.model.should receive(:http_get).with(query: subject.constraints)
         subject.each {|model| }
       end
@@ -153,9 +153,41 @@ describe Opium::Model::Criteria do
         expect {|b| subject.each &b }.to yield_successive_args(Opium::Model, Opium::Model)
         expect {|b| subject.each &b }.to yield_successive_args(Game, Game)
       end
+      
+      it "should call its :model's :http_get when counting" do
+        subject.model.should receive(:http_get).with(query: subject.constraints).twice
+        subject.each {|model| }
+        subject.each.count
+      end
+    end
+    
+    describe 'if :cache?' do
+      subject { Game.criteria.cache }
+      
+      it 'should call its :model\'s :http_get only once' do
+        subject.model.should receive(:http_get).with(query: subject.constraints).once
+        subject.each {|model| }
+        subject.each {|model| }
+      end
+      
+      it 'should yield to its block any results it finds' do
+        expect {|b| subject.each &b }.to yield_control.twice
+        expect {|b| subject.each &b }.to yield_control.twice
+      end
+      
+      it 'should yield to its block Opium::Model objects (Game in context)' do
+        expect {|b| subject.each &b }.to yield_successive_args(Opium::Model, Opium::Model)
+        expect {|b| subject.each &b }.to yield_successive_args(Game, Game)
+      end
+      
+      it "should not call its :model's :http_get when counting" do
+        subject.model.should receive(:http_get).with(query: subject.constraints).once
+        subject.each {|model| }
+        subject.each.count
+      end
     end
   end
-  
+    
   describe ':to_parse' do
     it 'should be a hash' do
       Game.criteria.to_parse.should be_a( Hash )

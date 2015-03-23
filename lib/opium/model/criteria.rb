@@ -55,14 +55,19 @@ module Opium
         other.is_a?( self.class ) && self.model_name == other.model_name && self.constraints == other.constraints && self.variables == other.variables
       end
       
-      def each
-        unless block_given?
+      def each(&block)
+        if !block_given?
           to_enum(:each)
+        elsif cached? && @cache
+          @cache.each(&block)
         else
           response = self.model.http_get( query: self.constraints )
+          @cache = []
           if response && response['results']
             response['results'].each do |attributes|
-              yield self.model.new( attributes )
+              model = self.model.new( attributes )
+              @cache << model if cached?
+              block.call model
             end
           end
         end
