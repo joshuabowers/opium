@@ -3,27 +3,13 @@ require 'spec_helper'
 describe Opium::Model::Callbacks do
   let( :model ) { 
     Class.new do
-      def initialize( a = {} )
-      end
-      
-      def save( o = {} )
-      end
-      
-      def destroy
-      end
-      
-      def touch
-      end
-      
-      def create
-      end
-      
-      def update
-      end
-      
-      def find( id )
-        
-      end
+      def initialize( a = {} ) end
+      def save( o = {} ) end
+      def destroy; end
+      def touch; end
+      def create; end
+      def update; end
+      def find( id ) end
       
       private :create, :update
       
