@@ -277,6 +277,12 @@ describe Opium::Model::Queryable do
       end
     end
     
+    describe ':cached?' do
+      it 'should be false on a non-cached criteria' do
+        Game.criteria.cached?.should be_falsey
+      end
+    end
+    
     describe ':cache' do
       after { subject.uncache }
       
