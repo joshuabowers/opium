@@ -31,9 +31,34 @@ describe Opium::User do
       body: "{}", 
       headers: {'Content-Type' => 'application/json'}
     )
+    
+    stub_request(:get, "https://api.parse.com/1/users/me").
+      with( headers: {'X-Parse-Session-Token'=>'super-secret-session-id'} ).
+      to_return(
+        :status => 200, 
+        :body => {
+          username: 'username', 
+          createdAt: '2014-11-01T12:00:30Z', 
+          updatedAt: '2015-02-10T16:37:23Z',
+          objectId: 'abcd1234'
+        }.to_json, 
+        headers: { 'Content-Type' => 'application/json' }
+      )
+      
+    stub_request(:get, "https://api.parse.com/1/users/me").
+      with( headers: {'X-Parse-Session-Token'=>'never-been-given-out'}).
+      to_return(
+        status: 404, 
+        body: {
+          code: 101,
+          error: 'invalid session'
+        }.to_json, 
+        headers: { 'Content-Type' => 'application/json' }
+      )
   end
   
   it { described_class.should respond_to( :authenticate, :authenticate! ).with(2).arguments }
+  it { described_class.should respond_to( :find_by_session_token ).with(1).argument }
   it { described_class.should respond_to( :object_prefix ) }
   
   it { should be_an( Opium::Model ) }
@@ -76,6 +101,23 @@ describe Opium::User do
     
     describe 'a bad login' do
       it { expect { described_class.authenticate!( 'username', 'deadbeef' ) }.to raise_exception }
+    end
+  end
+  
+  describe ':find_by_session_token' do
+    describe 'without a token' do
+      it { expect { described_class.find_by_session_token( nil ) }.to raise_exception }
+    end
+    
+    describe 'with a valid token' do
+      let(:current_user) { described_class.find_by_session_token( 'super-secret-session-id' ) }
+      
+      it { expect { current_user }.to_not raise_exception }
+      it { current_user.should be_a( described_class ) }
+    end
+    
+    describe 'with an invalid token' do
+      it { expect { described_class.find_by_session_token( 'never-been-given-out' ) }.to raise_exception(Opium::Model::Connectable::ParseError) }
     end
   end
   

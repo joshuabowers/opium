@@ -82,7 +82,7 @@ module Opium
                 
         def http( method, options, &block )
           check_for_error( options ) do
-            connection.send( method, resource_name( options[:id] ), &block )
+            connection.send( method, resource_name( options[:id] ), &apply_headers_to_request( options, &block ) )
           end
         end
         
@@ -96,6 +96,15 @@ module Opium
             request.headers['Content-Type'] = 'application/json'
             request.body = data
             request.body = request.body.to_json unless request.body.is_a?(String)
+          end
+        end
+        
+        def apply_headers_to_request( options, &further_operations )
+          lambda do |request|
+            if options[:headers]
+              request.headers.merge! options[:headers]
+            end
+            further_operations.call( request ) if block_given?
           end
         end
         

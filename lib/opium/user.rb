@@ -21,6 +21,10 @@ module Opium
       def authenticate!( username, password )
         new( as_resource('login') { http_get query: { username: username, password: password } } )
       end
+      
+      def find_by_session_token( token )
+        new( http_get id: 'me', headers: { x_parse_session_token: token } )
+      end
     end
     
     def reset_password
