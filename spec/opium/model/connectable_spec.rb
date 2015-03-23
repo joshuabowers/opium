@@ -24,6 +24,7 @@ describe Opium::Model::Connectable do
     it { should respond_to( :resource_name ).with(1).argument }
     it { should respond_to( :http_get, :http_post, :http_delete ).with(1).argument }
     it { should respond_to( :http_put ).with(2).arguments }
+    it { should respond_to( :requires_heightened_privileges!, :requires_heightened_privileges? ) }
     
     its( :object_prefix ) { should == 'classes' }
     
@@ -129,6 +130,46 @@ describe Opium::Model::Connectable do
       it 'should execute a :delete on :connection' do
         subject.connection.should_receive(:delete) { response }
         subject.http_delete( 'abcd1234' )
+      end
+    end
+    
+    describe ':requires_heightened_privileges!' do
+      shared_examples_for 'it has heightened privileges on' do |method, *args|
+        before do
+          resource = args.first.is_a?(Hash) ? '' : "/#{args.first}"
+          to_send = method == :delete ? {} : {body: "{}"}
+          headers = method == :delete ? {} : {content_type: 'application/json'}
+          stub_request(method, "https://api.parse.com/1/classes/Model#{resource}").
+            with(
+              to_send.merge(
+                headers: headers.merge( x_parse_application_id: 'PARSE_APP_ID', x_parse_master_key: 'PARSE_MASTER_KEY' )
+              )
+            ).to_return(:status => 200, :body => "{}", :headers => {content_type: 'application/json'})
+        end
+        
+        it "should cause :http_#{method} to add a master-key header" do
+          subject.requires_heightened_privileges!
+          expect { subject.send( :"http_#{method}", *args ) }.to_not raise_exception
+        end
+      end
+      
+      after { subject.instance_variable_set :@requires_heightened_privileges, nil }
+      
+      it { subject.requires_heightened_privileges!.should == true }
+      
+      it_should_behave_like 'it has heightened privileges on', :post, {}
+      it_should_behave_like 'it has heightened privileges on', :put, 'abcd1234', {}
+      it_should_behave_like 'it has heightened privileges on', :delete, 'abcd1234'
+    end
+    
+    describe ':requires_heightened_privileges?' do
+      after { subject.instance_variable_set :@requires_heightened_privileges, nil }
+      
+      it { subject.requires_heightened_privileges?.should == false }
+      
+      it 'should be true if privileges have been raised' do
+        subject.requires_heightened_privileges!
+        subject.requires_heightened_privileges?.should == true
       end
     end
   end

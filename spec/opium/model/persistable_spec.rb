@@ -9,6 +9,7 @@ describe Opium::Model::Persistable do
     it { should respond_to( :destroy_all ).with(1).argument }
     it { should respond_to( :delete_all ).with(1).argument }
     it { should respond_to( :create, :create! ).with(1).argument }
+    it { should respond_to( :add_header_to ).with(4).arguments }
   end
     
   describe 'instance' do

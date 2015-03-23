@@ -25,6 +25,10 @@ module Opium
         def delete_all( query = nil )
           
         end
+        
+        def add_header_to( method, header, value, options = {} )
+          
+        end
       end
       
       def save( options = {} )

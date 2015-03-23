@@ -66,23 +66,31 @@ module Opium
           end
         end
         
-        def http_post( data )
-          http( :post, {}, &infuse_request_with( data ) )
+        def http_post( data, options = {} )
+          http( :post, options, &infuse_request_with( data ) )
         end
         
-        def http_put( id, data )
-          http( :put, id: id, &infuse_request_with( data ) )          
+        def http_put( id, data, options = {} )
+          http( :put, {id: id}.merge(options), &infuse_request_with( data ) )          
         end
         
         def http_delete( id )
           http( :delete, id: id )
         end
         
+        def requires_heightened_privileges!
+          @requires_heightened_privileges = true
+        end
+        
+        def requires_heightened_privileges?
+          !@requires_heightened_privileges.nil?
+        end
+        
         private
                 
         def http( method, options, &block )
           check_for_error( options ) do
-            connection.send( method, resource_name( options[:id] ), &apply_headers_to_request( options, &block ) )
+            connection.send( method, resource_name( options[:id] ), &apply_headers_to_request( method, options, &block ) )
           end
         end
         
@@ -99,10 +107,14 @@ module Opium
           end
         end
         
-        def apply_headers_to_request( options, &further_operations )
+        def apply_headers_to_request( method, options, &further_operations )
           lambda do |request|
             if options[:headers]
               request.headers.merge! options[:headers]
+            end
+            if method != :get && requires_heightened_privileges? && Opium.config.master_key
+              request.headers.merge!( x_parse_master_key: Opium.config.master_key ) 
+              request.headers.delete :x_parse_rest_api_key
             end
             further_operations.call( request ) if block_given?
           end
