@@ -44,6 +44,7 @@ describe Opium::User do
   
   it { described_class.fields[:session_token].should be_readonly }
   it { described_class.object_prefix.should be_empty }
+  it { described_class.resource_name.should == 'users' }
   
   describe ':authenticate' do
     describe 'a good login' do

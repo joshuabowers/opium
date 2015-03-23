@@ -54,7 +54,7 @@ module Opium
         
         def resource_name( resource_id = nil )
           return @masked_resource_name if @masked_resource_name
-          @resource_name ||= Pathname.new( object_prefix ).join( model_name.name.demodulize )
+          @resource_name ||= Pathname.new( object_prefix ).join( map_name_to_resource( model_name ) )
           ( resource_id ? @resource_name.join( resource_id ) : @resource_name ).to_s
         end
         
@@ -84,6 +84,11 @@ module Opium
           check_for_error( options ) do
             connection.send( method, resource_name( options[:id] ), &block )
           end
+        end
+        
+        def map_name_to_resource( model_name )
+          name = model_name.name.demodulize
+          @object_prefix.empty? ? name.tableize : name
         end
         
         def infuse_request_with( data )
