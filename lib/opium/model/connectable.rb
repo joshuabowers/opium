@@ -50,15 +50,19 @@ module Opium
         end
         
         def http_get( options = {} )
-          http( :get, options )
+          http( :get, options ) do |request|
+            options.fetch(:query, {}).each do |key, value|
+              request.params[key] = key.to_s == 'where' ? value.to_json : value
+            end
+          end
         end
         
         def http_post( data )
-          http( :post, data: data )
+          http( :post, {}, &infuse_request_with( data ) )
         end
         
         def http_put( id, data )
-          http( :put, id: id, data: data )          
+          http( :put, id: id, &infuse_request_with( data ) )          
         end
         
         def http_delete( id )
@@ -67,20 +71,17 @@ module Opium
         
         private
                 
-        def http( method, options )
+        def http( method, options, &block )
           check_for_error( options ) do
-            connection.send( method, resource_name( options[:id] ) ) do |request|
-              if options[:query]
-                options[:query].each do |key, value|
-                  request.params[key] = key.to_s == 'where' ? value.to_json : value
-                end
-              end
-              if [:post, :put].include? method
-                request.headers['Content-Type'] = 'application/json'
-                request.body = options[:data]
-                request.body = request.body.to_json unless request.body.is_a?(String)
-              end
-            end
+            connection.send( method, resource_name( options[:id] ), &block )
+          end
+        end
+        
+        def infuse_request_with( data )
+          lambda do |request|
+            request.headers['Content-Type'] = 'application/json'
+            request.body = data
+            request.body = request.body.to_json unless request.body.is_a?(String)
           end
         end
         
@@ -90,7 +91,7 @@ module Opium
           unless options[:raw_response]
             result = result.body
             result = result.is_a?(Hash) ? result.with_indifferent_access : {}
-            raise ParseError.new( result[:code], result[:error] ) if result[:code] && result[:error]
+            fail ParseError.new( result[:code], result[:error] ) if result[:code] && result[:error]
           end
           result
         end
