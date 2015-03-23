@@ -21,6 +21,10 @@ describe Opium::Model::Callbacks do
       def update
       end
       
+      def find( id )
+        
+      end
+      
       private :create, :update
       
       include Opium::Model::Callbacks
@@ -46,7 +50,7 @@ describe Opium::Model::Callbacks do
       
       it 'should run callbacks' do
         subject.should receive(:run_callbacks).with(method)
-        subject.send(method)
+        subject.send(method, *options[:args])
       end
       
       it 'should not make a private method public' do
@@ -65,4 +69,5 @@ describe Opium::Model::Callbacks do
   it_should_behave_like 'its callbacks should be invoked for', :update, private: true
   it_should_behave_like 'its callbacks should be invoked for', :destroy
   it_should_behave_like 'its callbacks should be invoked for', :touch
+  it_should_behave_like 'its callbacks should be invoked for', :find, args: ['abcd1234']
 end

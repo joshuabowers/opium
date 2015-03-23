@@ -14,7 +14,7 @@ module Opium
         define_model_callbacks :initialize, :find, :touch, only: :after
         define_model_callbacks :save, :create, :update, :destroy
         
-        wrap_callbacks_around :save, :destroy, :touch
+        wrap_callbacks_around :save, :destroy, :touch, :find
         wrap_callbacks_around :initialize, :create, :update, private: true
       end
       
