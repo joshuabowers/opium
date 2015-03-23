@@ -116,7 +116,7 @@ module Opium
         end
         
         def translate_to_parse( constraints )
-          Hash[ *constraints.map {|key, value| [translate_name( key ), value.to_parse] }.flatten( 1 ) ]
+          Hash[ *constraints.flat_map {|key, value| [translate_name( key ), value.to_parse]} ]
         end
         
         def arrayize( constraints )
@@ -128,7 +128,7 @@ module Opium
         end
         
         def imbue_field_constraints_with_operator( constraints, operator )
-          Hash[ *constraints.map {|key, value| [key, { operator => value }] }.flatten( 1 ) ]
+          Hash[ *constraints.flat_map {|key, value| [key, { operator => value }]} ]
         end
       end
     end

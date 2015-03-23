@@ -17,7 +17,7 @@ class Hash
   end
   
   def to_parse
-    Hash[ *self.map {|key, value| [key, value.to_parse] }.flatten( 1 ) ]
+    Hash[ *self.flat_map {|key, value| [key, value.to_parse]} ]
   end
   
   private
@@ -34,7 +34,7 @@ class Hash
   end
   
   def validate_key_equals( key, value )
-    raise ArgumentError, "conversion to Date/Time expectes a #{key} of #{value}" unless self[key] == value || self[key.to_sym] == value
+    raise ArgumentError, "conversion to Date/Time expectes a #{key} of #{value}" unless value_for_indifferent_key( key ) == value
   end
   
   def value_for_indifferent_key( key )
