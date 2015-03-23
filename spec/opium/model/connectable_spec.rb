@@ -20,6 +20,7 @@ describe Opium::Model::Connectable do
     it { should respond_to( :reset_connection! ) }
     it { should respond_to( :object_prefix ) }
     it { should respond_to( :no_object_prefix! ) }
+    it { should respond_to( :as_resource ).with(1).argument }
     it { should respond_to( :resource_name ).with(1).argument }
     it { should respond_to( :http_get, :http_post, :http_delete ).with(1).argument }
     it { should respond_to( :http_put ).with(2).arguments }
@@ -34,7 +35,31 @@ describe Opium::Model::Connectable do
       end
     end
     
-    describe 'resource_name' do
+    describe ':no_object_prefix!' do
+      after do
+        Model.instance_variable_set :@object_prefix, nil
+      end
+      
+      it 'should have an empty object_prefix' do
+        expect { subject.no_object_prefix! }.to change( subject, :object_prefix ).from( 'classes' ).to( '' )
+      end
+    end
+    
+    describe ':as_resource' do
+      it { expect { subject.as_resource }.to raise_exception(ArgumentError) }
+      it do
+        expect {|b| subject.as_resource( :masked, &b ) }.to yield_control
+      end
+      
+      it 'should cause :resource_name to return the supplied name' do
+        subject.as_resource( :masked ) do
+          subject.resource_name.should == 'masked'
+        end
+        subject.resource_name.should == 'classes/Model' 
+      end
+    end
+    
+    describe ':resource_name' do
       it 'should be based off the class name' do
         subject.resource_name.should == 'classes/Model'
       end

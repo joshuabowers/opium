@@ -44,7 +44,16 @@ module Opium
           @object_prefix = ''
         end
         
+        def as_resource( name, &block )
+          fail ArgumentError, 'no block given' unless block_given?
+          @masked_resource_name = name.to_s.freeze
+          block.call
+        ensure
+          @masked_resource_name = nil
+        end
+        
         def resource_name( resource_id = nil )
+          return @masked_resource_name if @masked_resource_name
           @resource_name ||= Pathname.new( object_prefix ).join( model_name.name.demodulize )
           ( resource_id ? @resource_name.join( resource_id ) : @resource_name ).to_s
         end
