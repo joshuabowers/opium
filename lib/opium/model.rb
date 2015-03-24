@@ -13,6 +13,7 @@ require 'opium/model/attributable'
 require 'opium/model/queryable'
 require 'opium/model/criteria'
 require 'opium/model/scopable'
+require 'opium/model/kaminari'
 
 module Opium
   module Model
