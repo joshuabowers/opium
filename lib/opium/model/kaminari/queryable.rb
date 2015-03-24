@@ -28,6 +28,10 @@ if defined?( Kaminari )
           def model_class
             criteria.model
           end
+          
+          def entry_name
+            model_class.model_name.human.downcase
+          end
         end
       end
       

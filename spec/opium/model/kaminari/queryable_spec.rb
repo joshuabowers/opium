@@ -14,7 +14,7 @@ if defined?( Kaminari )
       
       # Really, this just is a sanity check to verify that some of the kaminari methods
       # successfully were added.
-      it { should respond_to( :total_pages, :current_page, :max_pages ) }
+      it { should respond_to( :total_pages, :current_page, :max_pages, :entry_name ) }
       it { should respond_to( Kaminari.config.page_method_name ).with(1).argument }
       it { should respond_to( :limit, :offset ) }
     end

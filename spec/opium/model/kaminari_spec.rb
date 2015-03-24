@@ -54,6 +54,12 @@ if defined?( Kaminari )
         it { expect { query.total_pages }.to_not raise_exception }
         it { expect( query.total_pages ) == 10 }
       end
+      
+      describe ':entry_name' do
+        it 'should be a downcased version of the human form of the model name' do
+          subject.entry_name.should == subject.model_name.human.downcase
+        end
+      end
     end
   end
 end
