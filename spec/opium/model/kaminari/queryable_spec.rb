@@ -10,11 +10,13 @@ if defined?( Kaminari )
       subject { Query }
       
       it { should <= Opium::Model::Queryable }
-      it { should <= ::Kaminari::PageScopeMethods }
+      it { Opium::Model::Queryable::ClassMethods <= ::Kaminari::PageScopeMethods }
       
       # Really, this just is a sanity check to verify that some of the kaminari methods
       # successfully were added.
-      it { Query.new.should respond_to( :total_pages, :current_page ) }
+      it { should respond_to( :total_pages, :current_page ) }
+      it { should respond_to( Kaminari.config.page_method_name ).with(1).argument }
+      it { should respond_to( :limit, :offset ) }
     end
   end
 end

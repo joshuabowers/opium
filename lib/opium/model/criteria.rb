@@ -77,6 +77,12 @@ module Opium
         each.to_a
       end
       
+      def inspect
+        inspected_constraints = constraints.map {|k, v| [k, v.inspect].join(': ')}.join(', ')
+        inspected_constraints.prepend ' ' if inspected_constraints.size > 0
+        "#<#{ self.class.name }<#{ model_name }>#{ inspected_constraints }>"
+      end
+      
       def to_parse
         {}.with_indifferent_access.tap do |result|
           result[:query] = { where: constraints[:where], className: model_name } if constraints[:where]
