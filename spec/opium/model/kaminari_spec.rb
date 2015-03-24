@@ -26,15 +26,18 @@ if defined?( Kaminari )
       it { is_expected.to respond_to(:page, :per).with(1).argument }
     
       describe '.page' do
-        let( :query ) { subject.page( 1 ) }
+        let( :query ) { subject.page( 5 ) }
         it { expect { query }.to_not raise_exception }
         it { expect( query ).to be_an( Opium::Model::Criteria ) }
+        it { expect( query.offset_value ).to eq 100 }
+        it { expect( query ).to be_cached }
       end
     
       describe '.per' do
         let( :query ) { subject.per( 20 ) }
         it { expect { query }.to_not raise_exception }
         it { expect( query.limit_value ).to eq 20 }
+        it { expect( query ).to be_cached }
       end
     
       describe '.limit_value' do
