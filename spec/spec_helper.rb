@@ -11,6 +11,12 @@ RSpec.configure do |config|
   end
 end
 
+begin
+  require 'kaminari'
+  puts 'loaded kaminari'
+rescue LoadError
+end
+
 require 'pry'
 require 'rspec/its'
 require 'webmock/rspec'
