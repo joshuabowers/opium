@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 if defined?( Kaminari )
-  describe Opium::Model do
+  describe 'when Kaminari is present' do
     before do
       stub_const( 'Game', Class.new do
         include Opium::Model
@@ -20,45 +20,68 @@ if defined?( Kaminari )
         )
     end
     
-    subject { Game }
+    describe Opium::Model do    
+      subject { Game }
     
-    it { expect( subject.criteria ).to be_a( ::Kaminari::PageScopeMethods ) }
+      it { is_expected.to respond_to(:page, :per).with(1).argument }
     
-    it { expect( subject ).to respond_to(:page).with(1).argument }
-    it { expect( subject.criteria ).to respond_to(:page, :per).with(1).argument }
-    it { expect( subject.criteria ).to respond_to(:limit_value, :offset_value) }
+      describe '.page' do
+        let( :query ) { subject.page( 1 ) }
+        it { expect { query }.to_not raise_exception }
+        it { expect( query ).to be_an( Opium::Model::Criteria ) }
+      end
     
-    describe ':page' do
-      let( :query ) { subject.page( 1 ) }
-      it { expect { query }.to_not raise_exception }
-      it { expect( query ).to be_an( Opium::Model::Criteria ) }
+      describe '.per' do
+        let( :query ) { subject.per( 20 ) }
+        it { expect { query }.to_not raise_exception }
+        it { expect( query.limit_value ).to eq 20 }
+      end
+    
+      describe '.limit_value' do
+        let( :query ) { subject.limit_value }
+        it { expect { query }.to_not raise_exception }
+        it { expect( query ).to eq ::Kaminari.config.default_per_page }
+      end
+    
+      describe '.offset_value' do
+        let( :query ) { subject.offset_value }
+        it { expect { query }.to_not raise_exception }
+        it { expect( query ).to eq 0 }
+      end
     end
+  
+    describe Opium::Model::Criteria do
+      subject { Game.criteria }
+
+      it { is_expected.to be_a( ::Kaminari::PageScopeMethods ) }      
+      it { is_expected.to respond_to(:page, :per).with(1).argument }
+      it { is_expected.to respond_to(:limit_value, :offset_value) }
     
-    describe '::Criteria' do
-      describe ':page' do
-        let( :query ) { subject.criteria.page( 0 ) }
+      describe '#page' do
+        let( :query ) { subject.page( 0 ) }
         it { expect { query }.to_not raise_exception }
-        it { expect( query.offset_value ) == 0 }
+        it { expect( query.offset_value ).to eq 0 }
+      end
+  
+      describe '#per' do
+        let( :query ) { subject.page( 2 ).per( 10 ) }
+        it { expect { query }.to_not raise_exception }
+        it { expect( query.max_per_page ).to be_nil }
+        it { expect( query.constraints[:limit] ).to eq 10 }
+        it { expect( query.constraints[:skip] ).to eq 10 }
+        it { expect( query.limit_value ).to eq 10 }
+        it { expect( query.offset_value ).to eq 10 }
       end
     
-      describe ':per' do
-        let( :query ) { subject.page( 1 ).per( 10 ) }
-        it { expect { query }.to_not raise_exception }
-        it { expect( query.limit_value ) == 10 }
-        it { expect( query.offset_value ) == 10 }
-      end
-      
-      describe ':total_pages' do
+      describe '#total_pages' do
         let( :query ) { subject.page( 0 ).per( 10 ) }
         it { expect( query.offset_value ).to be_truthy }
         it { expect { query.total_pages }.to_not raise_exception }
-        it { expect( query.total_pages ) == 10 }
+        it { expect( query.total_pages ).to eq 10 }
       end
-      
-      describe ':entry_name' do
-        it 'should be a downcased version of the human form of the model name' do
-          subject.entry_name.should == subject.model_name.human.downcase
-        end
+    
+      describe '#entry_name' do
+        it { expect( subject.entry_name ).to eq Game.model_name.human.downcase }
       end
     end
   end

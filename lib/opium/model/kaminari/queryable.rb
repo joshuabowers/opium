@@ -18,11 +18,11 @@ if defined?( Kaminari )
           end
           
           def limit_value
-            criteria.constraints[:limit]
+            criteria.constraints.fetch(:limit, default_per_page)
           end
           
           def offset_value
-            criteria.constraints[:skip]
+            criteria.constraints.fetch(:skip, 0)
           end
           
           def model_class
