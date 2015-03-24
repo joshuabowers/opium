@@ -10,7 +10,7 @@ if defined?( Kaminari )
             
             alias_method :offset, :skip
             
-            delegate :max_per_page, :default_per_page, to: :model_class
+            delegate :max_per_page, :default_per_page, :max_pages, to: :model_class
             
             define_method ::Kaminari.config.page_method_name do |num|
               limit( default_per_page ).offset( default_per_page * ((num = num.to_i - 1) < 0 ? 0 : num) )

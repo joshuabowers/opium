@@ -8,6 +8,16 @@ if defined?( Kaminari )
         field :title, type: String
         field :price, type: Float
       end )
+      stub_request(:get, "https://api.parse.com/1/classes/Game?count=1&limit=10&skip=0").
+        with(:headers => {'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Rest-Api-Key'=>'PARSE_API_KEY'}).
+        to_return(
+          status: 200,
+          body: {
+            count: 100,
+            results: []
+          }.to_json, 
+          headers: { content_type: 'application/json' }
+        )
     end
     
     subject { Game }
@@ -36,6 +46,13 @@ if defined?( Kaminari )
         it { expect { query }.to_not raise_exception }
         it { expect( query.limit_value ) == 10 }
         it { expect( query.offset_value ) == 10 }
+      end
+      
+      describe ':total_pages' do
+        let( :query ) { subject.page( 0 ).per( 10 ) }
+        it { expect( query.offset_value ).to be_truthy }
+        it { expect { query.total_pages }.to_not raise_exception }
+        it { expect( query.total_pages ) == 10 }
       end
     end
   end

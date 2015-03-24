@@ -6,7 +6,9 @@ module Opium
       included do
       end
       
-      module ClassMethods        
+      module ClassMethods
+        delegate :count, :total_count, to: :criteria
+        
         def all( constraints )
           imbued_where( arrayize( constraints ), '$all' )
         end

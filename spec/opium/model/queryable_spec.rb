@@ -21,6 +21,7 @@ describe Opium::Model::Queryable do
     it { should respond_to( :order ).with(1).argument }
     it { should respond_to( :limit, :skip ).with(1).argument }
     it { should respond_to( :cache, :uncache, :cached? ) }
+    it { should respond_to( :count, :total_count ) }
   end
   
   describe 'within a model' do

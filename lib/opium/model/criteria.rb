@@ -7,6 +7,7 @@ module Opium
       
       def initialize( model_name )
         @model_name = model_name.respond_to?(:name) ? model_name.name : model_name
+        constraints[:count] = 1
       end
       
       attr_reader :model_name
@@ -31,6 +32,10 @@ module Opium
         update_hash_value :constraints, constraint, value
       end
       
+      def constraints?
+        !constraints.except(:count).empty?
+      end
+      
       def variables
         @variables ||= {}.with_indifferent_access
       end
@@ -43,8 +48,12 @@ module Opium
         update_hash_value :variables, variable, value
       end
       
+      def variables?
+        !variables.empty?
+      end
+      
       def empty?
-        constraints.empty?
+        count == 0
       end
       
       def criteria
@@ -64,6 +73,7 @@ module Opium
           response = self.model.http_get( query: self.constraints )
           @cache = []
           if response && response['results']
+            variables[:total_count] = response['count']
             response['results'].each do |attributes|
               model = self.model.new( attributes )
               @cache << model if cached?
@@ -94,6 +104,14 @@ module Opium
         super.tap do |criteria|
           criteria.instance_variable_set(:@cache, nil)
         end
+      end
+      
+      def total_count
+        each.count && variables[:total_count]
+      end
+      
+      def count
+        each.count
       end
       
       private

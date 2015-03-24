@@ -10,8 +10,9 @@ describe Opium::Model::Criteria do
       stub('model_name').and_return(ActiveModel::Name.new(klass, nil, 'Game'))
     end )
     
-    stub_request( :get, 'https://api.parse.com/1/classes/Game' ).with( body: {} ).
+    stub_request( :get, 'https://api.parse.com/1/classes/Game?count=1' ).with( body: {} ).
       to_return( status: 200, headers: { 'Content-Type' => 'application/json' }, body: {
+        count: 10,
         results: [
           { objectId: 'abcd1234', createdAt: Time.now - 50000, title: 'Skyrim', price: 45.99 },
           { objectId: 'efgh5678', createdAt: Time.now - 10000, title: 'Terraria', price: 15.99 }
@@ -29,11 +30,13 @@ describe Opium::Model::Criteria do
   it { should respond_to( :chain ) }
   it { should respond_to( :constraints, :variables ) }
   it { should respond_to( :update_constraint, :update_variable ).with(2).arguments }
+  it { should respond_to( :constraints?, :variables? ) }
   it { should respond_to( :model, :model_name ) }
   it { should respond_to( :empty? ) }
   it { should respond_to( :to_parse ) }
   it { should respond_to( :each ) }
   it { should respond_to( :to_a ) }
+  it { should respond_to( :count, :total_count ) }
   
   describe ':chain' do
     it 'should return a copy of the object' do
@@ -119,14 +122,42 @@ describe Opium::Model::Criteria do
   end
   
   describe ':empty?' do
-    it 'should be empty if there are no constraints' do
-      subject.constraints.clear
-      subject.should be_empty
+    before do
+      stub_request(:get, "https://api.parse.com/1/classes/Game?count=1&where=%7B%22price%22:%7B%22$gte%22:9000.0%7D%7D").
+        to_return(
+          status: 200, 
+          body: {
+            count: 0,
+            results: []
+          }.to_json, 
+          headers: { content_type: 'application/json' }
+        )
     end
     
-    it 'should not be empty if it has constraints' do
-      subject.constraints[:limit] = 10
-      subject.should_not be_empty
+    subject { Game.criteria }
+    
+    it { expect { subject.empty? }.to_not raise_exception }
+    it do
+      expect( subject ).to receive(:count).once.and_call_original
+      subject.empty?
+    end
+    
+    it 'should return true if count is 0' do
+      subject.gte( price: 9000.0 ).empty?.should == true
+    end
+    
+    it 'should return false if count is not 0' do
+      subject.criteria.empty? == false
+    end
+  end
+  
+  describe ':constraints?' do
+    it 'should return true if count is not the only constraint' do
+      Game.limit( 10 ).constraints?.should == true
+    end
+    
+    it 'should return false if count is the only constraint' do
+      Game.criteria.constraints?.should == false
     end
   end
   
@@ -200,6 +231,34 @@ describe Opium::Model::Criteria do
     it 'should delete its @cache' do
       subject.each {|model| }
       subject.uncache.instance_variable_get(:@cache).should be_nil
+    end
+  end
+  
+  describe ':count' do
+    subject { Game.criteria }
+    
+    it { expect { subject.count }.to_not raise_exception }
+    it do
+      expect( subject ).to receive(:each).twice.and_call_original
+      subject.count
+    end
+    
+    it 'should equal the number of items from :each' do
+      expect( subject.count ).to be == 2
+    end
+  end
+  
+  describe ':total_count' do
+    subject { Game.criteria }
+    
+    it { expect { subject.total_count }.to_not raise_exception }
+    it do
+      expect( subject ).to receive(:each).twice.and_call_original
+      subject.total_count
+    end
+    
+    it "should equal the 'count' result returned from parse" do
+      expect( subject.total_count ).to be == 10
     end
   end
     
