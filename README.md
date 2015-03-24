@@ -4,6 +4,7 @@ TODO: Write a gem description
 
 [![Build Status](https://travis-ci.org/joshuabowers/opium.svg?branch=master)](https://travis-ci.org/joshuabowers/opium)
 [![Coverage Status](https://img.shields.io/coveralls/joshuabowers/opium.svg)](https://coveralls.io/r/joshuabowers/opium)
+[![Code Climate](https://codeclimate.com/github/joshuabowers/opium/badges/gpa.svg)](https://codeclimate.com/github/joshuabowers/opium)
 
 ## Installation
 
