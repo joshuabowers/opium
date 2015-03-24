@@ -51,6 +51,19 @@ if defined?( Kaminari )
         it { expect { query }.to_not raise_exception }
         it { expect( query ).to eq 0 }
       end
+      
+      context 'when .page is called after .per' do
+        let( :query ) { subject.per( 10 ).page( 2 ) }
+        it { expect { query }.to_not raise_exception }
+        
+        it 'sets the offset_value correctly' do
+          expect( query.offset_value ).to eq 10
+        end
+        
+        it 'sets the limit_value correctly' do
+          expect( query.limit_value ).to eq 10 
+        end
+      end
     end
   
     describe Opium::Model::Criteria do

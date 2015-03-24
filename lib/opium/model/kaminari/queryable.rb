@@ -13,7 +13,7 @@ if defined?( Kaminari )
             delegate :max_per_page, :default_per_page, :max_pages, to: :model_class
             
             define_method ::Kaminari.config.page_method_name do |num|
-              cache.limit( default_per_page ).offset( default_per_page * ((num = num.to_i - 1) < 0 ? 0 : num) )
+              cache.limit( limit_value ).offset( limit_value * ((num = num.to_i - 1) < 0 ? 0 : num) )
             end
             
             define_method :per do |num|
