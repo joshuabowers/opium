@@ -3,9 +3,6 @@ module Opium
     module Queryable
       extend ActiveSupport::Concern
       
-      included do
-      end
-      
       module ClassMethods
         delegate :count, :total_count, to: :criteria
         
@@ -20,7 +17,6 @@ module Opium
           inclusive = constraints.reject {|_, range| range.exclude_end?}.map {|key, range| [key, range.end]}
           exclusive = constraints.select {|_, range| range.exclude_end?}.map {|key, range| [key, range.end]}
           gte( start ).lte( inclusive ).lt( exclusive )
-          # gte( constraints.map {|key, range| [key, range.begin] } ).lte( constraints.map {|key, range| [key, range.end ] } )
         end
         
         def exists( constraints )
