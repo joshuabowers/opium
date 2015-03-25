@@ -70,9 +70,10 @@ describe Opium::User do
   it { described_class.fields[:session_token].should be_readonly }
   it { described_class.object_prefix.should be_empty }
   it { described_class.resource_name.should == 'users' }
+  it { expect( described_class.requires_heightened_privileges? ).to be_truthy }
   
-  describe ':authenticate' do
-    describe 'a good login' do
+  describe '.authenticate' do
+    context 'with a good login' do
       it 'should return an Opium::User matching the credentials' do
         expect { described_class.authenticate( 'username', 'swordfish' ) }.to_not raise_exception
         
@@ -86,7 +87,7 @@ describe Opium::User do
 
     end
     
-    describe 'a bad login' do
+    context 'with a bad login' do
       let(:login) { described_class.authenticate( 'username', 'deadbeef' ) }
       
       it { expect { login }.to_not raise_exception }
@@ -94,41 +95,41 @@ describe Opium::User do
     end
   end
   
-  describe ':authenticate!' do
-    describe 'a good login' do
+  describe '.authenticate!' do
+    context 'with a good login' do
       it { expect { described_class.authenticate!( 'username', 'swordfish' ) }.to_not raise_exception }
     end
     
-    describe 'a bad login' do
+    context 'with a bad login' do
       it { expect { described_class.authenticate!( 'username', 'deadbeef' ) }.to raise_exception }
     end
   end
   
-  describe ':find_by_session_token' do
-    describe 'without a token' do
+  describe '.find_by_session_token' do
+    context 'without a token' do
       it { expect { described_class.find_by_session_token( nil ) }.to raise_exception }
     end
     
-    describe 'with a valid token' do
+    context 'with a valid token' do
       let(:current_user) { described_class.find_by_session_token( 'super-secret-session-id' ) }
       
       it { expect { current_user }.to_not raise_exception }
       it { current_user.should be_a( described_class ) }
     end
     
-    describe 'with an invalid token' do
+    context 'with an invalid token' do
       it { expect { described_class.find_by_session_token( 'never-been-given-out' ) }.to raise_exception(Opium::Model::Connectable::ParseError) }
     end
   end
   
-  describe 'instance' do
+  context 'with a logged in user' do
     subject { Opium::User.new( id: 'abcd1234', session_token: 'super-secret-session-id', usernmae: 'user', email: 'user@email.com' ) }
     # subject { Opium::User.new( id: 'abcd1234', session_token: nil, username: 'user', email: 'user@email.com' ) }
     
     it { should respond_to( :reset_password, :reset_password! ) }
     
-    describe ':reset_password' do
-      describe 'without an email' do
+    describe '#reset_password' do
+      context 'without an email' do
         before { subject.email = nil }
         after { subject.email = 'user@example.com' }
         
@@ -139,13 +140,13 @@ describe Opium::User do
         end
       end
       
-      describe 'with an email' do
+      context 'with an email' do
         it { expect { subject.reset_password }.to_not raise_exception }
         it { subject.reset_password.should == true }
       end
     end
     
-    describe ':reset_password!' do
+    describe '#reset_password!' do
       describe 'without an email' do
         before { subject.email = nil }
         after { subject.email = 'user@example.com' }
@@ -153,31 +154,22 @@ describe Opium::User do
         it { expect { subject.reset_password! }.to raise_exception }
       end
       
-      describe 'with an email' do
+      context 'with an email' do
         it { expect { subject.reset_password! }.to_not raise_exception }
         it { subject.reset_password!.should == true }
       end
     end
     
-    describe ':save!' do
-      before do
-        stub_request(:put, "https://api.parse.com/1/users/abcd1234").with(
-          :body => "{}",
-          :headers => {'Content-Type'=>'application/json', 'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Rest-Api-Key'=>'PARSE_API_KEY', 'X-Parse-Sesson-Token'=>'super-secret-session-id'}
-        ).to_return(:status => 200, :body => {updatedAt: Time.now}.to_json, :headers => {content_type: 'application/json'})
+    describe '#save!' do
+      let( :request ) { subject.save( sent_headers: true ) }
+      let( :sent_headers ) do
+        request
+        subject.send( :sent_headers )
       end
       
-      it { expect { subject.save! }.to_not raise_exception }
-    end
-    
-    describe ':delete' do
-      before do
-        stub_request(:delete, "https://api.parse.com/1/users/abcd1234").with(
-          :headers => {'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Rest-Api-Key'=>'PARSE_API_KEY', 'X-Parse-Sesson-Token'=>'super-secret-session-id'}
-        ).to_return(:status => 200, :body => "", :headers => {})
-      end
-      
-      it { expect { subject.delete }.to_not raise_exception }
+      it { expect( sent_headers ).to be_a( Hash ) }
+      it { expect( sent_headers.keys ).to include( 'X-Parse-Application-Id', 'X-Parse-Rest-Api-Key', 'X-Parse-Session-Token' ) }
+      it { expect( sent_headers.keys ).to_not include( 'X-Parse-Master-Key' ) }
     end
   end
 end

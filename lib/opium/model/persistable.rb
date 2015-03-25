@@ -109,27 +109,46 @@ module Opium
       def to_parse
         pointer.to_parse
       end
-      
+            
       private
       
       def create_or_update( options )
         if options[:validates] == false || valid?
           if new_record?
-            create
+            create( options )
           else
-            update
+            update( options )
           end
         end.present?
       end
       
-      def create
-        headers = self.class.get_header_for( :post, :create, self )
-        self.attributes = self.class.http_post self.attributes_to_parse( except: [:id, :created_at, :updated_at] ), headers
+      def create( options = {} )
+        # headers = options.deep_merge self.class.get_header_for( :post, :create, self )
+        # result = self.class.http_post self.attributes_to_parse( except: [:id, :created_at, :updated_at] ), headers
+        self.attributes = attributes_or_headers( :post, :create, options ) do |headers|
+          self.class.http_post self.attributes_to_parse( except: [:id, :created_at, :updated_at] ), headers
+        end
       end
       
-      def update
-        headers = self.class.get_header_for( :put, :update, self )
-        self.attributes = self.class.http_put id, self.attributes_to_parse( only: changes.keys ), headers
+      def update( options = {} )
+        # self.attributes = self.class.http_put id, self.attributes_to_parse( only: changes.keys ), headers
+        self.attributes = attributes_or_headers( :put, :update, options ) do |headers|
+          self.class.http_put id, self.attributes_to_parse( only: changes.keys ), headers
+        end
+      end
+      
+      def sent_headers
+        @_sent_headers || {}
+      end
+      
+      def attributes_or_headers( method, action, options, &block )
+        result = block.call( options.deep_merge self.class.get_header_for( method, action, self ) )
+        if options[:sent_headers]
+          @_sent_headers = result
+          {}
+        else
+          result
+        end 
       end
     end
   end

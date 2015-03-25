@@ -192,11 +192,11 @@ describe Opium::Model::Persistable do
       before do
         stub_request( :put, 'https://api.parse.com/1/classes/Game/abcd1234' ).with(
           body: { releasedOn: { '__type' => 'Date', 'iso' => '2011-11-11' }, releasePrice: 59.99 },
-          headers: { 'Content-Type' => 'application/json' }
+          headers: { content_type: 'application/json' }
         ).to_return(
           body: { updatedAt: Time.now.to_s }.to_json,
           status: 200,
-          headers: { 'Content-Type' => 'application/json', Location: 'https://api.parse.com/1/classes/Game/abcd1234' }
+          headers: { content_type: 'application/json', Location: 'https://api.parse.com/1/classes/Game/abcd1234' }
         )
       end
       
@@ -301,7 +301,7 @@ describe Opium::Model::Persistable do
         ).to_return(
           body: { updatedAt: '2014-12-18T15:00:00Z' }.to_json,
           status: 200,
-          headers: { 'Content-Type' => 'application/json', Location: 'https://api.parse.com/1/classes/Game/abcd1234' }
+          headers: { content_type: 'application/json', Location: 'https://api.parse.com/1/classes/Game/abcd1234' }
         )
       end
       
