@@ -13,6 +13,7 @@ require 'opium/model/attributable'
 require 'opium/model/queryable'
 require 'opium/model/criteria'
 require 'opium/model/scopable'
+require 'opium/model/findable'
 require 'opium/model/kaminari'
 
 module Opium
@@ -31,6 +32,7 @@ module Opium
       include Queryable
       include Callbacks
       include Scopable
+      include Findable
     end
     
     def initialize( attributes = {} )

@@ -7,10 +7,6 @@ module Opium
       end
       
       module ClassMethods
-        def find( id )
-          new self.http_get( id: id )
-        end
-        
         def criteria
           @_unscoped ? blank_criteria : default_scope
         end
