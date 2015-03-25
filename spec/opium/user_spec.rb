@@ -124,7 +124,6 @@ describe Opium::User do
   
   context 'with a logged in user' do
     subject { Opium::User.new( id: 'abcd1234', session_token: 'super-secret-session-id', usernmae: 'user', email: 'user@email.com' ) }
-    # subject { Opium::User.new( id: 'abcd1234', session_token: nil, username: 'user', email: 'user@email.com' ) }
     
     it { should respond_to( :reset_password, :reset_password! ) }
     
@@ -159,17 +158,38 @@ describe Opium::User do
         it { subject.reset_password!.should == true }
       end
     end
-    
-    describe '#save!' do
-      let( :request ) { subject.save( sent_headers: true ) }
+  end
+  
+  shared_examples_for 'a varying privileges user' do |method, header_target|
+    describe "##{method}" do
+      let( :request ) { subject.send( method, sent_headers: true ) }
       let( :sent_headers ) do
         request
         subject.send( :sent_headers )
       end
       
-      it { expect( sent_headers ).to be_a( Hash ) }
-      it { expect( sent_headers.keys ).to include( 'X-Parse-Application-Id', 'X-Parse-Rest-Api-Key', 'X-Parse-Session-Token' ) }
-      it { expect( sent_headers.keys ).to_not include( 'X-Parse-Master-Key' ) }
+      context 'with a session token' do
+        subject { Opium::User.new( id: 'abcd1234', session_token: 'super-secret-session-id', usernmae: 'user', email: 'user@email.com' ) }
+        
+        it { expect( Opium::User.get_header_for( *header_target, subject ) ).to_not be_empty }
+      
+        it { expect( sent_headers ).to be_a( Hash ) }
+        it { expect( sent_headers.keys ).to include( 'X-Parse-Application-Id', 'X-Parse-Rest-Api-Key', 'X-Parse-Session-Token' ) }
+        it { expect( sent_headers.keys ).to_not include( 'X-Parse-Master-Key' ) }
+      end
+      
+      context 'without a session token' do
+        subject { Opium::User.new( id: 'abcd1234', session_token: nil, username: 'user', email: 'user@email.com' ) }
+        
+        it { expect( Opium::User.get_header_for( *header_target, subject ) ).to be_empty }
+      
+        it { expect( sent_headers ).to be_a( Hash ) }
+        it { expect( sent_headers.keys ).to include( 'X-Parse-Application-Id', 'X-Parse-Master-Key' ) }
+        it { expect( sent_headers.keys ).to_not include( 'X-Parse-Rest-Api-Key, X-Parse-Session-Token' ) }
+      end
     end
   end
+  
+  it_behaves_like 'a varying privileges user', :save, [:put, :update]
+  it_behaves_like 'a varying privileges user', :delete, [:delete, :delete]
 end

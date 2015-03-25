@@ -125,7 +125,7 @@ module Opium
             request.headers.update options[:headers] if options[:headers]
 
             added_master_key = 
-              unless request.headers.include?( 'X-Parse-Session-Token' )
+              unless request.headers[:x_parse_session_token]
                 if method != :get && requires_heightened_privileges? && Opium.config.master_key
                   request.headers[:x_parse_master_key] = Opium.config.master_key
                 end

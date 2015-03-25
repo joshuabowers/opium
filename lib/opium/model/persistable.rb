@@ -85,10 +85,11 @@ module Opium
         save( validates: false )
       end
       
-      def delete
+      def delete( options = {} )
         self.tap do
-          headers = self.class.get_header_for( :delete, :delete, self )
-          self.class.http_delete id, headers unless new_record?
+          attributes_or_headers( :delete, :delete, options ) do |headers|
+            self.class.http_delete id, headers unless new_record?
+          end
           self.freeze
         end
       end
@@ -123,15 +124,12 @@ module Opium
       end
       
       def create( options = {} )
-        # headers = options.deep_merge self.class.get_header_for( :post, :create, self )
-        # result = self.class.http_post self.attributes_to_parse( except: [:id, :created_at, :updated_at] ), headers
         self.attributes = attributes_or_headers( :post, :create, options ) do |headers|
           self.class.http_post self.attributes_to_parse( except: [:id, :created_at, :updated_at] ), headers
         end
       end
       
       def update( options = {} )
-        # self.attributes = self.class.http_put id, self.attributes_to_parse( only: changes.keys ), headers
         self.attributes = attributes_or_headers( :put, :update, options ) do |headers|
           self.class.http_put id, self.attributes_to_parse( only: changes.keys ), headers
         end
