@@ -94,32 +94,21 @@ describe Opium::Model::Connectable do
       
       it { expect( subject.requires_heightened_privileges? ).to eq false }
       
-      it { expect( request[:x_parse_application_id] ).to be }
-      it { expect( request[:x_parse_rest_api_key] ).to be }
-      it { expect( request[:x_parse_master_key] ).to_not be }
-      it { expect( request[:x_parse_session_token] ).to_not be }
+      it { expect( request.keys ).to include( 'X-Parse-Application-Id', 'X-Parse-Rest-Api-Key' ) }
+      it { expect( request.keys ).to_not include( 'X-Parse-Master-Key', 'X-Parse-Session-Token' ) }
     end
     
     unless method == :get
       context 'when .requires_heightened_privileges?' do
-        after { subject.instance_variable_set :@requires_heightened_privileges, nil }
-      
-        let(:request) do
-          subject.requires_heightened_privileges!
-          subject.send( :"http_#{method}", *params )
+        subject do
+          Model.requires_heightened_privileges!
+          Model.send( :"http_#{method}", *params )
         end
         
-        # it { expect( subject.requires_heightened_privileges? ).to eq true }
-        
-        if method != :get
-          it { expect( request.keys ).to be_empty }
-          it { expect( request.instance_variable_get :@names ).to be_empty }
-        end
-        
-        it { expect( request.fetch :x_parse_application_id ).to be }
-        it { expect( request.fetch :x_parse_rest_api_key ).to_not be }
-        it { expect( request.fetch :x_parse_master_key ).to be }
-        it { expect( request.fetch :x_parse_session_token ).to_not be }
+        after { Model.instance_variable_set :@requires_heightened_privileges, nil }
+                
+        it { expect( subject.keys ).to include( 'X-Parse-Application-Id', 'X-Parse-Master-Key' ) }
+        it { expect( subject.keys ).to_not include( 'X-Parse-Rest-Api-Key', 'X-Parse-Session-Token' ) }
       end
     end
   end

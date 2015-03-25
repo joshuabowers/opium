@@ -26,7 +26,6 @@ module Opium
             faraday.response :logger if Opium.config.log_network_responses
             faraday.response :json, content_type: /\bjson$/
             faraday.headers[:x_parse_application_id] = Opium.config.app_id
-            faraday.headers[:x_parse_rest_api_key] = Opium.config.api_key
             faraday.adapter Faraday.default_adapter
           end
         end
@@ -123,16 +122,16 @@ module Opium
         
         def apply_headers_to_request( method, options, &further_operations )
           lambda do |request|
-            if options[:headers]
-              request.headers.update options[:headers]
-            end
+            request.headers.update options[:headers] if options[:headers]
 
-            unless request.headers.include?( 'X-Parse-Session-Token' )
-              if method != :get && requires_heightened_privileges? && Opium.config.master_key
-                request.headers[:x_parse_master_key] = Opium.config.master_key
-                request.headers.delete( 'X-Parse-Rest-Api-Key' )
+            added_master_key = 
+              unless request.headers.include?( 'X-Parse-Session-Token' )
+                if method != :get && requires_heightened_privileges? && Opium.config.master_key
+                  request.headers[:x_parse_master_key] = Opium.config.master_key
+                end
               end
-            end
+            
+            request.headers[:x_parse_rest_api_key] = Opium.config.api_key unless added_master_key
             
             further_operations.call( request ) if block_given?
           end
@@ -147,6 +146,7 @@ module Opium
             result = result.body
             result = result.is_a?(Hash) ? result.with_indifferent_access : {}
             fail ParseError.new( result[:code], result[:error] ) if result[:code] && result[:error]
+            result
           end
         end
       end
