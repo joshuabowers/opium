@@ -2,6 +2,8 @@ module Opium
   module Model
     class Criteria
       include Opium::Model::Queryable::ClassMethods
+      include Enumerable
+      
       class_attribute :models
       self.models = {}.with_indifferent_access
       
@@ -82,11 +84,7 @@ module Opium
           end
         end
       end
-      
-      def to_a
-        each.to_a
-      end
-      
+            
       def inspect
         inspected_constraints = constraints.map {|k, v| [k, v.inspect].join(': ')}.join(', ')
         inspected_constraints.prepend ' ' if inspected_constraints.size > 0
@@ -107,11 +105,7 @@ module Opium
       end
       
       def total_count
-        each.count && variables[:total_count]
-      end
-      
-      def count
-        each.count
+        count && variables[:total_count]
       end
       
       private

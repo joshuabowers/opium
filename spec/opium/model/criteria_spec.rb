@@ -27,6 +27,7 @@ describe Opium::Model::Criteria do
   subject { Opium::Model::Criteria.new( 'Object' ) }
   
   it { is_expected.to be_a( Opium::Model::Queryable::ClassMethods ) }
+  it { is_expected.to be_an( Enumerable ) }
   it { is_expected.to respond_to( :chain ) }
   it { is_expected.to respond_to( :constraints, :variables ) }
   it { is_expected.to respond_to( :update_constraint, :update_variable ).with(2).arguments }
@@ -239,7 +240,7 @@ describe Opium::Model::Criteria do
     
     it { expect { subject.count }.to_not raise_exception }
     it do
-      expect( subject ).to receive(:each).twice.and_call_original
+      expect( subject ).to receive(:each).and_call_original
       subject.count
     end
     
@@ -253,7 +254,7 @@ describe Opium::Model::Criteria do
     
     it { expect { subject.total_count }.to_not raise_exception }
     it do
-      expect( subject ).to receive(:each).twice.and_call_original
+      expect( subject ).to receive(:each).and_call_original
       subject.total_count
     end
     
