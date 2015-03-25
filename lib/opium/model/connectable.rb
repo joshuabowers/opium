@@ -25,8 +25,8 @@ module Opium
             faraday.request :url_encoded
             faraday.response :logger if Opium.config.log_network_responses
             faraday.response :json, content_type: /\bjson$/
-            faraday.headers['X-Parse-Application-Id'] = Opium.config.app_id
-            faraday.headers['X-Parse-REST-API-Key'] = Opium.config.api_key
+            faraday.headers[:x_parse_application_id] = Opium.config.app_id
+            faraday.headers[:x_parse_rest_api_key] = Opium.config.api_key
             faraday.adapter Faraday.default_adapter
           end
         end
@@ -67,15 +67,15 @@ module Opium
         end
         
         def http_post( data, options = {} )
-          http( :post, options, &infuse_request_with( data ) )
+          http( :post, deeply_merge( options, content_type_json ), &infuse_request_with( data ) )
         end
         
         def http_put( id, data, options = {} )
-          http( :put, {id: id}.merge(options), &infuse_request_with( data ) )          
+          http( :put, deeply_merge( options, content_type_json, id: id ), &infuse_request_with( data ) )          
         end
         
         def http_delete( id, options = {} )
-          http( :delete, {id: id}.merge(options) )
+          http( :delete, deeply_merge( options, id: id ) )
         end
         
         def requires_heightened_privileges!
@@ -90,8 +90,23 @@ module Opium
                 
         def http( method, options, &block )
           check_for_error( options ) do
-            connection.send( method, resource_name( options[:id] ), &apply_headers_to_request( method, options, &block ) )
+            if options[:sent_headers]
+              applier = apply_headers_to_request( method, options, &block )
+              request = connection.build_request( method )
+              applier.call( request )
+              request.headers
+            else
+              connection.send( method, resource_name( options[:id] ), &apply_headers_to_request( method, options, &block ) )
+            end
           end
+        end
+        
+        def deeply_merge( *args )
+          args.reduce {|a, e| a.deep_merge e }
+        end
+        
+        def content_type_json
+          @content_type_json ||= { headers: { content_type: 'application/json' } }
         end
         
         def map_name_to_resource( model_name )
@@ -101,7 +116,6 @@ module Opium
         
         def infuse_request_with( data )
           lambda do |request|
-            request.headers['Content-Type'] = 'application/json'
             request.body = data
             request.body = request.body.to_json unless request.body.is_a?(String)
           end
@@ -110,13 +124,13 @@ module Opium
         def apply_headers_to_request( method, options, &further_operations )
           lambda do |request|
             if options[:headers]
-              request.headers.merge! options[:headers]
+              request.headers.update options[:headers]
             end
 
             unless request.headers.include?( 'X-Parse-Session-Token' )
               if method != :get && requires_heightened_privileges? && Opium.config.master_key
                 request.headers[:x_parse_master_key] = Opium.config.master_key
-                request.headers.delete(:x_parse_rest_api_key)
+                request.headers.delete( 'X-Parse-Rest-Api-Key' )
               end
             end
             
@@ -127,12 +141,13 @@ module Opium
         def check_for_error( options = {}, &block )
           fail ArgumentError, 'no block given' unless block_given?
           result = yield
-          unless options[:raw_response]
+          if options[:raw_response] || options[:sent_headers]
+            result
+          else
             result = result.body
             result = result.is_a?(Hash) ? result.with_indifferent_access : {}
             fail ParseError.new( result[:code], result[:error] ) if result[:code] && result[:error]
           end
-          result
         end
       end
     end
