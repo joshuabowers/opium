@@ -26,20 +26,20 @@ describe Opium::Model::Criteria do
   
   subject { Opium::Model::Criteria.new( 'Object' ) }
   
-  it { should be_a( Opium::Model::Queryable::ClassMethods ) }
-  it { should respond_to( :chain ) }
-  it { should respond_to( :constraints, :variables ) }
-  it { should respond_to( :update_constraint, :update_variable ).with(2).arguments }
-  it { should respond_to( :constraints?, :variables? ) }
-  it { should respond_to( :model, :model_name ) }
-  it { should respond_to( :empty? ) }
-  it { should respond_to( :to_parse ) }
-  it { should respond_to( :each ) }
-  it { should respond_to( :to_a ) }
-  it { should respond_to( :count, :total_count ) }
+  it { is_expected.to be_a( Opium::Model::Queryable::ClassMethods ) }
+  it { is_expected.to respond_to( :chain ) }
+  it { is_expected.to respond_to( :constraints, :variables ) }
+  it { is_expected.to respond_to( :update_constraint, :update_variable ).with(2).arguments }
+  it { is_expected.to respond_to( :constraints?, :variables? ) }
+  it { is_expected.to respond_to( :model, :model_name ) }
+  it { is_expected.to respond_to( :empty? ) }
+  it { is_expected.to respond_to( :to_parse ) }
+  it { is_expected.to respond_to( :each ) }
+  it { is_expected.to respond_to( :to_a ) }
+  it { is_expected.to respond_to( :count, :total_count ) }
   
-  describe ':chain' do
-    it 'should return a copy of the object' do
+  describe '#chain' do
+    it 'returns a copy of the object' do
       result = subject.chain
       result.should be_a( Opium::Model::Criteria )
       result.should == subject
@@ -47,8 +47,8 @@ describe Opium::Model::Criteria do
     end
   end
   
-  describe ':update_constraint' do    
-    it 'should chain the criteria and alter the specified constraint on the copy' do
+  describe '#update_constraint' do    
+    it 'chains the criteria and alter the specified constraint on the copy' do
       result = subject.update_constraint( :order, ['title', 1] )
       result.should be_a( Opium::Model::Criteria )
       result.should_not equal( subject )
@@ -57,21 +57,21 @@ describe Opium::Model::Criteria do
       result.constraints[:order].should == ['title', 1]
     end
     
-    it 'should merge hash-valued constraints' do
+    it 'merges hash-valued constraints' do
       subject.constraints['where'] = { score: { '$lte' => 321 } }
       result = subject.update_constraint( 'where', price: { '$gte' => 123 } )
       result.constraints['where'].should =~ { 'score' => { '$lte' => 321 }, 'price' => { '$gte' => 123 } }
     end
     
-    it 'should deep merge hash-valued constraints' do
+    it 'deep merges hash-valued constraints' do
       subject.constraints['where'] = { score: { '$lte' => 321 } }
       result = subject.update_constraint( 'where', score: { '$gte' => 123 } )
       result.constraints['where'].should =~ { 'score' => { '$lte' => 321, '$gte' => 123 } }
     end
   end
   
-  describe ':update_variable' do
-    it 'should chain the criteria and alter the specified instance variable on the copy' do
+  describe '#update_variable' do
+    it 'chains the criteria and alter the specified instance variable on the copy' do
       result = subject.update_variable( :cache, true )
       result.should be_an( Opium::Model::Criteria )
       result.should_not equal( subject )
@@ -82,7 +82,7 @@ describe Opium::Model::Criteria do
     end
   end
   
-  describe ':==' do
+  describe '#==' do
     let( :first ) { Opium::Model::Criteria.new( 'Object' ).update_constraint( :order, ['title', 1] ) }
     let( :second ) { Opium::Model::Criteria.new( 'Object' ).update_constraint( :order, ['title', 1] ) }
     
@@ -90,38 +90,38 @@ describe Opium::Model::Criteria do
       first.should_not equal( second )
     end
     
-    it 'should be based on the criteria constraints' do
+    it 'is based on the criteria constraints' do
       first.should == second
     end
     
-    it 'should be based on the criteria variables' do
+    it 'is based on the criteria variables' do
       third = first.update_variable( :cache, true )
       second.should_not == third
     end
   end
   
-  describe ':criteria' do
+  describe '#criteria' do
     subject { Opium::Model::Criteria.new( 'Object' ).update_constraint( :order, ['title', 1] ) }
     
-    it 'should be == to self' do
+    it 'is == to self' do
       subject.criteria.should == subject
     end
     
-    it 'should not be a duplicate of self' do
+    it 'is not a duplicate of self' do
       subject.criteria.should equal( subject )
     end
   end
   
-  describe ':model' do
+  describe '#model' do
     subject { Opium::Model::Criteria.new( 'Game' ) }
     
-    it 'should be the constantized version of :model_name' do
+    it 'is the constantized version of :model_name' do
       subject.model_name.should == 'Game'
       subject.model.should == Game
     end
   end
   
-  describe ':empty?' do
+  describe '#empty?' do
     before do
       stub_request(:get, "https://api.parse.com/1/classes/Game?count=1&where=%7B%22price%22:%7B%22$gte%22:9000.0%7D%7D").
         to_return(
@@ -142,76 +142,76 @@ describe Opium::Model::Criteria do
       subject.empty?
     end
     
-    it 'should return true if count is 0' do
+    it 'returns true if count is 0' do
       subject.gte( price: 9000.0 ).empty?.should == true
     end
     
-    it 'should return false if count is not 0' do
+    it 'returns false if count is not 0' do
       subject.criteria.empty? == false
     end
   end
   
-  describe ':constraints?' do
-    it 'should return true if count is not the only constraint' do
+  describe '#constraints?' do
+    it 'returns true if count is not the only constraint' do
       Game.limit( 10 ).constraints?.should == true
     end
     
-    it 'should return false if count is the only constraint' do
+    it 'returns false if count is the only constraint' do
       Game.criteria.constraints?.should == false
     end
   end
   
-  describe ':each' do
+  describe '#each' do
     subject { Game.criteria }
     
-    describe 'without a block' do
-      it 'should return an Enumerator' do
+    context 'without a block' do
+      it 'returns an Enumerator' do
         subject.each.should be_a( Enumerator )
       end
     end
     
-    describe 'with a block' do
-      it "should call its :model's :http_get" do
+    context 'with a block' do
+      it "calls its :model's :http_get" do
         subject.model.should receive(:http_get).with(query: subject.constraints)
         subject.each {|model| }
       end
       
-      it 'should yield to its block any results it finds' do
+      it 'yields to its block any results it finds' do
         expect {|b| subject.each &b }.to yield_control.twice
       end
       
-      it 'should yield to its block Opium::Model objects (Game in context)' do
+      it 'yields to its block Opium::Model objects (Game in context)' do
         expect {|b| subject.each &b }.to yield_successive_args(Opium::Model, Opium::Model)
         expect {|b| subject.each &b }.to yield_successive_args(Game, Game)
       end
       
-      it "should call its :model's :http_get when counting" do
+      it "calls its :model's :http_get when counting" do
         subject.model.should receive(:http_get).with(query: subject.constraints).twice
         subject.each {|model| }
         subject.each.count
       end
     end
     
-    describe 'if :cache?' do
+    context 'when #cached?' do
       subject { Game.criteria.cache }
       
-      it 'each should call its :model\'s :http_get only once' do
+      it 'calls its :model\'s :http_get only once' do
         subject.model.should receive(:http_get).with(query: subject.constraints).once
         subject.each {|model| }
         subject.each {|model| }
       end
       
-      it 'should yield to its block any results it finds' do
+      it 'yields to its block any results it finds' do
         expect {|b| subject.each &b }.to yield_control.twice
         expect {|b| subject.each &b }.to yield_control.twice
       end
       
-      it 'should yield to its block Opium::Model objects (Game in context)' do
+      it 'yields to its block Opium::Model objects (Game in context)' do
         expect {|b| subject.each &b }.to yield_successive_args(Opium::Model, Opium::Model)
         expect {|b| subject.each &b }.to yield_successive_args(Game, Game)
       end
       
-      it "should not call its :model's :http_get when counting" do
+      it "does not call its :model's :http_get when counting" do
         subject.model.should receive(:http_get).with(query: subject.constraints).once
         subject.each {|model| }
         subject.each.count
@@ -219,22 +219,22 @@ describe Opium::Model::Criteria do
     end
   end
   
-  describe ':uncache' do
+  describe '#uncache' do
     subject { Game.criteria.cache }
     
-    it 'each should call its :model\'s :http_get twice' do
+    it 'causes #each to call its :model\'s :http_get twice' do
       subject.model.should receive(:http_get).with(query: subject.constraints).twice
       subject.each {|model| }
       subject.uncache.each {|model| }
     end
     
-    it 'should delete its @cache' do
+    it 'deletes its @cache' do
       subject.each {|model| }
       subject.uncache.instance_variable_get(:@cache).should be_nil
     end
   end
   
-  describe ':count' do
+  describe '#count' do
     subject { Game.criteria }
     
     it { expect { subject.count }.to_not raise_exception }
@@ -243,12 +243,12 @@ describe Opium::Model::Criteria do
       subject.count
     end
     
-    it 'should equal the number of items from :each' do
+    it 'equals the number of items from #each' do
       expect( subject.count ).to be == 2
     end
   end
   
-  describe ':total_count' do
+  describe '#total_count' do
     subject { Game.criteria }
     
     it { expect { subject.total_count }.to_not raise_exception }
@@ -257,17 +257,17 @@ describe Opium::Model::Criteria do
       subject.total_count
     end
     
-    it "should equal the 'count' result returned from parse" do
+    it "equals the 'count' result returned from parse" do
       expect( subject.total_count ).to be == 10
     end
   end
     
-  describe ':to_parse' do
-    it 'should be a hash' do
-      Game.criteria.to_parse.should be_a( Hash )
-    end
+  describe '#to_parse' do
+    subject { Game.criteria }
     
-    it 'should have a "query" key, if a "where" constraint exists, containing a "where" and a "className"' do
+    it { expect( subject.to_parse ).to be_a( Hash ) }
+    
+    it 'has a "query" key, if a "where" constraint exists, containing a "where" and a "className"' do
       Game.between( price: 5..10 ).to_parse.tap do |criteria|
         criteria.should have_key( 'query' )
         criteria['query'].should =~ { 'where' => { 'price' => { '$gte' => 5, '$lte' => 10 } }, 'className' => 'Game' }
