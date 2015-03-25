@@ -138,15 +138,44 @@ describe Opium::Model::Queryable do
       end
     end
     
-    describe ':between' do
-      it 'should return a criteria' do
-        subject.between( price: 5..10 ).should be_a( Opium::Model::Criteria )
+    describe '#between' do
+      context 'with a inclusive range' do
+        subject { Game.between( price: 5..10 ) }
+        
+        it { is_expected.to be_an( Opium::Model::Criteria ) }
+        
+        it { expect( subject.criteria.constraints ).to include(:where) }
+        
+        it 'adds a clause on the key' do
+          expect( subject.criteria.constraints[:where] ).to include(:price)
+        end
+        
+        it 'adds a "$gte" clause to the key' do
+          expect( subject.criteria.constraints[:where][:price] ).to include( '$gte' => 5 )
+        end
+        
+        it 'adds an "$lte" clause to the key' do
+          expect( subject.criteria.constraints[:where][:price] ).to include( '$lte' => 10 )
+        end
+        
+        it 'does not add an "$lt" clause to the key' do
+          expect( subject.criteria.constraints[:where][:price].keys ).to_not include( '$lt' )
+        end
       end
       
-      it 'should add "$gte" and "$lte" clauses for the min/max of the range value associated with each key' do
-        subject.between( price: 5..10 ).tap do |criteria|
-          criteria.constraints.should have_key( 'where' )
-          criteria.constraints['where'].should =~ { 'price' => { '$gte' => 5, '$lte' => 10 } }
+      context 'with an exclusive range' do
+        subject { Game.between( price: 5...10 ) }
+        
+        it 'adds a "$gte" clause to the key' do
+          expect( subject.criteria.constraints[:where][:price] ).to include( '$gte' => 5 )
+        end
+        
+        it 'adds an "$lt" clause to the key' do
+          expect( subject.criteria.constraints[:where][:price] ).to include( '$lt' => 10 )
+        end
+        
+        it 'does not add an "$lte" clause to the key' do
+          expect( subject.criteria.constraints[:where][:price].keys ).to_not include( '$lte' )
         end
       end
     end

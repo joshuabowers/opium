@@ -16,7 +16,11 @@ module Opium
         alias_method :all_in, :all
         
         def between( constraints )
-          gte( constraints.map {|key, range| [key, range.begin] } ).lte( constraints.map {|key, range| [key, range.end ] } )
+          start = constraints.map {|key, range| [key, range.begin]}
+          inclusive = constraints.reject {|_, range| range.exclude_end?}.map {|key, range| [key, range.end]}
+          exclusive = constraints.select {|_, range| range.exclude_end?}.map {|key, range| [key, range.end]}
+          gte( start ).lte( inclusive ).lt( exclusive )
+          # gte( constraints.map {|key, range| [key, range.begin] } ).lte( constraints.map {|key, range| [key, range.end ] } )
         end
         
         def exists( constraints )
