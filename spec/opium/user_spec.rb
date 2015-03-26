@@ -192,4 +192,18 @@ describe Opium::User do
   
   it_behaves_like 'a varying privileges user', :save, [:put, :update]
   it_behaves_like 'a varying privileges user', :delete, [:delete, :delete]
+  
+  context 'within a subclass' do
+    before do
+      stub_const( 'SpecialUser', Class.new(Opium::User) do
+        field :has_web_access, type: Boolean
+      end )
+    end
+    
+    subject { SpecialUser }
+    
+    it { is_expected.to be <= Opium::User }
+    it { is_expected.to respond_to( :field, :fields ) }
+    it { expect( subject.fields.keys ).to include( 'username', 'password', 'email', 'has_web_access' ) }
+  end
 end

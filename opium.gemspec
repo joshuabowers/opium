@@ -31,8 +31,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "pry-nav"
   spec.add_development_dependency "coveralls"
   
-  spec.add_development_dependency "rails"
-  spec.add_development_dependency "kaminari"
+  # spec.add_development_dependency "rails"
+  # spec.add_development_dependency "kaminari"
   
   spec.add_dependency "activemodel", "~> 4.0"
   spec.add_dependency "faraday", "~> 0.9"
