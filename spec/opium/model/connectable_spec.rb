@@ -20,7 +20,7 @@ describe Opium::Model::Connectable do
   it { is_expected.to respond_to( :as_resource, :resource_name ).with(1).argument }
   it { is_expected.to respond_to( :http_get, :http_post, :http_delete ).with(1).argument }
   it { is_expected.to respond_to( :http_put ).with(2).arguments }
-  it { is_expected.to respond_to( :requires_heightened_privileges!, :requires_heightened_privileges? ) }
+  it { is_expected.to respond_to( :requires_heightened_privileges!, :requires_heightened_privileges?, :has_heightened_privileges? ) }
   
   describe '.object_prefix' do
     it { expect( subject.object_prefix ).to eq 'classes' }

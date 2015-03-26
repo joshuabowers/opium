@@ -85,6 +85,8 @@ module Opium
           !@requires_heightened_privileges.nil?
         end
         
+        alias_method :has_heightened_privileges?, :requires_heightened_privileges?
+        
         private
                 
         def http( method, options, &block )

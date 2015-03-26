@@ -205,5 +205,9 @@ describe Opium::User do
     it { is_expected.to be <= Opium::User }
     it { is_expected.to respond_to( :field, :fields ) }
     it { expect( subject.fields.keys ).to include( 'username', 'password', 'email', 'has_web_access' ) }
+    
+    it { expect( subject ).to have_heightened_privileges }
+    it { expect( subject.object_prefix ).to be_empty }
+    it { expect( subject.resource_name ).to eq 'users' }
   end
 end
