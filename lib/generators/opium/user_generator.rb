@@ -8,8 +8,6 @@ module Opium
       
       argument :attributes, type: :array, default: [], banner: "field:type field:type"
       
-      check_class_collision
-      
       def run_model_generator
         generate 'model', *['user', *attributes, '--parent=opium/user']
       end
