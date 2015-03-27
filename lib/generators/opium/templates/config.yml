@@ -10,7 +10,7 @@ development:
   master_key: PARSE-MASTER-KEY
     
   # Any communications done with parse will either be (true) displayed or (false) silenced
-  log_network_responses: true
+  log_network_responses: false
     
 test:
   app_id: PARSE-TEST-APP-ID

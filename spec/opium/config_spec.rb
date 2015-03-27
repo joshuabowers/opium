@@ -19,6 +19,8 @@ describe Opium do
   end
   
   describe ':reset' do
+    after { described_class.config.log_network_responses = false }
+    
     it 'should put all changed settings back to their defaults' do
       expect { described_class.config.log_network_responses = true }.to change( described_class.config, :log_network_responses ).from( false ).to( true )
       described_class.reset
