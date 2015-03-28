@@ -283,4 +283,14 @@ describe Opium::Model::Criteria do
       end
     end
   end
+  
+  describe '#to_partial_path' do
+    subject { Game.criteria }
+    
+    it { expect { subject.to_partial_path }.to_not raise_exception }
+    
+    it 'comes from the model class' do
+      expect( subject.to_partial_path ).to eq 'games/game'
+    end
+  end
 end
