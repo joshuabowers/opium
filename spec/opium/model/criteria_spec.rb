@@ -36,7 +36,7 @@ describe Opium::Model::Criteria do
   it { is_expected.to respond_to( :empty? ) }
   it { is_expected.to respond_to( :to_parse ) }
   it { is_expected.to respond_to( :each ) }
-  it { is_expected.to respond_to( :to_a ) }
+  it { is_expected.to respond_to( :to_a, :to_ary ) }
   it { is_expected.to respond_to( :count, :total_count ) }
   it { is_expected.to respond_to( :to_partial_path ) }
   

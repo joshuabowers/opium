@@ -112,6 +112,8 @@ module Opium
         count && variables[:total_count]
       end
       
+      alias_method :to_ary, :to_a
+      
       private
       
       def update_hash_value( hash_name, key, value )
