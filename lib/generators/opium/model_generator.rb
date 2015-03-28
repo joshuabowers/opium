@@ -4,7 +4,12 @@ module Rails
   module Generators
     class GeneratedAttribute
       def type_class
-        type.to_s.camelcase
+        case type.to_s
+        when 'datetime'
+          'DateTime'
+        else
+          type.to_s.camelcase
+        end
       end
     end
   end

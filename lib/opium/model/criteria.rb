@@ -14,6 +14,8 @@ module Opium
       
       attr_reader :model_name
       
+      delegate :to_partial_path, to: :model
+      
       def model
         models[model_name] ||= model_name.constantize
       end

@@ -38,6 +38,7 @@ describe Opium::Model::Criteria do
   it { is_expected.to respond_to( :each ) }
   it { is_expected.to respond_to( :to_a ) }
   it { is_expected.to respond_to( :count, :total_count ) }
+  it { is_expected.to respond_to( :to_partial_path ) }
   
   describe '#chain' do
     it 'returns a copy of the object' do
