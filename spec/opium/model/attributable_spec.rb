@@ -3,42 +3,55 @@ require 'spec_helper'
 describe Opium::Model::Attributable do
   let( :model ) { Class.new { include Opium::Model::Attributable } }
   
-  describe 'instance' do
+  context 'within an instance' do
     subject { model.new }
     
-    it { should respond_to( :attributes, :attributes= ) }
-    it { should respond_to( :attributes_to_parse ) }
+    it { is_expected.to respond_to( :attributes, :attributes= ) }
+    it { is_expected.to respond_to( :attributes_to_parse ) }
   end
   
-  describe 'when included in a model' do
+  context 'when included in a model' do
     before do
       stub_const( 'Book', Class.new do
         include Opium::Model
         field :title, type: String
+        attr_accessor :not_a_field
       end )
     end
     
     subject { Book.new( title: 'Little Brother', id: 'abc123', created_at: Time.now ) }
     
-    describe 'attributes_to_parse' do
-      it 'when called with no parameters, should have all fields present, with names and values converted to parse' do
-        subject.attributes_to_parse.should =~ { 'objectId' => 'abc123', 'title' => 'Little Brother', 'createdAt' => subject.created_at.to_parse, 'updatedAt' => nil }
+    describe '.attributes_to_parse' do
+      context 'when called with no parameters' do
+        it 'has all fields present, with names and values converted to parse' do
+          expect( subject.attributes_to_parse ).to eq( 'objectId' => 'abc123', 'title' => 'Little Brother', 'createdAt' => subject.created_at.to_parse, 'updatedAt' => nil )
+        end
       end
       
-      it 'when called with except, should exclude the excepted fields' do
-        subject.attributes_to_parse( except: [:id, :updated_at] ).should =~ { 'title' => 'Little Brother', 'createdAt' => subject.created_at.to_parse }
+      context 'when called with except' do
+        it 'excludes the excepted fields' do
+          expect( subject.attributes_to_parse( except: [:id, :updated_at] ) ).to eq( 'title' => 'Little Brother', 'createdAt' => subject.created_at.to_parse )
+        end
       end
       
-      it 'when called with not_readonly, should exclude all readonly fields' do
-        subject.attributes_to_parse( not_readonly: true ).should =~ { 'title' => 'Little Brother' }
+      context 'when called with not_readonly' do
+        it 'excludes all readonly fields' do
+          expect( subject.attributes_to_parse( not_readonly: true ) ).to eq( 'title' => 'Little Brother' )
+        end
       end
     end
     
     describe ':attributes=' do
-      it 'should still store unrecognized fields in the attributes hash' do
+      it 'stores unrecognized fields in the attributes hash' do
         expect { subject.attributes = { unknownField: 42 } }.to_not raise_exception
-        subject.attributes.should have_key('unknownField')
-        subject.attributes['unknownField'].should == 42
+        expect( subject.attributes ).to have_key('unknownField')
+        expect( subject.attributes['unknownField'] ).to eq 42
+      end
+      
+      it 'calls relevant setters rather for non fields if they exist' do
+        expect { subject.attributes = { not_a_field: 42 } }.to_not raise_exception
+        expect( subject.not_a_field ).to eq 42
+        expect( subject.attributes ).to_not have_key('not_a_field')
       end
     end
   end
