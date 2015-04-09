@@ -3,61 +3,61 @@ require 'spec_helper.rb'
 describe Opium::Model::Persistable do
   let( :model ) { Class.new { include Opium::Model::Persistable } }
 
-  describe 'in a model' do
+  context 'within a model' do
     subject { model }
   
-    it { should respond_to( :destroy_all ).with(1).argument }
-    it { should respond_to( :delete_all ).with(1).argument }
-    it { should respond_to( :create, :create! ).with(1).argument }
-    it { should respond_to( :add_header_to ).with(4).arguments }
-    it { should respond_to( :added_headers ) }
-    it { should respond_to( :get_header_for ).with(2).arguments }
+    it { is_expected.to respond_to( :destroy_all ).with(1).argument }
+    it { is_expected.to respond_to( :delete_all ).with(1).argument }
+    it { is_expected.to respond_to( :create, :create! ).with(1).argument }
+    it { is_expected.to respond_to( :add_header_to ).with(4).arguments }
+    it { is_expected.to respond_to( :added_headers ) }
+    it { is_expected.to respond_to( :get_header_for ).with(2).arguments }
     
-    describe ':added_headers' do
+    describe '.added_headers' do
       it { subject.added_headers.should be_a( Hash ) }
     end
     
-    describe ':add_header_to' do
+    describe '.add_header_to' do
       after { subject.added_headers.clear }
       
       it { expect { subject.add_header_to :put, :x_header, 42 }.to_not raise_exception }
       it { subject.add_header_to(:delete, :x_header, 37, only: :delete).should be_nil }
       
-      it 'should add header information to :added_headers' do
+      it 'adds header information to :added_headers' do
         subject.add_header_to( :put, :x_header, 42, except: :update )
         subject.added_headers.should have_key(:put)
         subject.added_headers[:put].should include( :header, :value, :options )
       end
     end
     
-    describe ':get_header_for' do
+    describe '.get_header_for' do
       after { subject.added_headers.clear }
       
-      it 'should return an empty hash if a method has no added headers' do
+      it 'returns an empty hash if a method has no added headers' do
         subject.get_header_for( :put, :update ).should == {}
       end
       
-      it 'should return an empty hash if a context is not within the only list for a method' do
+      it 'returns an empty hash if a context is not within the only list for a method' do
         subject.add_header_to( :put, :x_header, 42, only: [:foo, :bar] )
         subject.get_header_for( :put, :baz ).should == {}
       end
       
-      it 'should return an empty hash if a context is within the except list for a method' do
+      it 'returns an empty hash if a context is within the except list for a method' do
         subject.add_header_to( :put, :x_header, 42, except: [:foo, :bar] )
         subject.get_header_for( :put, :foo ).should == {}
       end
       
-      it 'should return a headers hash if context-free' do
+      it 'returns a headers hash if context-free' do
         subject.add_header_to( :put, :x_header, 42 )
         subject.get_header_for( :put, :update ).should == { headers: { x_header: 42 } }
       end
       
-      it 'should return a headers hash if a context is within the only list for a method' do
+      it 'returns a headers hash if a context is within the only list for a method' do
         subject.add_header_to( :put, :x_header, 42, only: :update )
         subject.get_header_for( :put, :update ).should == { headers: { x_header: 42 } }
       end
       
-      it 'should return a headers hash if a context is not within the except list for a method' do
+      it 'returns a headers hash if a context is not within the except list for a method' do
         subject.add_header_to( :put, :x_header, 42, except: :foo )
         subject.get_header_for( :put, :update ).should == { headers: { x_header: 42 } }
       end
@@ -67,17 +67,18 @@ describe Opium::Model::Persistable do
   describe 'instance' do
     subject { model.new }
     
-    it { should respond_to( :save ).with(1).argument }
-    it { should respond_to( :save! ).with(0).arguments }
-    it { should respond_to( :update_attributes, :update_attributes! ).with(1).argument }
-    it { should respond_to( :touch ) }
-    it { should respond_to( :destroy ) }
-    it { should respond_to( :delete ) }
-    it { should respond_to( :new_record?, :persisted? ) }
-    it { should respond_to( :pointer, :to_parse ) }
+    it { is_expected.to respond_to( :save ).with(1).argument }
+    it { is_expected.to respond_to( :save! ).with(0).arguments }
+    it { is_expected.to respond_to( :update_attributes, :update_attributes! ).with(1).argument }
+    it { is_expected.to respond_to( :update, :update! ).with(1).argument }
+    it { is_expected.to respond_to( :touch ) }
+    it { is_expected.to respond_to( :destroy ) }
+    it { is_expected.to respond_to( :delete ) }
+    it { is_expected.to respond_to( :new_record?, :persisted? ) }
+    it { is_expected.to respond_to( :pointer, :to_parse ) }
   end
   
-  describe 'within a model' do
+  context 'within a model' do
     before do
       stub_const( 'Game', Class.new do
         include Opium::Model
@@ -93,7 +94,7 @@ describe Opium::Model::Persistable do
       Opium::Model::Criteria.models.clear
     end
     
-    describe ':new_record?' do
+    describe '#new_record?' do
       subject { Game.new }
       
       it 'should be true in a model without an id' do
@@ -244,12 +245,12 @@ describe Opium::Model::Persistable do
       it { expect { subject.save! }.to raise_exception }
     end
     
-    describe 'when saving a model with validates: false' do
+    context 'when saving a model with validates: false' do
       subject { Game.new( title: 'Skyrim' ) }
-      
-      it 'should not receive :valid?, but should receive :create' do
+            
+      it 'does not receive :valid?, but does receive :_create' do
         subject.should_not receive(:valid?)
-        subject.should receive(:create)
+        subject.should receive(:_create)
         subject.save( validates: false )
       end
     end
@@ -356,11 +357,11 @@ describe Opium::Model::Persistable do
       end
     end
     
-    describe ':to_parse' do
+    describe '#to_parse' do
       subject { Game.new( id: 'abcd1234' ) }
       
-      it 'should be a pointer hash' do
-        subject.to_parse.should == subject.pointer.to_parse
+      it 'is a pointer hash' do
+        expect( subject.to_parse ).to eq subject.pointer.to_parse
       end
     end
   end

@@ -81,6 +81,9 @@ module Opium
         save!
       end
       
+      alias_method :update, :update_attributes
+      alias_method :update!, :update_attributes!
+      
       def touch
         save( validates: false )
       end
@@ -116,20 +119,20 @@ module Opium
       def create_or_update( options )
         if options[:validates] == false || valid?
           if new_record?
-            create( options )
+            _create( options )
           else
-            update( options )
+            _update( options )
           end
         end.present?
       end
       
-      def create( options = {} )
+      def _create( options = {} )
         self.attributes = attributes_or_headers( :post, :create, options ) do |headers|
           self.class.http_post self.attributes_to_parse( except: [:id, :created_at, :updated_at] ), headers
         end
       end
       
-      def update( options = {} )
+      def _update( options = {} )
         self.attributes = attributes_or_headers( :put, :update, options ) do |headers|
           self.class.http_put id, self.attributes_to_parse( only: changes.keys ), headers
         end
