@@ -24,13 +24,13 @@ module Opium
       
       def attributes_to_parse( options = {} )
         options[:except] ||= self.class.fields.values.select {|f| f.readonly? }.map {|f| f.name} if options[:not_readonly]
-        Hash[*self.as_json( options ).map {|k, v| [self.class.fields[k].name_to_parse, v.to_parse]}.flatten]
+        Hash[*self.as_json( options ).flat_map {|k, v| [self.class.fields[k].name_to_parse, v.to_parse]}]
       end
       
       private
       
       def rubyize_field_names( hash )
-        Hash[*hash.map {|k, v| [self.class.ruby_canonical_field_names[k] || k, v]}.flatten]
+        hash.transform_keys {|k| self.class.ruby_canonical_field_names[k] || k}
       end
     end
   end
