@@ -1,7 +1,7 @@
 class ::Symbol
   class << self
     def to_ruby( other )
-      other.to_sym
+      other.to_sym if other
     end
     
     def to_parse( other )

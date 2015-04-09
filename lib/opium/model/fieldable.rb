@@ -49,7 +49,7 @@ module Opium
         end
         
         def default_attributes
-          ActiveSupport::HashWithIndifferentAccess[ *fields.map {|key, field| [key, field.default]}.flatten ]
+          fields.transform_values {|field| field.type.to_ruby field.default}.with_indifferent_access
         end
       end
     end

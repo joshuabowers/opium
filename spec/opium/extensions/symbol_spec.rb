@@ -18,6 +18,13 @@ describe Symbol do
       it { expect( converted ).to be_a Symbol }
     end
     
+    context 'with a nil parameter' do
+      let(:param) { nil }
+      
+      it { expect { converted }.to_not raise_exception }
+      it { expect( converted ).to be_nil }
+    end
+    
     context 'with anything else' do
       let(:param) { 42 }
       

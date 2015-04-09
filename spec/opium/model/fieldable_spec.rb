@@ -130,4 +130,39 @@ describe Opium::Model::Fieldable do
       end
     end
   end
+  
+  context 'when a model has fields' do
+    before do
+      stub_const( 'Model', Class.new do
+        include Opium::Model
+        field :symbolic_with_string_default, type: Symbol, default: 'value'
+        field :symbolic_with_symbol_default, type: Symbol, default: :value
+      end )
+    end
+    
+    subject { Model }
+    let(:instance) { subject.new }
+    
+    it 'converts default values correctly' do
+      expect( Model.default_attributes ).to include( 'symbolic_with_string_default' => :value, 'symbolic_with_symbol_default' => :value )
+    end
+    
+    describe '.field' do
+      subject { Model.new }
+      
+      it 'converts default values' do
+        expect( subject.symbolic_with_string_default ).to be_a Symbol
+        expect( subject.symbolic_with_symbol_default ).to be_a Symbol
+      end
+    end
+    
+    describe '.field=' do
+      subject { Model.new }
+      
+      it 'converts strings appropriately' do
+        expect { subject.symbolic_with_symbol_default = 'updated_value' }.to change( subject, :symbolic_with_symbol_default ).from(:value).to(:updated_value)
+        expect( subject.symbolic_with_symbol_default ).to be_a Symbol
+      end
+    end
+  end
 end
