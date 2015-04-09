@@ -3,28 +3,28 @@ require 'spec_helper.rb'
 describe Opium::Model::Queryable do
   let( :model ) { Class.new { include Opium::Model::Queryable } }
 
-  describe 'the class' do
+  context 'when included in a class' do
     subject { model }
     
-    it { should respond_to( :all, :all_in ).with(1).argument }
-    it { should respond_to( :and ).with(1).argument }
-    it { should respond_to( :between ).with(1).argument }
-    it { should respond_to( :exists ).with(1).argument }
-    it { should respond_to( :gt, :gte ).with(1).argument }
-    it { should respond_to( :lt, :lte ).with(1).argument }
-    it { should respond_to( :in, :any_in, :nin ).with(1).argument }
-    it { should respond_to( :ne ).with(1).argument }
-    it { should respond_to( :or ).with(1).argument }
-    it { should respond_to( :select, :dont_select ).with(1).argument }
-    it { should respond_to( :keys, :pluck ).with(1).argument }
-    it { should respond_to( :where ).with(1).argument }
-    it { should respond_to( :order ).with(1).argument }
-    it { should respond_to( :limit, :skip ).with(1).argument }
-    it { should respond_to( :cache, :uncache, :cached? ) }
-    it { should respond_to( :count, :total_count ) }
+    it { is_expected.to respond_to( :all, :all_in ).with(1).argument }
+    it { is_expected.to respond_to( :and ).with(1).argument }
+    it { is_expected.to respond_to( :between ).with(1).argument }
+    it { is_expected.to respond_to( :exists ).with(1).argument }
+    it { is_expected.to respond_to( :gt, :gte ).with(1).argument }
+    it { is_expected.to respond_to( :lt, :lte ).with(1).argument }
+    it { is_expected.to respond_to( :in, :any_in, :nin ).with(1).argument }
+    it { is_expected.to respond_to( :ne ).with(1).argument }
+    it { is_expected.to respond_to( :or ).with(1).argument }
+    it { is_expected.to respond_to( :select, :dont_select ).with(1).argument }
+    it { is_expected.to respond_to( :keys, :pluck ).with(1).argument }
+    it { is_expected.to respond_to( :where ).with(1).argument }
+    it { is_expected.to respond_to( :order ).with(1).argument }
+    it { is_expected.to respond_to( :limit, :skip ).with(1).argument }
+    it { is_expected.to respond_to( :cache, :uncache, :cached? ) }
+    it { is_expected.to respond_to( :count, :total_count ) }
   end
   
-  describe 'within a model' do
+  context 'within a model' do
     before do
       stub_const( 'Game', Class.new do
         include Opium::Model
@@ -43,29 +43,29 @@ describe Opium::Model::Queryable do
     
     subject { Game }
     
-    describe ':where' do
-      it 'should return a criteria' do
+    describe '.where' do
+      it 'returns a criteria' do
         subject.where( price: { '$lte' => 5 } ).should be_a( Opium::Model::Criteria )
       end
       
-      it 'should set the "where" constraint to the provided value' do
+      it 'sets the "where" constraint to the provided value' do
         subject.where( price: { '$lte' => 5 } ).tap do |criteria|
           criteria.constraints.should have_key( 'where' )
           criteria.constraints['where'].should =~ { 'price' => { '$lte' => 5 } }
         end
       end
       
-      it 'should deep merge the "where" constraint on successive calls' do
+      it 'deep merges the "where" constraint on successive calls' do
         subject.where( price: { '$lte' => 5 } ).where( price: { '$gte' => 1 } ).tap do |criteria|
           criteria.constraints['where'].should =~ { 'price' => { '$lte' => 5, '$gte' => 1 } }
         end
       end
       
-      it 'should ensure that specified fields exist on the model' do
+      it 'ensures that specified fields exist on the model' do
         expect { subject.where( does_not_exist: true ) }.to raise_exception
       end
       
-      it 'should map ruby names to parse names and ruby values to parse values' do
+      it 'maps ruby names to parse names and ruby values to parse values' do
         time = Time.now - 1000
         subject.where( created_at: { '$gte' => time } ).tap do |criteria|
           criteria.constraints['where'].should =~ { 'createdAt' => { '$gte' => time.to_parse } }
@@ -74,7 +74,7 @@ describe Opium::Model::Queryable do
     end
         
     shared_examples_for 'a chainable criteria clause' do |method|
-      describe ":#{method}" do
+      describe ".#{method}" do
         it 'should return a criteria' do
           subject.send( method, price: 5, title: 'Skyrim' ).should be_a( Opium::Model::Criteria )
         end
@@ -124,6 +124,16 @@ describe Opium::Model::Queryable do
     it_should_behave_like 'an aliased method', :and, :where
     it_should_behave_like 'an aliased method', :all_in, :all
     it_should_behave_like 'an aliased method', :any_in, :in
+    
+    describe '.all' do
+      context 'when no parameter is given' do
+        let(:result) { subject.all }
+        
+        it { expect { result }.to_not raise_exception }
+        it { expect( result ).to be_a Opium::Model::Criteria }
+        it { expect( result ).to eq subject.criteria }
+      end
+    end
         
     describe ':exists' do
       it 'should return a criteria' do

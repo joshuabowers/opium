@@ -6,8 +6,8 @@ module Opium
       module ClassMethods
         delegate :count, :total_count, to: :criteria
         
-        def all( constraints )
-          imbued_where( arrayize( constraints ), '$all' )
+        def all( constraints = nil )
+          constraints ? imbued_where( arrayize( constraints ), '$all' ) : criteria
         end
         
         alias_method :all_in, :all
