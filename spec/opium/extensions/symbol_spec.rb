@@ -26,8 +26,22 @@ describe Symbol do
   end
   
   describe '.to_parse' do
+    let(:converted) { described_class.to_parse( param ) }
+    
+    context 'with a symbol parameter' do
+      let(:param) { :value }
+      
+      it { expect { converted }.to_not raise_exception }
+      it { expect( converted ).to be_a String }
+      it { expect( converted ).to eq 'value' }
+    end
   end
   
   describe '#to_parse' do
+    subject { :value }
+    
+    it { expect { subject.to_parse }.to_not raise_exception }
+    it { expect( subject.to_parse ).to be_a String }
+    it { expect( subject.to_parse ).to eq 'value' }
   end
 end
