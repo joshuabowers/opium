@@ -38,4 +38,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "activemodel", "~> 4.0"
   spec.add_dependency "faraday", "~> 0.9"
   spec.add_dependency "faraday_middleware", "~> 0.9"
+  spec.add_dependency "mimemagic", "~> 0.3"
 end

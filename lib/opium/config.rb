@@ -26,7 +26,7 @@ module Opium
 
   def load_yaml( path, environment = nil )
     env = environment ? environment.to_s : env_name
-    YAML.load(ERB.new(File.new(path).read).result)[env]
+    YAML.load(ERB.new(::File.new(path).read).result)[env]
   end
 
   def env_name

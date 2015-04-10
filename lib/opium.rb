@@ -1,9 +1,10 @@
-require "rubygems"
-require "active_model"
-require "active_support"
-require "opium/version"
-require "opium/config"
-require "opium/extensions"
-require "opium/model"
-require "opium/user"
-require "opium/railtie" if defined?( Rails )
+require 'rubygems'
+require 'active_model'
+require 'active_support'
+require 'opium/version'
+require 'opium/config'
+require 'opium/extensions'
+require 'opium/model'
+require 'opium/user'
+require 'opium/file'
+require 'opium/railtie' if defined?( Rails )
