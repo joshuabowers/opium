@@ -7,6 +7,8 @@ module Rails
         case type.to_s
         when 'datetime'
           'DateTime'
+        when 'file'
+          'Opium::File'
         else
           type.to_s.camelcase
         end
