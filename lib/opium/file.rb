@@ -20,11 +20,21 @@ module Opium
       end
       
       def to_ruby( object )
+        return unless object
         if object.is_a?( Hash ) && (has_key_of_value( object, :__type, 'File' ) || has_keys( object, :url, :name ))
           new( object )
         else
           fail ArgumentError, "could not convert #{ object.inspect } to an Opium::File" 
         end
+      end
+      
+      def to_parse( object )
+        return unless object
+        fail ArgumentError, "could not convert #{ object.inspect } to a Parse File object" unless object.is_a?( self ) && object.name
+        {
+          __type: 'File',
+          name: object.name
+        }.with_indifferent_access
       end
       
       private
@@ -68,6 +78,10 @@ module Opium
     
     def inspect
       "#<#{ self.class.model_name.name } name=#{ name.inspect } url=#{ url.inspect } mime_type=#{ (mime_type ? mime_type.type : nil).inspect }>"
+    end
+    
+    def to_parse
+      self.class.to_parse( self )
     end
     
     private

@@ -11,6 +11,9 @@ describe Opium::File do
   
   let(:location) { 'http://files.example.com/1234-file.gif' }
   
+  it { expect( described_class ).to respond_to(:upload, :to_ruby, :to_parse).with(1).argument }
+  it { is_expected.to respond_to( :delete, :name, :url, :mime_type, :to_parse ) }
+  
   describe '.upload' do
     subject { described_class }
     let(:upload_options) { {} }
@@ -23,9 +26,7 @@ describe Opium::File do
           headers: {content_type: 'image/gif', x_parse_application_id: 'PARSE_APP_ID', x_parse_rest_api_key: 'PARSE_API_KEY'}
         ).to_return(status: 201, body: ->(request) { { url: location, name: "1234-#{ ::File.basename(request.uri) }" }.to_json }, headers: { content_type: 'application/json', location: location })
     end
-    
-    it { is_expected.to respond_to(:upload).with(1).argument }
-    
+        
     context 'when the upload completes' do      
       it { expect { result }.to_not raise_exception }
       it { expect( result ).to be_a Opium::File }
@@ -66,8 +67,6 @@ describe Opium::File do
   describe '.to_ruby' do
     subject { described_class }
     
-    it { is_expected.to respond_to(:to_ruby).with(1).argument }
-    
     let(:result) { subject.to_ruby( object ) }
     
     context 'when given a hash with __type: "File"' do
@@ -90,6 +89,13 @@ describe Opium::File do
       it { expect { result }.to raise_exception }
     end
     
+    context 'when given nil' do
+      let(:object) { nil }
+      
+      it { expect { result }.to_not raise_exception }
+      it { expect( result ).to be_nil }
+    end
+    
     context 'when not given a hash' do
       let(:object) { 42 }
       
@@ -100,15 +106,38 @@ describe Opium::File do
   describe '.to_parse' do
     subject { described_class }
     
-    it { is_expected.to respond_to(:to_parse).with(1).argument }
+    let(:result) { described_class.to_parse( object ) }
+    
+    context 'when given an Opium::File' do
+      let(:object) { subject.new( url: location, name: 'chunky_bacon.jpg' ) }
+      
+      it { expect { result }.to_not raise_exception }
+      it { expect( result ).to be_a Hash }
+      it { expect( result ).to have_key '__type' }
+      it { expect( result ).to have_key 'name' }
+      it 'has the proper values for :__type and :name' do
+        expect( result ).to eq( '__type' => 'File', 'name' => 'chunky_bacon.jpg' )
+      end
+    end
+    
+    context 'when given nil' do
+      let(:object) { nil }
+      
+      it { expect { result }.to_not raise_exception }
+      it { expect( result ).to be_nil }
+    end
+    
+    context 'when given anything else' do
+      let(:object) { 42 }
+      
+      it { expect { result }.to raise_exception }
+    end
   end
   
   context '#initialize' do
     let(:filename) { 'file.png' }
     let(:location) { 'http://files.example.com/1234-file.png' }
     subject { described_class.new( __type: 'File', url: location, name: filename ) }
-    
-    it { is_expected.to respond_to( :name, :url, :mime_type ) }
     
     it 'sets the url' do 
       expect( subject.url ).to eq location
@@ -125,14 +154,28 @@ describe Opium::File do
   
   describe '#delete' do
     subject { described_class.new }
-    
-    it { is_expected.to respond_to :delete }
   end
   
   describe '#to_parse' do
-    subject { described_class.new }
+    let(:result) { subject.to_parse }
     
-    it { is_expected.to respond_to :to_parse }    
+    context 'when #name has a value' do
+      subject { described_class.new( url: location, name: 'chunky_bacon.jpg' ) }
+      
+      it { expect { result }.to_not raise_exception }
+      it { expect( result ).to be_a Hash }
+      it { expect( result ).to have_key '__type' }
+      it { expect( result ).to have_key 'name' }
+      it 'has the proper values for :__type and :name' do
+        expect( result ).to eq( '__type' => 'File', 'name' => 'chunky_bacon.jpg' )
+      end
+    end
+    
+    context 'when #name is empty' do
+      subject { described_class.new }
+      
+      it { expect { result }.to raise_exception }
+    end
   end
   
   describe '#inspect' do

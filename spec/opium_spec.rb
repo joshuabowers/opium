@@ -1,5 +1,5 @@
 require 'spec_helper'
 
 describe Opium do
-  its(:constants) { should include( :Model ) }
+  it { expect( described_class.constants ).to include( :Model, :User, :File, :Config ) }
 end
