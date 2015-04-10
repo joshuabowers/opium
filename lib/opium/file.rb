@@ -19,6 +19,14 @@ module Opium
         options[:sent_headers] ? attributes : new(attributes)
       end
       
+      def to_ruby( object )
+        if object.is_a?( Hash ) && (has_key_of_value( object, :__type, 'File' ) || has_keys( object, :url, :name ))
+          new( object )
+        else
+          fail ArgumentError, "could not convert #{ object.inspect } to an Opium::File" 
+        end
+      end
+      
       private
       
       # Note that MimeMagic returns application/zip for the more recent MS Office file types,
@@ -31,6 +39,14 @@ module Opium
           result[:headers] = { content_type: mime_type.to_s }
           result[:sent_headers] = options[:sent_headers] if options.key? :sent_headers
         end
+      end
+      
+      def has_key_of_value( object, key, value )
+        (object[key] || object[key.to_s]) == value
+      end
+      
+      def has_keys( object, *keys )
+        object.keys.all? {|key| keys.include? key}
       end
     end
     

@@ -67,6 +67,34 @@ describe Opium::File do
     subject { described_class }
     
     it { is_expected.to respond_to(:to_ruby).with(1).argument }
+    
+    let(:result) { subject.to_ruby( object ) }
+    
+    context 'when given a hash with __type: "File"' do
+      let(:object) { { __type: 'File', url: location, name: 'chunky_bacon.jpg' } }
+      
+      it { expect { result }.to_not raise_exception }
+      it { expect( result ).to be_a Opium::File }
+    end
+    
+    context 'when given a hash with just a :url and :name' do
+      let(:object) { { url: location, name: 'chunky_bacon.jpg' } }
+      
+      it { expect { result }.to_not raise_exception }
+      it { expect( result ).to be_a Opium::File }
+    end
+    
+    context 'when given a hash with __type != "File"' do
+      let(:object) { { __type: 'Pointer' } }
+      
+      it { expect { result }.to raise_exception }
+    end
+    
+    context 'when not given a hash' do
+      let(:object) { 42 }
+      
+      it { expect { result }.to raise_exception }
+    end
   end
   
   describe '.to_parse' do
