@@ -234,5 +234,12 @@ describe Opium::Model::Connectable do
       expect { subject.with_heightened_privileges { raise 'expected' } }.to raise_exception
       expect( subject ).to_not have_heightened_privileges
     end
+    
+    it 'keeps the previous value of requires_heightened_privileges? after the block' do
+      subject.requires_heightened_privileges!
+      subject.with_heightened_privileges {}
+      expect( subject ).to have_heightened_privileges
+      subject.instance_variable_set :@requires_heightened_privileges, nil
+    end
   end
 end
