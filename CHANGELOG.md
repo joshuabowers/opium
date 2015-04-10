@@ -1,6 +1,7 @@
 ## 1.1.0
 
 ### New Features
+- #29: `Opium::File` is now a supported field type, which wraps Parse's File objects. 
 - #31: `Symbol` is now a supported field type, which is meant to be used on top of a Parse String column.
 
 ### Resolved Issues
