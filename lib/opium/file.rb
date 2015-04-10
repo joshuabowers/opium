@@ -15,8 +15,6 @@ module Opium
         request_options = build_request_options( file, options )
         attributes = send( :http, :post, request_options ) do |request|
           request.body = Faraday::UploadIO.new( file, request_options[:headers][:content_type] )
-          # request.body = file.read
-          # file.rewind
         end
         options[:sent_headers] ? attributes : new(attributes)
       end
@@ -29,7 +27,7 @@ module Opium
         {}.tap do |result|
           mime_type = options.fetch( :content_type, MimeMagic.by_magic(file) )
           mime_type = MimeMagic.by_path(file) if mime_type == 'application/zip'
-          result[:id] = ::File.basename( file )
+          result[:id] = options[:original_filename] || ::File.basename( file )
           result[:headers] = { content_type: mime_type.to_s }
           result[:sent_headers] = options[:sent_headers] if options.key? :sent_headers
         end

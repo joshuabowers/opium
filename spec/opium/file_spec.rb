@@ -16,22 +16,30 @@ describe Opium::File do
     let(:upload_options) { {} }
     let(:result) { subject.upload( gif_file, upload_options ) }
     
+    before do
+      stub_request( :post, %r{https://api\.parse\.com/1/files/.+} ).
+        with( 
+          body: "9a\x15\x00\x04\x00\x80\x00\x00#-0\xFF\xFF\xFF!\xF9\x04\x01\x00\x00\x01\x00,\x00\x00\x00\x00\x15\x00\x04\x00\x00\x02\r\x8C\x8F\x01\xC9\xAD\xB0\x9C\x83T2\x8AY\x01\x00;".force_encoding('ASCII-8BIT'),
+          headers: {content_type: 'image/gif', x_parse_application_id: 'PARSE_APP_ID', x_parse_rest_api_key: 'PARSE_API_KEY'}
+        ).to_return(status: 201, body: ->(request) { { url: location, name: "1234-#{ ::File.basename(request.uri) }" }.to_json }, headers: { content_type: 'application/json', location: location })
+    end
+    
     it { is_expected.to respond_to(:upload).with(1).argument }
     
-    context 'when the upload completes' do
-      
-      before do
-        stub_request( :post, %r{https://api\.parse\.com/1/files/.+} ).
-          with( 
-            body: "9a\x15\x00\x04\x00\x80\x00\x00#-0\xFF\xFF\xFF!\xF9\x04\x01\x00\x00\x01\x00,\x00\x00\x00\x00\x15\x00\x04\x00\x00\x02\r\x8C\x8F\x01\xC9\xAD\xB0\x9C\x83T2\x8AY\x01\x00;".force_encoding('ASCII-8BIT'),
-            headers: {content_type: 'image/gif', x_parse_application_id: 'PARSE_APP_ID', x_parse_rest_api_key: 'PARSE_API_KEY'}
-          ).to_return(status: 201, body: { url: location, name: '1234-file.gif' }.to_json, headers: { content_type: 'application/json', location: location })
-      end
-      
+    context 'when the upload completes' do      
       it { expect { result }.to_not raise_exception }
       it { expect( result ).to be_a Opium::File }
       it { expect( result.url ).to_not be_nil }
       it { expect( result.name ).to_not be_nil }
+    end
+    
+    context 'with a :original_filename option' do
+      let(:upload_options) { { original_filename: 'chunky_bacon.jpg' } }
+      
+      it { expect { result }.to_not raise_exception }
+      it 'preferentially uses the :original_filename' do
+        expect( result.name ).to end_with 'chunky_bacon.jpg'
+      end
     end
     
     context 'with a :content_type option' do
