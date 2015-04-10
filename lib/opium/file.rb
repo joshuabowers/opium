@@ -21,6 +21,7 @@ module Opium
       
       def to_ruby( object )
         return unless object
+        return object if object.is_a?( self )
         if object.is_a?( Hash ) && (has_key_of_value( object, :__type, 'File' ) || has_keys( object, :url, :name ))
           new( object )
         else

@@ -89,6 +89,14 @@ describe Opium::File do
       it { expect { result }.to raise_exception }
     end
     
+    context 'when given an Opium::File' do
+      let(:object) { Opium::File.new( url: location, name: 'chunky_bacon.jpg' ) }
+      
+      it { expect { result }.to_not raise_exception }
+      it { expect( result ).to be_a Opium::File }
+      it { expect( result ).to eq object }
+    end
+    
     context 'when given nil' do
       let(:object) { nil }
       
@@ -196,6 +204,36 @@ describe Opium::File do
       it 'has nil values for all components' do
         expect( subject.inspect ).to eq '#<Opium::File name=nil url=nil mime_type=nil>'
       end
+    end
+  end
+  
+  context 'when used as a field type' do
+    before do
+      stub_const( 'Game', Class.new do
+        include Opium::Model
+        field :cover_image, type: Opium::File
+      end )
+      
+      stub_request(:get, "https://api.parse.com/1/classes/Game/abcd1234").
+        with(:headers => {'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Rest-Api-Key'=>'PARSE_API_KEY'}).
+        to_return(:status => 200, :body => { objectId: 'abcd1234', coverImage: { __type: 'File', name: 'chunky_bacon.jpg', url: location }, createdAt: '2015-01-01T12:00:00Z' }.to_json, :headers => { content_type: 'application/json' })
+        
+      stub_request(:post, "https://api.parse.com/1/classes/Game").
+        with(
+          :body => "{\"coverImage\":{\"__type\":\"File\",\"name\":\"chunky_bacon.jpg\"}}",
+          :headers => {'Content-Type'=>'application/json', 'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Rest-Api-Key'=>'PARSE_API_KEY'}).
+        to_return(:status => 200, :body => { objectId: 'abcd1234', createdAt: '2015-01-01T12:00:00Z' }.to_json, :headers => { content_type: 'application/json' })
+      
+    end
+    
+    it 'is retrievable as an Opium::File' do
+      game = Game.find('abcd1234')
+      expect( game.cover_image ).to be_a Opium::File
+    end
+    
+    it 'is persistable as a Parse File object hash' do
+      game = Game.new cover_image: Opium::File.new( url: location, name: 'chunky_bacon.jpg' )
+      expect { game.save! }.to_not raise_exception
     end
   end
 end
