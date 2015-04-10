@@ -215,4 +215,24 @@ describe Opium::Model::Connectable do
       subject.requires_heightened_privileges?.should == true
     end
   end
+  
+  describe '.with_heightened_privileges' do
+    it { expect {|b| subject.with_heightened_privileges &b}.to yield_control }
+    
+    it 'has heightened privileges within the block' do
+      subject.with_heightened_privileges do
+        expect( subject ).to have_heightened_privileges
+      end
+    end
+    
+    it 'does not have heightened privileges outside the block' do
+      subject.with_heightened_privileges {}
+      expect( subject ).to_not have_heightened_privileges 
+    end
+    
+    it 'turns off heightened privileges on exceptions' do
+      expect { subject.with_heightened_privileges { raise 'expected' } }.to raise_exception
+      expect( subject ).to_not have_heightened_privileges
+    end
+  end
 end

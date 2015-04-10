@@ -51,6 +51,8 @@ describe Opium::File do
       it 'sends the given :content_type value' do
         expect( result['Content-Type'] ).to eq 'image/png'
       end
+      it { expect( result.keys ).to include( 'X-Parse-Rest-Api-Key' )}
+      it { expect( result.keys ).to_not include( 'X-Parse-Master-Key' )}
     end
     
     context 'without a :content_type option' do
@@ -61,6 +63,8 @@ describe Opium::File do
       it 'sends the proper content_type' do
         expect( result['Content-Type'] ).to eq 'image/gif'
       end
+      it { expect( result.keys ).to include( 'X-Parse-Rest-Api-Key' )}
+      it { expect( result.keys ).to_not include( 'X-Parse-Master-Key' )}
     end
   end
   
@@ -161,7 +165,38 @@ describe Opium::File do
   end
   
   describe '#delete' do
-    subject { described_class.new }
+    subject { described_class.new( url: location, name: 'chunky_bacon.jpg' ) }
+    
+    before do
+      stub_request(:delete, "https://api.parse.com/1/files/chunky_bacon.jpg").
+        with(:headers => {'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Master-Key'=>'PARSE_MASTER_KEY'}).
+        to_return(:status => 200, :body => "{}", :headers => { content_type: 'application/json' })
+    end
+    
+    let(:delete_options) { {} }
+    let(:result) { subject.delete( delete_options ) }
+    
+    context 'with a name' do
+      it { expect { result }.to_not raise_exception }
+      it 'freezes the Opium::File' do
+        result
+        expect( subject ).to be_frozen
+      end
+    end
+    
+    context 'without a name' do
+      subject { described_class.new }
+      
+      it { expect { result }.to raise_exception }
+    end
+    
+    context 'when executed' do
+      let(:delete_options) { { sent_headers: true } }
+      
+      it { expect { result }.to_not raise_exception }
+      it { expect( result.keys ).to include( 'X-Parse-Master-Key' ) }
+      it { expect( result.keys ).to_not include( 'X-Parse-Rest-Api-Key' ) }
+    end
   end
   
   describe '#to_parse' do

@@ -68,7 +68,10 @@ module Opium
     end
     
     def delete( options = {} )
-      
+      fail "cannot delete #{ self.inspect }, as there is no name" unless self.name
+      self.class.with_heightened_privileges do
+        self.class.http_delete self.name, options
+      end.tap { self.freeze }
     end
     
     attr_reader :name, :url
