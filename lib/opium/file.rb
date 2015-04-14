@@ -1,4 +1,5 @@
 require 'mimemagic'
+require 'opium/model/connectable'
 
 module Opium
   class File
