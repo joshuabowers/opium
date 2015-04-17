@@ -20,7 +20,7 @@ end
 module Opium
   module Generators
     class ModelGenerator < ::Rails::Generators::NamedBase
-      source_root File.expand_path( "../templates/", __FILE__ )
+      source_root ::File.expand_path( "../templates/", __FILE__ )
       
       desc "Creates an Opium model"
       
@@ -31,7 +31,7 @@ module Opium
       class_option :parent, type: :string, desc: "The parent model for the generated model when using STI"
       
       def create_model_file
-        template "model.rb", File.join( "app/models", class_path, "#{file_name}.rb" )
+        template "model.rb", ::File.join( "app/models", class_path, "#{file_name}.rb" )
       end
       
       hook_for :test_framework

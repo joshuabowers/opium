@@ -1,3 +1,11 @@
+## 1.1.2
+### Resolved Issues
+- #34: Rails generators now correctly reference `::File`, rather than `File`, which, in context, evaluates to `Opium::File`.
+
+## 1.1.1
+### Resolved Issues
+- Fixed bug where Rails was unable to load `Opium::Model::Connectable` in `Opium::File`.
+
 ## 1.1.0
 
 ### New Features
