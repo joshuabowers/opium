@@ -10,5 +10,9 @@ module Opium
         ::Opium.load!( config_file )
       end
     end
+    
+    config.to_prepare do
+      ::Opium::Model::Criteria.models.clear
+    end
   end
 end
