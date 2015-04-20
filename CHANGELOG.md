@@ -1,3 +1,7 @@
+## 1.1.3
+### Resolved Issues
+- #35: The railtie now should clear the criteria model cache upon app reload.
+
 ## 1.1.2
 ### Resolved Issues
 - #34: Rails generators now correctly reference `::File`, rather than `File`, which, in context, evaluates to `Opium::File`.
