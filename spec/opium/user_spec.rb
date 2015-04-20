@@ -68,6 +68,7 @@ describe Opium::User do
   end
   
   it { described_class.fields[:session_token].should be_readonly }
+  it { expect( described_class.fields[:email_verified] ).to be_readonly }
   it { described_class.object_prefix.should be_empty }
   it { described_class.resource_name.should == 'users' }
   it { expect( described_class.requires_heightened_privileges? ).to be_truthy }

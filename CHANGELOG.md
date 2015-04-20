@@ -1,3 +1,7 @@
+## 1.1.4
+### Resolved Issues
+- #36: The `email_verified` field in `Opium::User` is now readonly.
+
 ## 1.1.3
 ### Resolved Issues
 - #35: The railtie now should clear the criteria model cache upon app reload.

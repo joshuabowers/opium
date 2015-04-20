@@ -5,7 +5,7 @@ module Opium
     field :username, type: String
     field :password, type: String
     field :email, type: String
-    field :email_verified, type: Boolean
+    field :email_verified, type: Boolean, readonly: true
     field :session_token, type: String, readonly: true
     
     no_object_prefix!
