@@ -1,5 +1,6 @@
 ## 1.1.4
 ### Resolved Issues
+- Persistable now filters out any readonly fields from the data sent on create.
 - #36: The `email_verified` field in `Opium::User` is now readonly.
 
 ## 1.1.3
