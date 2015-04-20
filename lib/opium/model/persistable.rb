@@ -128,7 +128,7 @@ module Opium
       
       def _create( options = {} )
         self.attributes = attributes_or_headers( :post, :create, options ) do |headers|
-          self.class.http_post self.attributes_to_parse( except: [:id, :created_at, :updated_at] ), headers
+          self.class.http_post self.attributes_to_parse( not_readonly: true ), headers
         end
       end
       
