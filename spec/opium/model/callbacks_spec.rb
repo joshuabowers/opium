@@ -7,11 +7,12 @@ describe Opium::Model::Callbacks do
       def save( o = {} ) end
       def destroy; end
       def touch; end
-      def create; end
+      def _create; end
+      def _update; end
       def update; end
       def find( id ) end
       
-      private :create, :update
+      private :_create, :_update
       
       include Opium::Model::Callbacks
     end
@@ -35,7 +36,7 @@ describe Opium::Model::Callbacks do
       subject { model.new }
       
       it 'should run callbacks' do
-        subject.should receive(:run_callbacks).with(method)
+        subject.should receive(:run_callbacks).with(options[:callback_name] || method)
         subject.send(method, *options[:args])
       end
       
@@ -51,9 +52,11 @@ describe Opium::Model::Callbacks do
   
   it_should_behave_like 'its callbacks should be invoked for', :initialize, private: true
   it_should_behave_like 'its callbacks should be invoked for', :save
-  it_should_behave_like 'its callbacks should be invoked for', :create, private: true
-  it_should_behave_like 'its callbacks should be invoked for', :update, private: true
+  it_should_behave_like 'its callbacks should be invoked for', :_create, private: true, callback_name: :create
+  it_should_behave_like 'its callbacks should be invoked for', :_update, private: true, callback_name: :update
   it_should_behave_like 'its callbacks should be invoked for', :destroy
   it_should_behave_like 'its callbacks should be invoked for', :touch
   it_should_behave_like 'its callbacks should be invoked for', :find, args: ['abcd1234']
+  
+  it { expect( model.new ).to respond_to(:update) }
 end

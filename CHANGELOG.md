@@ -1,3 +1,7 @@
+## 1.1.5
+### Resolved Issues
+- #37: Callbacks no longer makes `:update` a private method.
+
 ## 1.1.4
 ### Resolved Issues
 - Persistable now filters out any readonly fields from the data sent on create.

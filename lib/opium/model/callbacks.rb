@@ -15,16 +15,17 @@ module Opium
         define_model_callbacks :save, :create, :update, :destroy
         
         wrap_callbacks_around :save, :destroy, :touch, :find
-        wrap_callbacks_around :initialize, :create, :update, private: true
+        wrap_callbacks_around :initialize, :_create, :_update, private: true
       end
       
       module ClassMethods
         def wrap_callbacks_around( *methods )
           options = methods.last.is_a?(::Hash) ? methods.pop : {}
           methods.each do |method|
+            callback_name = method.to_s.gsub(/\A_/, '').to_sym
             class_eval do
               define_method method do |*args|
-                run_callbacks( method ) do
+                run_callbacks( callback_name ) do
                   super( *args )
                 end
               end
