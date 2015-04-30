@@ -1,5 +1,6 @@
 ## 1.1.6
 ### Resolved Issues
+- #39: `Opium::File#upload` now paramterizes the file name.
 - #38: Added Content-Length and Transfer-Encoding headers to file uploads.
 
 ## 1.1.5

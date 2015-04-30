@@ -43,6 +43,15 @@ describe Opium::File do
       end
     end
     
+    context 'with non-standard characters in filename' do
+      let(:upload_options) { { original_filename: 'chunky&bacon$with cheddar@cheese.jpg' } }
+      
+      it { expect { result }.to_not raise_exception }
+      it 'paramterizes the name' do
+        expect( result.name ).to end_with 'chunky-bacon-with-cheddar-cheese.jpg'
+      end
+    end
+    
     context 'when executed' do
       let(:upload_options) { { sent_headers: true } }
       

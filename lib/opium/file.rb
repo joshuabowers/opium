@@ -47,7 +47,7 @@ module Opium
         {}.tap do |result|
           mime_type = options.fetch( :content_type, MimeMagic.by_magic(file) )
           mime_type = MimeMagic.by_path(file) if mime_type == 'application/zip'
-          result[:id] = options[:original_filename] || ::File.basename( file )
+          result[:id] = parameterize_name( options[:original_filename] || ::File.basename( file ) )
           result[:headers] = { content_type: mime_type.to_s, content_length: file.size.to_s }
           result[:sent_headers] = options[:sent_headers] if options.key? :sent_headers
         end
@@ -59,6 +59,11 @@ module Opium
       
       def has_keys( object, *keys )
         object.keys.all? {|key| keys.include? key}
+      end
+      
+      def parameterize_name( name )
+        without_extension, extension = ::File.basename( name, '.*' ), ::File.extname( name )
+        without_extension.parameterize + extension
       end
     end
     
