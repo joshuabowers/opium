@@ -23,6 +23,7 @@ module Opium
       def to_ruby( object )
         return unless object
         return object if object.is_a?( self )
+        object = ::JSON.parse( object ) if object.is_a?( String )
         if object.is_a?( Hash ) && (has_key_of_value( object, :__type, 'File' ) || has_keys( object, :url, :name ))
           new( object )
         else
@@ -58,7 +59,7 @@ module Opium
       end
       
       def has_keys( object, *keys )
-        object.keys.all? {|key| keys.include? key}
+        object.keys.all? {|key| keys.include?( key.to_s ) || keys.include?( key.to_sym )}
       end
       
       def parameterize_name( name )

@@ -1,6 +1,10 @@
+## 1.1.7
+### Resolved Issues
+- #40: `Opium::File.to_ruby` now correctly handles JSON string representation of hashes.
+
 ## 1.1.6
 ### Resolved Issues
-- #39: `Opium::File#upload` now paramterizes the file name.
+- #39: `Opium::File.upload` now paramterizes the file name.
 - #38: Added Content-Length and Transfer-Encoding headers to file uploads.
 
 ## 1.1.5

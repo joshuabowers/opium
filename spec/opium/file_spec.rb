@@ -125,6 +125,13 @@ describe Opium::File do
       it { expect( result ).to be_nil }
     end
     
+    context 'when given a JSON string' do
+      let(:object) { { url: location, name: 'chunky_bacon.jpg' }.to_json }
+      
+      it { expect { result }.to_not raise_exception }
+      it { expect( result ).to be_a Opium::File }
+    end
+    
     context 'when not given a hash' do
       let(:object) { 42 }
       
