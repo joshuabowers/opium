@@ -43,6 +43,14 @@ describe Opium::File do
       end
     end
     
+    context 'when executed' do
+      let(:upload_options) { { sent_headers: true } }
+      
+      it { expect { result }.to_not raise_exception }
+      it { expect( result.keys ).to include( 'Content-Length' ) }
+      it { expect( result['Content-Length'] ).to eq gif_file.size.to_s }
+    end
+    
     context 'with a :content_type option' do
       let(:upload_options) { { content_type: 'image/png', sent_headers: true } }
       

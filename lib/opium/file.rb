@@ -48,7 +48,7 @@ module Opium
           mime_type = options.fetch( :content_type, MimeMagic.by_magic(file) )
           mime_type = MimeMagic.by_path(file) if mime_type == 'application/zip'
           result[:id] = options[:original_filename] || ::File.basename( file )
-          result[:headers] = { content_type: mime_type.to_s }
+          result[:headers] = { content_type: mime_type.to_s, content_length: file.size.to_s }
           result[:sent_headers] = options[:sent_headers] if options.key? :sent_headers
         end
       end

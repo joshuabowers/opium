@@ -1,3 +1,7 @@
+## 1.1.6
+### Resolved Issues
+- #38: Added Content-Length and Transfer-Encoding headers to file uploads.
+
 ## 1.1.5
 ### Resolved Issues
 - #37: Callbacks no longer makes `:update` a private method.
