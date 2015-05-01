@@ -6,8 +6,7 @@ class ::String
   end
   
   def to_geo_point
-    return GeoPoint.new( self.split(',').map {|c| c.to_f} ) if self =~ /^[+-]?\d+(\.\d+)?\s*,\s*[+-]?\d+(\.\d+)?$/
-    raise ArgumentError.new("invalid value for GeoPoint: \"#{self}\"")
+    Opium::GeoPoint.new( self )
   end
   
   class << self

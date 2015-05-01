@@ -1,35 +1,76 @@
 require 'spec_helper'
 
-describe GeoPoint do
-  subject { GeoPoint }
+describe Opium::GeoPoint do
+  subject { described_class }
   
-  it { should respond_to(:to_ruby, :to_parse).with(1).argument }
+  it { is_expected.to respond_to( :to_ruby, :to_parse ).with( 1 ).argument }
   
-  it ":to_ruby(object) should create a GeoPoint" do
-    [ "33.33, -117.117", {latitude: 33.33, longitude: -117.117}, [33.33, -117.117], GeoPoint.new( [33.33, -117.117] ) ].each do |value|
-      result = subject.to_ruby( value )
-      result.should be_a_kind_of(GeoPoint)
-      result.latitude.should == 33.33
-      result.longitude.should == -117.117
+  describe '.to_ruby' do
+    let(:result) { subject.to_ruby( convert_from ) }
+    
+    context 'with valid object representations' do
+      [ "33.33, -117.117", {latitude: 33.33, longitude: -117.117}, [33.33, -117.117], described_class.new( [33.33, -117.117] ) ].each do |value|
+        let(:convert_from) { value }
+        it { expect { result }.to_not raise_exception }
+        it { expect( result ).to be_a described_class }
+        it( 'sets the proper latitude' ) { expect( result.latitude ).to eq 33.33 }
+        it( 'sets the proper longitude' ) { expect( result.longitude ).to eq -117.117 }
+      end
+    end
+    
+    context 'with invalid object representations' do
+      [ "malformed", {latitude: 0, bad_key: :unknown}, [0], 1, 1.0, true, false ].each do |value|
+        let(:convert_from) { value }
+        it { expect { subject.to_ruby( value ) }.to raise_exception }
+      end      
     end
   end
   
-  it ":to_ruby(bad_data) should raise exception" do
-    [ "malformed", {latitude: 0, bad_key: :unknown}, [0], 1, 1.0, true, false ].each do |value|
-      expect { subject.to_ruby( value ) }.to raise_exception
+  describe '.to_parse' do
+    let(:result) { subject.to_parse( convert_from ) }
+    let(:expected) { { "__type" => "GeoPoint", "latitude" => 33.33, "longitude" => -117.117 } }
+    
+    context 'with valid object representations' do
+      [ "33.33, -117.117", {latitude: 33.33, longitude: -117.117}, [33.33, -117.117], described_class.new( [33.33, -117.117] ) ].each do |value|
+        let(:convert_from) { value }
+        
+        it { expect { result }.to_not raise_exception }
+        it { expect( result ).to eq expected }
+      end    
     end
   end
   
-  it ":to_parse(object) should ensure a geo_point and make into parse object" do
-    [ "33.33, -117.117", {latitude: 33.33, longitude: -117.117}, [33.33, -117.117], GeoPoint.new( [33.33, -117.117] ) ].each do |value|
-      result = subject.to_parse( value )
-      result.should == { "__type" => "GeoPoint", "latitude" => 33.33, "longitude" => -117.117 }
-    end    
+  describe '#initialize' do
+    let(:result) { described_class.new( initialize_from ) }
+    
+    context 'with an array value' do
+      let(:initialize_from) { [ 33.33, -117.117 ] }
+      
+      it { expect { result }.to_not raise_exception }
+    end
+    
+    context 'with a hash value' do
+      let(:initialize_from) { { latitude: 33.33, longitude: -117.117 } }
+      
+      it { expect { result }.to_not raise_exception }
+    end
+    
+    context 'with a string value' do
+      let(:initialize_from) { "33.33, -117.117" }
+      
+      it { expect { result }.to_not raise_exception }
+    end
+    
+    context 'with anything else' do
+      let(:initialize_from) { 42 }
+      
+      it { expect { result }.to raise_exception }
+    end
   end
   
   describe "instance" do
     describe "with an array value" do
-      subject { GeoPoint.new [33.33, -117.117] }
+      subject { described_class.new [33.33, -117.117] }
       it { should respond_to(:latitude, :longitude, :to_geo_point, :to_parse).with(0).arguments }
       it { should respond_to(:latitude=, :longitude=).with(1).argument }
     
@@ -41,7 +82,7 @@ describe GeoPoint do
     end
 
     describe "with a hash value" do
-      subject { GeoPoint.new latitude: 33.33, longitude: -117.117 }
+      subject { described_class.new latitude: 33.33, longitude: -117.117 }
       it { should respond_to(:latitude, :longitude, :to_geo_point, :to_parse).with(0).arguments }
       it { should respond_to(:latitude=, :longitude=).with(1).argument }
 

@@ -5,7 +5,7 @@ describe Hash do
   
   describe "instance" do
     describe ":to_parse" do
-      subject { { 'foo' => GeoPoint.new( latitude: 33.33, longitude: -117.117 ) } }
+      subject { { 'foo' => Opium::GeoPoint.new( latitude: 33.33, longitude: -117.117 ) } }
       
       it 'should return a new hash, with :to_parse called on each value' do
         subject.to_parse.tap do |result|
@@ -18,7 +18,7 @@ describe Hash do
       describe ":to_geo_point" do
         subject { { latitude: 33.33, longitude: -117.117 } }
       
-        it { subject.to_geo_point.should be_a_kind_of(GeoPoint) }
+        it { subject.to_geo_point.should be_a_kind_of( Opium::GeoPoint ) }
         it "should have the expected latitude and longitude" do
           subject.to_geo_point.latitude.should == 33.33
           subject.to_geo_point.longitude.should == -117.117

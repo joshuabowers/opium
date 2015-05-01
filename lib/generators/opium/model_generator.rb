@@ -9,6 +9,10 @@ module Rails
           'DateTime'
         when 'file'
           'Opium::File'
+        when 'geopoint', 'geo_point'
+          'Opium::GeoPoint'
+        when 'boolean', 'bool'
+          'Opium::Boolean'
         else
           type.to_s.camelcase
         end

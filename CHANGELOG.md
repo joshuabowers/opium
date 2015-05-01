@@ -1,3 +1,8 @@
+## 1.1.8
+### Resolved Issues
+- #41: Boolean and GeoPoint are now namespaced within Opium. The ModelGenerator also maps attribute types for these classes.
+- #42: GeoPoint now is capable of converting from String in `.to_ruby`
+
 ## 1.1.7
 ### Resolved Issues
 - #40: `Opium::File.to_ruby` now correctly handles JSON string representation of hashes.

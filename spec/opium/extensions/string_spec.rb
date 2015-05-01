@@ -53,7 +53,7 @@ describe String do
     
     it ":to_geo_point should be able to convert a 'lat, lng' value" do
       result = "33.33, -117.117".to_geo_point
-      result.should be_a_kind_of(GeoPoint)
+      result.should be_a_kind_of( Opium::GeoPoint )
       result.latitude.should == 33.33
       result.longitude.should == -117.117
     end
