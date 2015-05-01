@@ -1,4 +1,4 @@
-module Boolean
+module Opium::Boolean
   extend ActiveSupport::Concern
 
   module ClassMethods

@@ -35,14 +35,14 @@ describe String do
     
     it "should be able to convert various values to true" do
       %w[true t yes y 1].each do |value|
-        value.to_bool.should be_a_kind_of( Boolean )
+        value.to_bool.should be_a_kind_of( Opium::Boolean )
         value.to_bool.should == true
       end
     end
     
     it "should be able to convert various values to false" do
       [""] + %w[false f no n 0].each do |value|
-        value.to_bool.should be_a_kind_of( Boolean )
+        value.to_bool.should be_a_kind_of( Opium::Boolean )
         value.to_bool.should == false
       end
     end

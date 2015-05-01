@@ -6,7 +6,7 @@ describe Opium::Model do
       include Opium::Model
       field :name, type: String
       field :occurred_at, type: DateTime
-      field :severe, type: Boolean
+      field :severe, type: Opium::Boolean
     end )
   end
   

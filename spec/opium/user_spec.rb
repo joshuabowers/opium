@@ -197,7 +197,7 @@ describe Opium::User do
   context 'within a subclass' do
     before do
       stub_const( 'SpecialUser', Class.new(Opium::User) do
-        field :has_web_access, type: Boolean
+        field :has_web_access, type: Opium::Boolean
       end )
     end
     

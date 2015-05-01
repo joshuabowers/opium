@@ -1,5 +1,5 @@
 class FalseClass
-  include Boolean
+  include Opium::Boolean
   
   def to_bool
     self
