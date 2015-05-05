@@ -107,7 +107,10 @@ describe Opium::Model::Batchable::Batch do
     context 'when #queue is empty' do
       before { subject.queue.clear }
       
-      it { expect { subject.execute }.to raise_exception }
+      # it { expect { subject.execute }.to raise_exception }
+      
+      it { expect { subject.execute }.to_not raise_exception }
+      it { expect( subject.owner ).to_not receive(:http_post) }
     end
     
     context 'when #queue has more than MAX_BATCH_SIZE operations' do

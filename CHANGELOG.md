@@ -1,3 +1,7 @@
+## 1.2.0
+### New Features
+- #19: Ability to to batch operations. Batch jobs are creatable via `batch`.
+
 ## 1.1.8
 ### Resolved Issues
 - #41: Boolean and GeoPoint are now namespaced within Opium. The ModelGenerator also maps attribute types for these classes.

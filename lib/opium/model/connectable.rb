@@ -23,6 +23,7 @@ module Opium
           @@connection ||= Faraday.new( url: 'https://api.parse.com/1/' ) do |faraday|
             faraday.request :multipart
             faraday.request :url_encoded
+            faraday.request :json
             faraday.response :logger if Opium.config.log_network_responses
             faraday.response :json, content_type: /\bjson$/
             faraday.headers[:x_parse_application_id] = Opium.config.app_id
@@ -125,7 +126,6 @@ module Opium
         def infuse_request_with( data )
           lambda do |request|
             request.body = data
-            request.body = request.body.to_json unless request.body.is_a?(String)
           end
         end
         

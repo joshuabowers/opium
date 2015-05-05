@@ -29,8 +29,7 @@ module Opium
             ascend
           else
             batches = to_parse
-            fail 'no batches to process' if batches.empty?
-            batches.each {|batch| owner.http_post( batch ) }
+            batches.each {|batch| owner.http_post( batch ) } if batches.present?
           end
         end
         
