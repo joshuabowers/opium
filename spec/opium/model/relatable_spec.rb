@@ -69,6 +69,8 @@ describe Opium::Model::Relatable do
     let(:result) { subject.relations[relation_name] }
     let(:relation_name) { :comments }
     
+    it { expect( result ).to be_a Opium::Model::Relatable::Metadata }
+    
     it { is_expected.to have_field :comments }
     it { expect( subject.fields[:comments].type ).to eq Opium::Model::Relation }
   end
