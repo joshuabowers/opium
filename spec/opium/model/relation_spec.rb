@@ -39,6 +39,13 @@ describe Opium::Model::Relation do
       it { expect( result.class_name ).to eq 'RelatedClass' }
     end
     
+    context 'with nil' do
+      let(:convert_from) { nil }
+      
+      it { expect { result }.to_not raise_exception }
+      it { expect( result ).to be_nil }
+    end
+    
     context 'with any unconvertable value' do
       let(:convert_from) { 42 }
       

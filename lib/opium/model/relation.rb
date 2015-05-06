@@ -21,6 +21,7 @@ module Opium
         end
         
         def to_ruby( object )
+          return unless object.present?
           return object if object.is_a? self
           class_name = 
             case object
