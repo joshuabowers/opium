@@ -147,6 +147,22 @@ describe Opium::Model::Fieldable do
       expect( Model.default_attributes ).to include( 'symbolic_with_string_default' => :value, 'symbolic_with_symbol_default' => :value )
     end
     
+    describe '.has_field?' do
+      let(:result) { subject.has_field? field_name }
+      
+      context 'with a valid field_name' do
+        let(:field_name) { :symbolic_with_string_default }
+        
+        it { expect( result ).to be_truthy }
+      end
+      
+      context 'with an invalid field_name' do
+        let(:field_name) { :not_defined }
+        
+        it { expect( result ).to be_falsey }
+      end
+    end
+    
     describe '.field' do
       subject { Model.new }
       

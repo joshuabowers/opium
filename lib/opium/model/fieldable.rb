@@ -36,6 +36,12 @@ module Opium
           fields[name]
         end
         
+        def has_field?( field_name )
+          fields.key? field_name
+        end
+        
+        alias_method :field?, :has_field?
+        
         def fields
           @fields ||= ActiveSupport::HashWithIndifferentAccess.new
         end

@@ -24,6 +24,7 @@ describe Opium::Model do
   it { is_expected.to be <= Opium::Model::Findable }
   it { is_expected.to be <= Opium::Model::Inheritable }
   it { is_expected.to be <= Opium::Model::Batchable }
+  it { is_expected.to be <= Opium::Model::Relatable }
     
   describe '#inspect' do
     context 'within a blank model' do

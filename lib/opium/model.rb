@@ -17,6 +17,7 @@ require 'opium/model/scopable'
 require 'opium/model/findable'
 require 'opium/model/inheritable'
 require 'opium/model/batchable'
+require 'opium/model/relatable'
 require 'opium/model/kaminari'
 
 module Opium
@@ -38,6 +39,7 @@ module Opium
       include Findable
       include Inheritable
       include Batchable
+      include Relatable
     end
     
     def initialize( attributes = {} )
