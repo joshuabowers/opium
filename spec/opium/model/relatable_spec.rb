@@ -2,44 +2,58 @@ require 'spec_helper'
 
 describe Opium::Model::Relatable do
   before do
-    stub_const( 'Game', Class.new do
+    stub_const( 'Game', Class.new do |klass|
       include Opium::Model
+      stub(:model_name).and_return( ActiveModel::Name.new( klass, nil, 'Game' ) )
+      
       field :title, type: String
       has_and_belongs_to_many :players
     end )
     
-    stub_const( 'Player', Class.new do
+    stub_const( 'Player', Class.new do |klass|
       include Opium::Model
+      stub(:model_name).and_return( ActiveModel::Name.new( klass, nil, 'Player' ) )
+      
       field :tag, type: String
       has_and_belongs_to_many :games 
     end )
     
-    stub_const( 'Article', Class.new do
+    stub_const( 'Article', Class.new do |klass|
       include Opium::Model
+      stub(:model_name).and_return( ActiveModel::Name.new( klass, nil, 'Article' ) )
+      
       field :title, type: String
       has_many :comments
       belongs_to :author, class_name: 'User'
     end )
     
-    stub_const( 'Comment', Class.new do
+    stub_const( 'Comment', Class.new do |klass|
       include Opium::Model
+      stub(:model_name).and_return( ActiveModel::Name.new( klass, nil, 'Comment' ) )
+      
       field :body
       belongs_to :article
     end )
     
-    stub_const( 'User', Class.new(Opium::User) do
+    stub_const( 'User', Class.new(Opium::User) do |klass|
+      stub(:model_name).and_return( ActiveModel::Name.new( klass, nil, 'User' ) )
+      
       has_many :articles
       has_one :profile
     end ) 
     
-    stub_const( 'Profile', Class.new do
+    stub_const( 'Profile', Class.new do |klass|
       include Opium::Model
+      stub(:model_name).and_return( ActiveModel::Name.new( klass, nil, 'Profile' ) )
+      
       field :first_name, type: String
       belongs_to :user
     end )
     
-    stub_const( 'Event', Class.new do
+    stub_const( 'Event', Class.new do |klass|
       include Opium::Model
+      stub(:model_name).and_return( ActiveModel::Name.new( klass, nil, 'Event' ) )
+    
       field :title, type: String
     end )
   end
