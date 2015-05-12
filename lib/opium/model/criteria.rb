@@ -23,7 +23,7 @@ module Opium
       end
       
       def chain
-        Marshal.load( Marshal.dump( self ) )
+        Marshal.load( Marshal.dump( self ) ).tap {|m| m.instance_variable_set( :@cache, nil )}
       end
       
       def constraints

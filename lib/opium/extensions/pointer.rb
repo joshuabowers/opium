@@ -2,6 +2,7 @@ module Opium
   class Pointer
     def initialize( attributes = {} )
       self.class_name = attributes[:class_name] || attributes[:model_name] || (attributes[:class] || attributes[:model]).model_name
+      self.class_name = self.class_name.name if self.class_name.respond_to?(:name)
       self.id = attributes[:id]
     end
     

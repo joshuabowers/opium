@@ -2,10 +2,18 @@ require 'spec_helper'
 
 describe Opium::Model::Relation do
   before do
-    stub_const( 'Model', Class.new do
+    stub_const( 'Model', Class.new do |klass|
       include Opium::Model
+      stub(:model_name).and_return( ActiveModel::Name.new( klass, nil, 'Model' ) )
+    end )
+    
+    stub_const( 'RelatedClass', Class.new do |klass|
+      include Opium::Model
+      stub(:model_name).and_return( ActiveModel::Name.new( klass, nil, 'RelatedClass' ) )
     end )
   end
+  
+  it { expect( described_class ).to be <= Opium::Model::Criteria }
   
   describe '.to_ruby' do
     let(:result) { described_class.to_ruby( convert_from ) }
@@ -103,5 +111,36 @@ describe Opium::Model::Relation do
     it { expect( result ).to be_a Hash }
     it { expect( result.keys ).to include( '__type', 'className' ) }
     it { expect( result ).to eq( { '__type' => 'Relation', 'className' => 'RelatedClass' } ) }    
+  end
+  
+  describe '#initialize' do
+    let(:result) { described_class.new 'RelatedClass' }
+    
+    it { expect( result ).to be_cached }
+  end
+  
+  describe '#empty?' do
+    let(:result) { subject.empty? }
+    
+    context 'within an new model' do
+      subject { described_class.new( 'RelatedClass' ).tap {|r| r.owner = Model.new } }
+      
+      it { expect { result }.to_not raise_exception }
+      it { expect( result ).to be_truthy }
+    end
+  end
+  
+  describe '#owner' do
+    let(:result) { subject.owner }
+    subject { described_class.new 'RelatedClass' }
+    
+    it { expect { result }.to_not raise_exception }
+  end
+  
+  describe '#owner=' do
+    let(:result) { subject.owner = Model.new }
+    subject { described_class.new 'RelatedClass' }
+    
+    it { expect { result }.to_not raise_exception }
   end
 end

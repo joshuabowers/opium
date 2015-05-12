@@ -19,6 +19,10 @@ module Opium
         self.readonly == true
       end
       
+      def relation?
+        self.type == Relation
+      end
+      
       def name_to_parse
         @name_to_parse ||= (self.as || self.name).to_s.camelize(:lower)
       end

@@ -1,6 +1,6 @@
 module Opium
   module Model
-    class Relation
+    class Relation < Criteria
       class << self
         def to_parse( object )
           class_name =
@@ -9,7 +9,7 @@ module Opium
               fetch_hash_key_from( object, 'class_name' ) || fetch_hash_key_from( object, 'model_name' )
             when String, Symbol
               object
-            when Opium::Model
+            when is_descendant.curry[Opium::Model]
               object.model_name
             when self
               object.class_name
@@ -21,7 +21,7 @@ module Opium
         end
         
         def to_ruby( object )
-          return unless object.present?
+          return if object.nil?
           return object if object.is_a? self
           class_name = 
             case object
@@ -29,7 +29,7 @@ module Opium
               fetch_hash_key_from( object, 'class_name' ) || fetch_hash_key_from( object, 'model_name' )
             when String, Symbol
               object
-            when Opium::Model
+            when is_descendant.curry[Opium::Model]
               object.model_name
             else
               fail ArgumentError, "could not convert #{ object.inspect } to a Opium::Model::Relation"
@@ -37,7 +37,11 @@ module Opium
           new( class_name )
         end
         
-        private 
+        private
+        
+        def is_descendant
+          @is_descendant ||= ->( expected_type, object ) { ( object.is_a?( Class ) ? object : object.class ) <= expected_type }
+        end
         
         def fetch_hash_key_from( hash, key )
           snake_case_key = key.to_s.underscore
@@ -47,18 +51,32 @@ module Opium
         end
       end
       
-      def initialize( class_name )
-        self.class_name = class_name.to_s
+      def initialize( model_name )
+        super
+        update_variable!( :cache, true )
       end
       
       def to_parse
         self.class.to_parse self
       end
       
-      attr_accessor :class_name
+      def empty?
+        owner.nil? || owner.new_record? ? true : super
+      end
       
-      alias_method :model_name, :class_name
-      alias_method :model_name=, :class_name=
+      attr_reader :owner, :metadata
+      
+      def owner=(value)
+        @owner = value
+        update_constraint!( :where, '$relatedTo' => { 'object' => value.to_parse } )
+      end
+      
+      def metadata=(value)
+        @metadata = value
+        update_constraint!( :where, '$relatedTo' => { 'key' => value.relation_name.to_s } )
+      end
+      
+      alias_method :class_name, :model_name
     end
   end
 end

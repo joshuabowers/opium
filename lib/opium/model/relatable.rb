@@ -17,7 +17,7 @@ module Opium
         
         def has_many( relation_name, options = {} )
           create_relation_metadata_from( :has_many, relation_name, options )
-          field relation_name, type: Relation
+          field relation_name, type: Relation, default: -> { relations[relation_name].target_class_name }
         end
         
         def has_one( relation_name, options = {} )

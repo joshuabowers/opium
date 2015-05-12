@@ -28,6 +28,10 @@ module Opium
               define_method("#{name}=") do |value|
                 converted = self.class.fields[name].type.to_ruby(value)
                 send( "#{name}_will_change!" ) unless self.attributes[name] == converted
+                if self.class.fields[name].relation?
+                  converted.owner ||= self 
+                  converted.metadata ||= self.class.relations[name]
+                end
                 self.attributes[name] = converted
               end
               send(:private, "#{name}=") if options[:readonly]

@@ -1,15 +1,6 @@
 require 'spec_helper'
 
 describe Opium::Model::Attributable do
-  let( :model ) { Class.new { include Opium::Model::Attributable } }
-  
-  context 'within an instance' do
-    subject { model.new }
-    
-    it { is_expected.to respond_to( :attributes, :attributes= ) }
-    it { is_expected.to respond_to( :attributes_to_parse ) }
-  end
-  
   context 'when included in a model' do
     before do
       stub_const( 'Book', Class.new do

@@ -7,8 +7,12 @@ module Opium
         include ActiveModel::ForbiddenAttributesProtection
       end
       
+      def initialize( attributes = {} )
+        super( self.class.default_attributes.merge attributes )
+      end
+      
       def attributes
-        @attributes ||= self.class.default_attributes
+        @attributes ||= {}.with_indifferent_access
       end
       
       def attributes=(values)
