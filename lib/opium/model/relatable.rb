@@ -1,4 +1,5 @@
 require 'opium/model/relation'
+require 'opium/model/reference'
 require 'opium/model/relatable/metadata'
 
 module Opium
@@ -26,6 +27,7 @@ module Opium
         
         def belongs_to( relation_name, options = {} )
           create_relation_metadata_from( :belongs_to, relation_name, options )
+          field relation_name, type: Reference
         end
         
         private

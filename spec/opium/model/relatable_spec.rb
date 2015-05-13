@@ -6,6 +6,9 @@ require 'spec_helper'
 # 3) Relation should subclass Criteria, and come with a baked in query.
 # 4) Relation fields should have a default value, so that new objects can start binding things together.
 # 5) Probably need to have some sort of after save callback to update any relations owners.
+# 6) For a reverse lookup (e.g. for Reference, a belongs_to side of a relation), it should be possible to
+#    do the following: ParentModel.where( relation_name: child_model_instance ). If reverse lookup implies
+#    single point of ownership, this can be firsted.
 
 describe Opium::Model::Relatable do
   before do
@@ -69,8 +72,8 @@ describe Opium::Model::Relatable do
       to_return(status: 200, body: {
         count: 2,
         results: [
-          { objectId: 'c1234', body: 'A Møøse once bit my sister...' },
-          { objectId: 'c5678', body: 'No realli! She was Karving her initials on the møøse' }
+          { objectId: 'c1234', body: 'A Moose once bit my sister...' },
+          { objectId: 'c5678', body: 'No realli! She was Karving her initials on the moose' }
         ]
       }.to_json, headers: { content_type: 'application/json' })
   end
@@ -131,6 +134,29 @@ describe Opium::Model::Relatable do
   end
   
   describe '.belongs_to' do
+    subject { Comment }
+    let(:result) { subject.relations[relation_name] }
+    let(:relation_name) { :article }
+    
+    it { expect( result ).to be_a Opium::Model::Relatable::Metadata }
+    
+    it { is_expected.to have_field :article }
+    it { expect( subject.fields[:article].type ).to eq Opium::Model::Reference }
+    it { expect( subject.fields[:article].default ).to be_nil }
+    
+    context 'within a new model' do
+      subject { Comment.new }
+    end
+    
+    context 'within an existing model' do
+      subject { Comment.new id: 'c1234' }
+      
+      it { expect( subject.article ).to_not be_nil }
+      it { expect( subject.article ).to be_a Opium::Model::Reference }
+      it( 'loads the proper model id' ) { expect( subject.article.id ).to eq 'abcd1234' }
+      it( 'loads the proper model class' ) { expect( subject.article.class_name ).to eq 'Article' }
+      it( 'delegates to the underlying model' ) { expect( subject.article.class ).to be <= Article }
+    end
   end
   
   describe '.has_and_belongs_to_many' do
