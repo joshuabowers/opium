@@ -107,7 +107,7 @@ module Opium
       end
       
       def pointer
-        @pointer ||= Pointer.new( model: self.class, id: id ) unless new_record?
+        @pointer ||= Pointer.new( model_name: model_name, id: id ) unless new_record?
       end
       
       def to_parse

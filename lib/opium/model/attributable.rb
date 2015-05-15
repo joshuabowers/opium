@@ -8,7 +8,7 @@ module Opium
       end
       
       def initialize( attributes = {} )
-        super( self.class.default_attributes.merge attributes )
+        super( self.class.default_attributes( self ).merge attributes )
       end
       
       def attributes

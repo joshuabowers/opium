@@ -27,7 +27,10 @@ module Opium
         
         def belongs_to( relation_name, options = {} )
           create_relation_metadata_from( :belongs_to, relation_name, options )
-          field relation_name, type: Reference
+          field relation_name, type: Reference, 
+            default: ->( model ) do
+              { metadata: relations[relation_name], context: model } 
+            end
         end
         
         private

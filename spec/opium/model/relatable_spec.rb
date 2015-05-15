@@ -30,7 +30,10 @@ describe Opium::Model::Relatable do
     
     stub_const( 'Article', Class.new do |klass|
       include Opium::Model
-      stub(:model_name).and_return( ActiveModel::Name.new( klass, nil, 'Article' ) )
+      
+      def klass.model_name
+        ActiveModel::Name.new( self, nil, 'Article' )
+      end
       
       field :title, type: String
       has_many :comments
@@ -74,6 +77,15 @@ describe Opium::Model::Relatable do
         results: [
           { objectId: 'c1234', body: 'A Moose once bit my sister...' },
           { objectId: 'c5678', body: 'No realli! She was Karving her initials on the moose' }
+        ]
+      }.to_json, headers: { content_type: 'application/json' })
+      
+    stub_request(:get, "https://api.parse.com/1/classes/Article?count=1&where=%7B%22comments%22:%7B%22__type%22:%22Pointer%22,%22className%22:%22Comment%22,%22objectId%22:%22c1234%22%7D%7D").
+      with(headers: {'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Rest-Api-Key'=>'PARSE_API_KEY'}).
+      to_return(status: 200, body: {
+        count: 1,
+        results: [
+          { objectId: 'abcd1234', title: 'Funny Subtitles' }
         ]
       }.to_json, headers: { content_type: 'application/json' })
   end
@@ -142,10 +154,16 @@ describe Opium::Model::Relatable do
     
     it { is_expected.to have_field :article }
     it { expect( subject.fields[:article].type ).to eq Opium::Model::Reference }
-    it { expect( subject.fields[:article].default ).to be_nil }
+    it { expect( subject.fields[:article].default ).to be_a Hash }
     
     context 'within a new model' do
       subject { Comment.new }
+      
+      it { expect( subject.article ).to_not be_nil }
+      it { expect( subject.article ).to be_a Opium::Model::Reference }
+      it { expect( subject.article.context ).to eq subject }
+      it { expect { subject.article.__getobj__ }.to_not raise_exception }
+      it { expect( subject.article.__getobj__ ).to be_nil }
     end
     
     context 'within an existing model' do
@@ -153,9 +171,9 @@ describe Opium::Model::Relatable do
       
       it { expect( subject.article ).to_not be_nil }
       it { expect( subject.article ).to be_a Opium::Model::Reference }
+      it { expect( subject.article.context ).to eq subject }
       it( 'loads the proper model id' ) { expect( subject.article.id ).to eq 'abcd1234' }
-      it( 'loads the proper model class' ) { expect( subject.article.class_name ).to eq 'Article' }
-      it( 'delegates to the underlying model' ) { expect( subject.article.class ).to be <= Article }
+      it( 'loads a properly typed model') { expect( subject.article.model_name ).to eq 'Article' }
     end
   end
   

@@ -58,8 +58,8 @@ module Opium
           @parse_canonical_field_names ||= ActiveSupport::HashWithIndifferentAccess.new
         end
         
-        def default_attributes
-          fields.transform_values {|field| field.type.to_ruby field.default}.with_indifferent_access
+        def default_attributes( context = nil )
+          fields.transform_values {|field| field.type.to_ruby field.default( context ) }.with_indifferent_access
         end
       end
     end

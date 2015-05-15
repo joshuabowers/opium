@@ -7,9 +7,11 @@ module Opium
       
       attr_reader :name, :type, :readonly, :as
       
-      def default
+      def default( context = nil )
         if @default.respond_to? :call
-          @default.call
+          params = []
+          params.push( context ) if @default.arity != 0
+          @default.call( *params )
         else
           @default
         end
