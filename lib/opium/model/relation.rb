@@ -1,6 +1,8 @@
 module Opium
   module Model
     class Relation < Criteria
+      include ActiveModel::Dirty
+      
       class << self
         def to_parse( object )
           class_name =
@@ -77,6 +79,38 @@ module Opium
       end
       
       alias_method :class_name, :model_name
+      
+      #TODO: likely will need to reimplement .each
+      
+      def each(&block)
+        if !block_given?
+          to_enum(:each)
+        else
+          (super {}.concat(_additions) - _deletions).each(&block)
+        end
+      end
+      
+      def push( object )
+        _additions.push( object )
+        self
+      end
+      
+      alias_method :<<, :push
+      
+      def delete( object )
+        _deletions.push( object )
+        self
+      end
+      
+      private
+      
+      def _additions
+        @_additions ||= []
+      end
+      
+      def _deletions
+        @_deletions ||= []
+      end
     end
   end
 end
