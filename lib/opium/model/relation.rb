@@ -86,30 +86,69 @@ module Opium
         if !block_given?
           to_enum(:each)
         else
-          (super {}.concat(_additions) - _deletions).each(&block)
+          (super {} + __additions__ - __deletions__).each(&block)
         end
       end
       
       def push( object )
-        _additions.push( object )
+        __additions__.push( object )
         self
       end
       
       alias_method :<<, :push
       
       def delete( object )
-        _deletions.push( object )
+        __deletions__.push( object )
         self
+      end
+      
+      def build( params = {} )
+        model.new( params || {} ).tap do |instance|
+          push instance
+        end
+      end
+      
+      alias_method :new, :build
+      
+      def save
+        self.reject {|model| model.persisted?}.each(&:save)
+        __apply_additions__
+        __apply_deletions__
+        true
+      end
+      
+      def parse_response
+        @parse_response ||= []
       end
       
       private
       
-      def _additions
-        @_additions ||= []
+      def __relation_deltas__
+        @__relation_deltas__ ||= {}
       end
       
-      def _deletions
-        @_deletions ||= []
+      def __additions__
+        __relation_deltas__[:additions] ||= []
+      end
+      
+      def __deletions__
+        __relation_deltas__[:deletions] ||= []
+      end
+      
+      def __apply_additions__
+        unless __additions__.empty?
+          parse_response << owner.class.http_put( owner.id, { metadata.relation_name => { __op: 'AddRelation', objects: __additions__.map(&:to_parse) } } )
+          @cache.concat( __additions__ )
+          __additions__.clear
+        end
+      end
+      
+      def __apply_deletions__
+        unless __deletions__.empty?
+          parse_response << owner.class.http_put( owner.id, { metadata.relation_name => { __op: 'RemoveRelation', objects: __deletions__.map(&:to_parse) } } )
+          @cache = @cache - __deletions__
+          __deletions__.clear
+        end
       end
     end
   end

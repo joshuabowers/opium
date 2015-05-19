@@ -27,7 +27,7 @@ module Opium
       end
       
       def attributes_to_parse( options = {} )
-        options[:except] ||= self.class.fields.values.select {|f| f.readonly? }.map {|f| f.name} if options[:not_readonly]
+        options[:except] ||= self.class.fields.values.select {|f| f.readonly? || f.virtual? }.map {|f| f.name} if options[:not_readonly]
         Hash[*self.as_json( options ).flat_map {|k, v| [self.class.fields[k].name_to_parse, self.class.fields[k].type.to_parse(v)]}]
       end
       

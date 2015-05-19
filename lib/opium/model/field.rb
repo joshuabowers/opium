@@ -25,6 +25,10 @@ module Opium
         self.type == Relation
       end
       
+      def virtual?
+        relation? || self.type == Reference
+      end
+      
       def name_to_parse
         @name_to_parse ||= (self.as || self.name).to_s.camelize(:lower)
       end
