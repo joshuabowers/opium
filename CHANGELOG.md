@@ -1,7 +1,6 @@
 ## 1.2.0
 ### New Features
 - #33: Model associations.
-- #19: Ability to to batch operations. Batch jobs are creatable via `batch`.
 
 ## 1.1.8
 ### Resolved Issues
