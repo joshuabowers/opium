@@ -7,6 +7,10 @@ module Opium
     module Relatable
       extend ActiveSupport::Concern
       
+      included do
+        after_create :update_relations
+      end
+      
       module ClassMethods
         def relations
           @relations ||= {}.with_indifferent_access
@@ -34,9 +38,25 @@ module Opium
         end
         
         private
-        
+                
         def create_relation_metadata_from( relation_type, relation_name, options )
           relations[relation_name] = Metadata.new( self, relation_type, relation_name, options )
+        end
+      end
+      
+      def save( options = {} )
+        super && relations.all? {|_, relation| relation.save}
+      end
+      
+      private
+      
+      def relations
+        attributes.select {|_, value| value.is_a? Relation}
+      end
+      
+      def update_relations
+        send(:relations).each do |_, value|
+          value.owner = self
         end
       end
     end

@@ -1,15 +1,5 @@
 require 'spec_helper'
 
-# TODO:
-# 1) define a Reference class, which represents the child-to-parent side of a relational query.
-# 2) has_many should override the field's setter, such that the owning object is set on the Relation object.
-# 3) Relation should subclass Criteria, and come with a baked in query.
-# 4) Relation fields should have a default value, so that new objects can start binding things together.
-# 5) Probably need to have some sort of after save callback to update any relations owners.
-# 6) For a reverse lookup (e.g. for Reference, a belongs_to side of a relation), it should be possible to
-#    do the following: ParentModel.where( relation_name: child_model_instance ). If reverse lookup implies
-#    single point of ownership, this can be firsted.
-
 describe Opium::Model::Relatable do
   before do
     stub_const( 'Game', Class.new do |klass|
@@ -31,8 +21,10 @@ describe Opium::Model::Relatable do
     stub_const( 'Article', Class.new do |klass|
       include Opium::Model
       
-      def klass.model_name
-        ActiveModel::Name.new( self, nil, 'Article' )
+      instance_eval do
+        def model_name
+          ActiveModel::Name.new( self, nil, 'Article' )
+        end
       end
       
       field :title, type: String
@@ -42,7 +34,12 @@ describe Opium::Model::Relatable do
     
     stub_const( 'Comment', Class.new do |klass|
       include Opium::Model
-      stub(:model_name).and_return( ActiveModel::Name.new( klass, nil, 'Comment' ) )
+      
+      instance_eval do
+        def model_name
+          ActiveModel::Name.new( self, nil, 'Comment' )
+        end
+      end
       
       field :body
       belongs_to :article
@@ -80,6 +77,15 @@ describe Opium::Model::Relatable do
         ]
       }.to_json, headers: { content_type: 'application/json' })
       
+    stub_request(:get, "https://api.parse.com/1/classes/Comment?count=1&where=%7B%22$relatedTo%22:%7B%22object%22:%7B%22__type%22:%22Pointer%22,%22className%22:%22Article%22,%22objectId%22:%22a1234%22%7D,%22key%22:%22comments%22%7D%7D").
+      with(headers: {'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Rest-Api-Key'=>'PARSE_API_KEY'}).
+      to_return(status: 200, body: {
+        count: 1,
+        results: [
+          { objectId: 'c2345', body: 'Seems plausible.' }
+        ]
+      }.to_json, headers: { content_type: 'application/json' })
+      
     stub_request(:get, "https://api.parse.com/1/classes/Article?count=1&where=%7B%22comments%22:%7B%22__type%22:%22Pointer%22,%22className%22:%22Comment%22,%22objectId%22:%22c1234%22%7D%7D").
       with(headers: {'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Rest-Api-Key'=>'PARSE_API_KEY'}).
       to_return(status: 200, body: {
@@ -88,6 +94,21 @@ describe Opium::Model::Relatable do
           { objectId: 'abcd1234', title: 'Funny Subtitles' }
         ]
       }.to_json, headers: { content_type: 'application/json' })
+      
+    stub_request(:post, "https://api.parse.com/1/classes/Article").
+      with(body: "{\"title\":\"A new approach to Sandboxes\"}",
+        headers: {'Content-Type'=>'application/json', 'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Rest-Api-Key'=>'PARSE_API_KEY'}).
+      to_return(status: 200, body: { objectId: 'a1234', createdAt: Time.now.utc }.to_json, headers: { content_type: 'appliction/json' })
+      
+    stub_request(:post, "https://api.parse.com/1/classes/Comment").
+      with(body: "{\"body\":\"Do. Not. Want.\"}",
+        headers: {'Content-Type'=>'application/json', 'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Rest-Api-Key'=>'PARSE_API_KEY'}).
+      to_return(status: 200, body: { objectId: 'c7896', createdAt: Time.now.utc }.to_json, headers: { content_type: 'application/json' })
+      
+    stub_request(:put, "https://api.parse.com/1/classes/Article/a1234").
+      with(body: "{\"comments\":{\"__op\":\"AddRelation\",\"objects\":[{\"__type\":\"Pointer\",\"className\":\"Comment\",\"objectId\":\"c7896\"}]}}",
+        headers: {'Content-Type'=>'application/json', 'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Rest-Api-Key'=>'PARSE_API_KEY'}).
+      to_return(status: 200, body: { updatedAt: Time.now.utc }.to_json, headers: { content_type: 'application/json' })
   end
   
   describe '.relations' do
@@ -178,5 +199,22 @@ describe Opium::Model::Relatable do
   end
   
   describe '.has_and_belongs_to_many' do
+  end
+  
+  describe '#save' do
+    let(:result) { subject.save }
+    
+    context 'within a model with a has_many relation' do
+      subject { Article.new title: 'A new approach to Sandboxes' }
+      before { subject.comments.build body: 'Do. Not. Want.' }
+      
+      it { result; expect( subject.errors ).to be_empty }
+      it { expect { result }.to_not raise_exception }
+      it { expect( result ).to be_truthy }
+      it { result && is_expected.to( be_persisted ) }
+      it { result && expect( subject.comments ).to( be_a Opium::Model::Relation ) }
+      it { result && expect( subject.comments ).to( all( be_a( Opium::Model ) ) ) }
+      it { result && expect( subject.comments ).to( all( be_persisted ) ) }
+    end
   end
 end

@@ -81,9 +81,9 @@ module Opium
           if response && response['results']
             variables[:total_count] = response['count']
             response['results'].each do |attributes|
-              model = self.model.new( attributes )
-              @cache << model if cached?
-              block.call model
+              instance = self.model.new( attributes )
+              @cache << instance if cached?
+              block.call instance
             end
           end
         end

@@ -41,6 +41,10 @@ describe Opium::Model::Relation do
       to_return(status: 200, body: { updatedAt: Time.now.utc }.to_json, headers: { content_type: 'application/json' })    
   end
   
+  after do
+    Opium::Model::Relation.models.clear
+  end
+  
   it { expect( described_class ).to be <= Opium::Model::Criteria }
   it { expect( described_class ).to be <= ActiveModel::Dirty }
   
@@ -173,7 +177,33 @@ describe Opium::Model::Relation do
     it { expect { result }.to_not raise_exception }
   end
   
-  describe '.push' do
+  describe '#each' do
+    let(:result) { subject.each }
+    subject do 
+      described_class.new( 'RelatedClass' ).tap do |r|
+        r.owner = Model.new id: 'm1234'
+        r.metadata = Opium::Model::Relatable::Metadata.new( Model, :has_many, :related, class_name: 'RelatedClass' )
+      end
+    end
+    
+    context 'with existing items' do
+      before do
+        stub_request(:get, "https://api.parse.com/1/classes/RelatedClass?count=1&where=%7B%22$relatedTo%22:%7B%22object%22:%7B%22__type%22:%22Pointer%22,%22className%22:%22Model%22,%22objectId%22:%22m1234%22%7D,%22key%22:%22related%22%7D%7D").
+          with(headers: {'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Rest-Api-Key'=>'PARSE_API_KEY'}).
+          to_return(status: 200, body: {
+            count: 1,
+            results: [ { objectId: 'rc1234', createdAt: Time.now.utc } ]
+          }.to_json, headers: { content_type: 'application/json' })
+      end
+      
+      it { expect( subject.model_name ).to eq 'RelatedClass' }
+      it { expect( subject.model ).to eq RelatedClass }
+      it { expect { result }.to_not raise_exception }
+      it { expect( result ).to all( be_a( RelatedClass ) ) }
+    end
+  end
+  
+  describe '#push' do
     let(:result) { subject.push a_related_object }
     let(:a_related_object) { RelatedClass.new }
     subject { described_class.new 'RelatedClass' }
@@ -183,7 +213,7 @@ describe Opium::Model::Relation do
     it { expect( result ).to include( a_related_object ) }
   end
   
-  describe '.delete' do
+  describe '#delete' do
     let(:result) { subject.delete a_related_object }
     let(:a_related_object) { RelatedClass.new }
     subject { described_class.new 'RelatedClass' }
@@ -193,7 +223,7 @@ describe Opium::Model::Relation do
     it { expect( result ).to_not include( a_related_object ) }
   end
   
-  describe '.build' do
+  describe '#build' do
     let(:result) { subject.build object_params }
     subject { described_class.new 'RelatedClass' }
     
@@ -215,13 +245,13 @@ describe Opium::Model::Relation do
     end
   end
   
-  describe '.create' do
+  describe '#create' do
   end
   
-  describe '.create!' do
+  describe '#create!' do
   end
   
-  describe '.save' do
+  describe '#save' do
     # Note: this is mostly a utility method which should be only ever invoked by the owner upon it being saved.
     # This should trigger a save on all relations within changes which are not persisted?, and then perform a series
     # of AddRelation and RemoveRelation API calls.

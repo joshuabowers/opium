@@ -86,7 +86,8 @@ module Opium
         if !block_given?
           to_enum(:each)
         else
-          (super {} + __additions__ - __deletions__).each(&block)
+          super() {|model| block.call( model ) unless __deletions__.include?( model ) }
+          (__additions__ - __deletions__).each(&block)
         end
       end
       
