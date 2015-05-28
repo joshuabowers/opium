@@ -40,7 +40,7 @@ module Opium
       include Inheritable
       include Batchable
       include Relatable
-      include GlobalID if defined?( GlobalID )
+      include GlobalID::Identification if defined?( GlobalID )
     end
     
     def initialize( attributes = {} )

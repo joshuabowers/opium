@@ -1,3 +1,7 @@
+## 1.2.2
+### Resolved Issues
+- #45: Of course, the untested new feature includes the wrong thing. D'oh! Model should now be including GlobalID::Identification, rather than GlobalID.
+
 ## 1.2.1
 ### New Features
 - Fieldable should now be refactored to be more readable and less cluttered; .field, in particular, has been split up into a set of algorithmic steps.
