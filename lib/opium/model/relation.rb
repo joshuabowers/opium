@@ -5,44 +5,53 @@ module Opium
       
       class << self
         def to_parse( object )
-          class_name =
-            case object
-            when Hash
-              fetch_hash_key_from( object, 'class_name' ) || fetch_hash_key_from( object, 'model_name' )
-            when String, Symbol
-              object
-            when is_descendant.curry[Opium::Model]
-              object.model_name
-            when self
-              object.class_name
-            else
-              fail ArgumentError, "could not convert #{ object.inspect } to a parse Relation hash"
-            end
+          class_name = determine_class_name_from( object, 'parse Relation hash' )
           fail ArgumentError, "could not determine class_name from #{ object.inspect }" unless class_name
           { __type: 'Relation', className: class_name }.with_indifferent_access
         end
         
         def to_ruby( object )
-          return if object.nil?
+          return if object.nil? || object == []
           return object if object.is_a? self
-          class_name = 
+          class_name = determine_class_name_from( object, self.name )
+          new( class_name ).tap do |relation|
             case object
-            when Hash
-              fetch_hash_key_from( object, 'class_name' ) || fetch_hash_key_from( object, 'model_name' )
-            when String, Symbol
-              object
+            when String
             when is_descendant.curry[Opium::Model]
-              object.model_name
-            else
-              fail ArgumentError, "could not convert #{ object.inspect } to a Opium::Model::Relation"
+              relation.push object
+            when contains_descendant.curry[Opium::Model]
+              object.select(&is_descendant.curry[Opium::Model]).each {|model| relation.push model}
             end
-          new( class_name )
+          end
         end
         
         private
         
+        def determine_class_name_from( object, context )
+          case object
+          when Hash
+            fetch_hash_key_from( object, 'class_name' ) || fetch_hash_key_from( object, 'model_name' )
+          when String, Symbol
+            object
+          when is_descendant.curry[Opium::Model]
+            object.model_name
+          when contains_descendant.curry[Opium::Model]
+            object.select(&is_descendant.curry[Opium::Model]).first.model_name
+          when self
+            object.class_name
+          else
+            fail ArgumentError, "could not convert #{ object.inspect } to a #{ context }"
+          end
+        end
+        
         def is_descendant
           @is_descendant ||= ->( expected_type, object ) { ( object.is_a?( Class ) ? object : object.class ) <= expected_type }
+        end
+        
+        def contains_descendant
+          @contains_descendant ||= ->( expected_type, object ) do 
+            object.is_a?( Enumerable ) ? object.any?( &is_descendant.curry[expected_type] ) : is_descendant.curry[expected_type]
+          end
         end
         
         def fetch_hash_key_from( hash, key )

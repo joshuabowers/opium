@@ -17,6 +17,10 @@ module Opium
         end
       end
       
+      def contextual_default_value( context = nil)
+        type.to_ruby( default( context ) )
+      end
+      
       def readonly?
         self.readonly == true
       end

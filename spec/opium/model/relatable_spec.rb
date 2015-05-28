@@ -161,6 +161,34 @@ describe Opium::Model::Relatable do
       it { expect( subject.comments ).to_not be_empty }
       it { expect( subject.comments.owner ).to eq subject }
     end
+    
+    context "when setting a model's relation" do
+      subject { Article.new id: 'abcd1234' }
+      let(:result) { subject.comments = new_value; subject.comments }
+      
+      context 'to nil' do
+        let(:new_value) { nil }
+        
+        it { expect { result }.to_not raise_exception }
+        it { expect( result ).to be_a Opium::Model::Relation }
+      end
+      
+      context 'to []' do
+        let(:new_value) { [] }
+        
+        it { expect { result }.to_not raise_exception }
+        it { expect( result ).to be_a Opium::Model::Relation }
+      end
+      
+      context 'to an array of models' do
+        let(:comment) { Comment.new }
+        let(:new_value) { [ comment ] }
+        
+        it { expect { result }.to_not raise_exception }
+        it { expect( result ).to be_a Opium::Model::Relation }
+        it { expect( result ).to include( comment ) }
+      end
+    end
   end
   
   describe '.has_one' do

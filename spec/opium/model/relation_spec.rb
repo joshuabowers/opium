@@ -87,6 +87,22 @@ describe Opium::Model::Relation do
       it { expect( result ).to be_nil }
     end
     
+    context 'with an empty array' do
+      let(:convert_from) { [] }
+      
+      it { expect { result }.to_not raise_exception }
+      it { expect( result ).to be_nil }
+    end
+    
+    context 'with an array of RelatedClass' do
+      let(:related_object) { RelatedClass.new title: 'a related object' }
+      let(:convert_from) { [ related_object ] }
+      
+      it { expect { result }.to_not raise_exception }
+      it { expect( result ).to be_a described_class }
+      it { expect( result ).to include( related_object ) }
+    end
+    
     context 'with any unconvertable value' do
       let(:convert_from) { 42 }
       

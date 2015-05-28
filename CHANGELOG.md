@@ -1,3 +1,11 @@
+## 1.2.1
+### New Features
+- Fieldable should now be refactored to be more readable and less cluttered; .field, in particular, has been split up into a set of algorithmic steps.
+- #45: If GlobalID is defined, it is automatically included into all models.
+
+### Resolved Issues
+- #46: Relations should now more gracefully handle conversions from nil and Array.
+
 ## 1.2.0
 ### New Features
 - #33: Model associations.
