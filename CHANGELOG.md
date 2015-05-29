@@ -1,3 +1,7 @@
+## 1.2.3
+### New Features
+- Config file can now track the Parse API webhook key.
+
 ## 1.2.2
 ### Resolved Issues
 - #45: Of course, the untested new feature includes the wrong thing. D'oh! Model should now be including GlobalID::Identification, rather than GlobalID.

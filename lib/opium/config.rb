@@ -38,7 +38,8 @@ module Opium
     
     config_accessor( :app_id ) { 'PARSE_APP_ID' }
     config_accessor( :api_key ) { 'PARSE_API_KEY' }
-    config_accessor( :master_key ){ 'PARSE_MASTER_KEY' }
+    config_accessor( :master_key ) { 'PARSE_MASTER_KEY' }
+    config_accessor( :webhook_key ) { 'PARSE_WEBHOOK_KEY' }
     config_accessor( :log_network_responses ) { false }
   end
 end

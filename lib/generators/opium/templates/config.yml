@@ -8,6 +8,9 @@ development:
   # Your Parse app's master key setting. You may omit this, 
   # but you will be unable to edit Users except by ACL rules
   master_key: PARSE-MASTER-KEY
+  
+  # You can store your app's webhook key here; Opium currently does not use this.
+  webhook_key: PARSE-WEBHOOK-KEY
     
   # Any communications done with parse will either be (true) displayed or (false) silenced
   log_network_responses: false
@@ -16,6 +19,7 @@ test:
   app_id: PARSE-TEST-APP-ID
   api_key: PARSE-TEST-API-KEY
   master_key: PARSE-TEST-MASTER-KEY
+  webhook_key: PARSE-TEST-WEBHOOK-KEY
   log_network_responses: true
 
 # You could hardcode the values for the production Parse app here, but it is suggested
@@ -24,4 +28,5 @@ production:
   app_id: <%= ENV['PARSE_APP_ID'] %>
   api_key: <%= ENV['PARSE_API_KEY'] %>
   master_key: <%= ENV['PARSE_MASTER_KEY'] %>
+  webhook_key: <%= ENV['PARSE_WEBHOOK_KEY'] %>
   log_network_responses: false

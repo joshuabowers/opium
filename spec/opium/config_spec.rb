@@ -42,16 +42,18 @@ describe Opium do
     it { subject.config.app_id.should == 'abcd1234' }
     it { subject.config.api_key.should == 'efgh5678' }
     it { subject.config.master_key.should == '9012ijkl' }
+    it { subject.config.webhook_key.should == 'mnop7654' }
     it { subject.config.log_network_responses.should == true }
   end
     
   describe Opium::Config do
-    it { should respond_to( :app_id, :api_key, :master_key, :log_network_responses ) }
+    it { is_expected.to respond_to( :app_id, :api_key, :master_key, :webhook_key, :log_network_responses ) }
     
     describe 'defaults' do
       its(:app_id) { should == 'PARSE_APP_ID' }
       its(:api_key) { should == 'PARSE_API_KEY' }
       its(:master_key) { should == 'PARSE_MASTER_KEY' }
+      its(:webhook_key) { should == 'PARSE_WEBHOOK_KEY' }
       its(:log_network_responses) { should == false }
     end
   end
