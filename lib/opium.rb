@@ -7,4 +7,5 @@ require 'opium/extensions'
 require 'opium/model'
 require 'opium/user'
 require 'opium/file'
+require 'opium/schema'
 require 'opium/railtie' if defined?( Rails )
