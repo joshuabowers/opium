@@ -6,7 +6,7 @@ module Opium
 
     class << self
       def all
-        
+
       end
 
       def find( model_name )
@@ -20,6 +20,10 @@ module Opium
 
     def delete
 
+    end
+
+    def model
+      
     end
 
     def fields
