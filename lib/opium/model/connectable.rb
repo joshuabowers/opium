@@ -137,20 +137,18 @@ module Opium
           lambda do |request|
             request.headers.update options[:headers] if options[:headers]
 
-            added_master_key =
-              unless request.headers[:x_parse_session_token]
-                if use_master_key?( method )
-                  request.headers[:x_parse_master_key] = Opium.config.master_key
-                end
-              end
-
-            request.headers[:x_parse_rest_api_key] = Opium.config.api_key unless added_master_key
+            if use_master_key?( request, method )
+              request.headers[:x_parse_master_key] = Opium.config.master_key
+            else
+              request.headers[:x_parse_rest_api_key] = Opium.config.api_key
+            end
 
             further_operations.call( request ) if block_given?
           end
         end
 
-        def use_master_key?( method )
+        def use_master_key?( request, method )
+          !request.headers[:x_parse_session_token] &&
           ( @always_heightened_privileges || method != :get ) &&
             requires_heightened_privileges? && Opium.config.master_key
         end

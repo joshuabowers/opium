@@ -57,8 +57,8 @@ describe Opium::Schema do
       let(:options) { { sent_headers: true } }
 
       it { expect { result }.to_not raise_exception }
-      it { expect( result ).to include('X-Parse-Master-Key') }
-      it { expect( result ).to_not include('X-Parse-Rest-Api-Key') }
+      it { expect( result.keys ).to include('X-Parse-Master-Key') }
+      it { expect( result.keys ).to_not include('X-Parse-Rest-Api-Key') }
     end
 
     context 'with a valid model name' do
