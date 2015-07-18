@@ -105,7 +105,7 @@ describe Opium::Schema do
       end
 
       it { expect( result ).to be_empty }
-      it { expect( result ).to be_a( Array ) }
+      it { expect( result ).to be_a( Hash ) }
     end
 
     context 'when there are multiple classes' do
@@ -120,8 +120,11 @@ describe Opium::Schema do
           }.to_json, headers: { content_type: 'application/json' })
       end
 
+      let(:expected_keys) { [ 'Game', 'Player' ] }
+
       it { expect( result ).to_not be_empty }
-      it { expect( result ).to all( be_a( Opium::Schema ) ) }
+      it { expect( result.keys ).to include( *expected_keys ) }
+      it { expect( result.values ).to all( be_a( Opium::Schema ) ) }
     end
   end
 

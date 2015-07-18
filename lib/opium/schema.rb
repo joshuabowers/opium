@@ -8,7 +8,7 @@ module Opium
 
     class << self
       def all
-        http_get[:results].map {|schema| new( schema ) }
+        http_get[:results].map {|schema| new( schema ) }.index_by(&:class_name)
       end
 
       def find( model_name, options = {} )
@@ -21,14 +21,15 @@ module Opium
       end
     end
 
+
     attr_reader :class_name, :fields
 
     def initialize( attributes = {} )
-      attributes.with_indifferent_access.tap do |a|
+      attributes.deep_symbolize_keys.tap do |a|
         @class_name = a[:className]
         @fields = ( a[:fields] || {} ).map do |field_name, options|
           Opium::Model::Field.new( field_name, options[:type], nil, false, nil )
-        end.index_by(&:name)
+        end.index_by(&:name_to_ruby)
       end
     end
 
