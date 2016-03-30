@@ -1,3 +1,7 @@
+## 1.2.4
+### Resolved Issues
+- #49: Opium::File#to_ruby now correctly handles blank/empty strings.
+
 ## 1.2.3
 ### New Features
 - Config file can now track the Parse API webhook key.

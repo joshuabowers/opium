@@ -21,7 +21,7 @@ module Opium
       end
       
       def to_ruby( object )
-        return unless object
+        return if object.nil? || object == ''
         return object if object.is_a?( self )
         object = ::JSON.parse( object ) if object.is_a?( String )
         if object.is_a?( Hash ) && (has_key_of_value( object, :__type, 'File' ) || has_keys( object, :url, :name ))

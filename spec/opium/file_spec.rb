@@ -132,6 +132,13 @@ describe Opium::File do
       it { expect( result ).to be_a Opium::File }
     end
     
+    context 'when given an empty string' do
+      let(:object) { '' }
+      
+      it { expect { result }.to_not raise_exception }
+      it { expect( result ).to be_nil }
+    end
+    
     context 'when not given a hash' do
       let(:object) { 42 }
       
