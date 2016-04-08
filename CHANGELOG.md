@@ -1,3 +1,7 @@
+## 1.3.0
+### New Features
+- Now have basic support for sending push notifications via the parse server.
+
 ## 1.2.4
 ### Resolved Issues
 - #49: Opium::File#to_ruby now correctly handles blank/empty strings.
@@ -60,7 +64,7 @@
 ## 1.1.0
 
 ### New Features
-- #29: `Opium::File` is now a supported field type, which wraps Parse's File objects. 
+- #29: `Opium::File` is now a supported field type, which wraps Parse's File objects.
 - #31: `Symbol` is now a supported field type, which is meant to be used on top of a Parse String column.
 
 ### Resolved Issues
