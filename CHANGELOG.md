@@ -1,3 +1,7 @@
+## 1.3.1
+### Resolved Issues
+- #50: Model::Dirty#save! now overridden to apply dirty changes when invoked.
+
 ## 1.3.0
 ### New Features
 - Now have basic support for sending push notifications via the parse server.
