@@ -1,3 +1,8 @@
+## 1.3.2
+### Resolved Issues
+- #51: Queryable#translate_to_parse now attempts to ensure that constraint values
+are converted to the associated field type.
+
 ## 1.3.1
 ### Resolved Issues
 - #50: Model::Dirty#save! now overridden to apply dirty changes when invoked.
