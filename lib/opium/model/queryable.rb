@@ -20,7 +20,7 @@ module Opium
         end
 
         def exists( constraints )
-          imbued_where( constraints.map {|key, value| [key, value.to_bool] }, '$exists' )
+          imbued_where( constraints.map {|key, value| [key, value.to_bool.freeze] }, '$exists' )
         end
 
         def gt( constraints )
