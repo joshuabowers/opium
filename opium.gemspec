@@ -25,7 +25,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec-nc"
   spec.add_development_dependency "rspec-its"
   spec.add_development_dependency "webmock"
-  spec.add_development_dependency "guard", "~> 2.12"
+  spec.add_development_dependency "guard", "2.12.5"
   spec.add_development_dependency "guard-rspec"
   spec.add_development_dependency "pry"
   spec.add_development_dependency "pry-remote"
