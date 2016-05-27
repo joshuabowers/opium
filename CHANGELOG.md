@@ -1,3 +1,8 @@
+## 1.3.3
+### New Features
+- Opium::GeoPoint now implements Comparable
+- Opium::GeoPoint now has a constant, NULL_ISLAND, which has a lat/long of 0/0.
+
 ## 1.3.2
 ### Resolved Issues
 - #51: Queryable#translate_to_parse now attempts to ensure that constraint values

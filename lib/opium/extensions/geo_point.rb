@@ -1,5 +1,7 @@
 module Opium
   class GeoPoint
+    include Comparable
+
     def initialize( value )
       self.latitude, self.longitude = *
         case value
@@ -13,26 +15,32 @@ module Opium
           raise ArgumentError.new( "invalid value for GeoPoint: \"#{ value }\"" )
         end
     end
-  
+
     attr_accessor :latitude, :longitude
-  
+
     def to_geo_point
       self
     end
-  
+
     def to_parse
       { "__type" => "GeoPoint", "latitude" => self.latitude, "longitude" => self.longitude }
     end
-  
+
     def to_s
       "#{ self.latitude },#{ self.longitude }"
     end
+
+    def <=>( geo_point )
+      [self.latitude, self.longitude] <=> [geo_point.latitude, geo_point.longitude]
+    end
+
+    NULL_ISLAND = new( [0, 0] ).freeze
 
     class << self
       def to_ruby(object)
         object.to_geo_point unless object.nil?
       end
-    
+
       def to_parse(object)
         object.to_geo_point.to_parse
       end
