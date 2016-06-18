@@ -101,6 +101,34 @@ describe Opium::GeoPoint do
     end
   end
 
+  describe '#===' do
+    let(:result) { described_class === a }
+
+    context 'with a real location' do
+      let(:a) { described_class.new( [1, 1] ) }
+
+      it { expect( result ).to eq true }
+    end
+
+    context 'with NULL_ISLAND' do
+      let(:a) { described_class::NULL_ISLAND }
+
+      it { expect( result ).to be_falsy }
+    end
+
+    context 'with nil' do
+      let(:a) { nil }
+
+      it { expect( result ).to be_falsy }
+    end
+
+    context 'with non geo data' do
+      let(:a) { 23 }
+
+      it { expect( result ).to be_falsy }
+    end
+  end
+
   describe '.===' do
     let(:result) { a === described_class }
 

@@ -1,3 +1,7 @@
+## 1.3.5
+### New Features
+- Due to ignorance, missed a method override for Opium::GeoPoint ===. Now implemented at the class level as well as at the instance level.
+
 ## 1.3.4
 ### New Features
 - Opium::GeoPoint now provides a custom === operator; this either delegates to == (if given another geo point), to != (if given GeoPoint; NULL_ISLAND is an invalid location!), or nil if anything else.

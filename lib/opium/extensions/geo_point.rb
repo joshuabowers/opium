@@ -39,7 +39,7 @@ module Opium
       if other.is_a? self.class
         self == other
       elsif other <= self.class
-        self != NULL_ISLAND        
+        self != NULL_ISLAND
       else
         nil
       end
@@ -48,6 +48,10 @@ module Opium
     NULL_ISLAND = new( [0, 0] ).freeze
 
     class << self
+      def ===( other )
+        other != NULL_ISLAND && super
+      end
+
       def to_ruby(object)
         object.to_geo_point unless object.nil?
       end
