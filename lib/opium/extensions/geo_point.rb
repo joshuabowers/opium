@@ -31,7 +31,18 @@ module Opium
     end
 
     def <=>( geo_point )
+      return nil unless geo_point.is_a?( self.class )
       [self.latitude, self.longitude] <=> [geo_point.latitude, geo_point.longitude]
+    end
+
+    def ===( other )
+      if other.is_a? self.class
+        self == other
+      elsif other <= self.class
+        self != NULL_ISLAND        
+      else
+        nil
+      end
     end
 
     NULL_ISLAND = new( [0, 0] ).freeze

@@ -101,6 +101,37 @@ describe Opium::GeoPoint do
     end
   end
 
+  describe '.===' do
+    let(:result) { a === described_class }
+
+    context 'with a real location' do
+      let(:a) { described_class.new( [1, 1] ) }
+
+      it { expect( result ).to eq true }
+    end
+
+    context 'with NULL_ISLAND' do
+      let(:a) { described_class::NULL_ISLAND }
+
+      it { expect( result ).to eq false }
+    end
+
+    context 'when compared against an actual location' do
+      let(:result) { a === b }
+      let(:a) { described_class.new( [1, 1] ) }
+      let(:b) { described_class.new( [1, 1] ) }
+
+      it { expect( result ).to eq true }
+    end
+
+    context 'when compared against non geo data' do
+      let(:result) { a === Integer }
+      let(:a) { described_class.new( [1, 1] ) }
+
+      it { expect( result ).to be_falsy }
+    end
+  end
+
   describe "instance" do
     describe "with an array value" do
       subject { described_class.new [33.33, -117.117] }
