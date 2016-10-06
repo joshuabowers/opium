@@ -19,8 +19,12 @@ module Opium
       end
 
       module ClassMethods
+        def parse_server_url
+          ::URI.join( ::Opium.config.server_url, ::Opium.config.mount_point ).to_s
+        end
+
         def connection
-          @@connection ||= Faraday.new( url: 'https://api.parse.com/1/' ) do |faraday|
+          @@connection ||= Faraday.new( url: parse_server_url ) do |faraday|
             faraday.request :multipart
             faraday.request :url_encoded
             faraday.request :json
