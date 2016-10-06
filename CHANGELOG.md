@@ -1,3 +1,7 @@
+## 1.4.0
+### New Features
+- #52: Opium should now be capable of easily connecting to a custom parse-server instance hosted on a third party server.
+
 ## 1.3.5
 ### New Features
 - Due to ignorance, missed a method override for Opium::GeoPoint ===. Now implemented at the class level as well as at the instance level.
