@@ -4,3 +4,5 @@ test:
   master_key: 9012ijkl
   webhook_key: mnop7654
   log_network_responses: true
+  server_url: https://example.com
+  mount_point: /parse

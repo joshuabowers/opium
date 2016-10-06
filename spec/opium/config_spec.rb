@@ -47,11 +47,13 @@ describe Opium do
       it { expect( config.master_key ).to eq '9012ijkl' }
       it { expect( config.webhook_key ).to eq 'mnop7654' }
       it { expect( config.log_network_responses ).to eq true }
+      it { expect( config.server_url ).to eq 'https://example.com' }
+      it { expect( config.mount_point ).to eq '/parse' }
     end
   end
 
   describe Opium::Config do
-    it { is_expected.to respond_to( :app_id, :api_key, :master_key, :webhook_key, :log_network_responses ) }
+    it { is_expected.to respond_to( :app_id, :api_key, :master_key, :webhook_key, :log_network_responses, :server_url, :mount_point ) }
 
     context 'a default config' do
       it { expect( subject.app_id ).to eq 'PARSE_APP_ID' }
@@ -59,6 +61,8 @@ describe Opium do
       it { expect( subject.master_key ).to eq 'PARSE_MASTER_KEY' }
       it { expect( subject.webhook_key ).to eq 'PARSE_WEBHOOK_KEY' }
       it { expect( subject.log_network_responses ).to eq false }
+      it { expect( subject.server_url ).to eq 'https://api.parse.com' }
+      it { expect( subject.mount_point ).to eq '/1' }
     end
   end
 end

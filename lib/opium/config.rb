@@ -1,6 +1,6 @@
 module Opium
   extend self
-  
+
   def configure
     yield config
   end
@@ -8,7 +8,7 @@ module Opium
   def config
     @config ||= Opium::Config.new
   end
-  
+
   def load!( path, environment = nil )
     settings = load_yaml( path, environment )
     configure do |config|
@@ -17,11 +17,11 @@ module Opium
       end
     end
   end
-  
+
   def reset
     @config = nil
   end
-  
+
   private
 
   def load_yaml( path, environment = nil )
@@ -32,14 +32,16 @@ module Opium
   def env_name
     defined?( Rails ) ? Rails.env : ( ENV["RACK_ENV"] || ENV["OPIUM_ENV"] || raise( "Could not determine environment" )  )
   end
-    
+
   class Config
     include ActiveSupport::Configurable
-    
+
     config_accessor( :app_id ) { 'PARSE_APP_ID' }
     config_accessor( :api_key ) { 'PARSE_API_KEY' }
     config_accessor( :master_key ) { 'PARSE_MASTER_KEY' }
     config_accessor( :webhook_key ) { 'PARSE_WEBHOOK_KEY' }
     config_accessor( :log_network_responses ) { false }
+    config_accessor( :server_url ) { 'https://api.parse.com' }
+    config_accessor( :mount_point ) { '/1' }
   end
 end
