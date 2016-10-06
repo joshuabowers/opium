@@ -1,25 +1,37 @@
 development:
   # The Application ID for your Parse app. Mandatory
   app_id: PARSE-APP-ID
-    
+
   # The REST API key for your Parse app. Mandatory
   api_key: PARSE-API-KEY
-    
-  # Your Parse app's master key setting. You may omit this, 
-  # but you will be unable to edit Users except by ACL rules
+
+  # Your Parse app's master key setting. You may omit this,
+  # but you will be unable to edit Users except by ACL rules.
   master_key: PARSE-MASTER-KEY
-  
+
   # You can store your app's webhook key here; Opium currently does not use this.
   webhook_key: PARSE-WEBHOOK-KEY
-    
+
+  # The URL of the server where the parse API is available. For hosted parse, this
+  # should be https://api.parse.com; for a parse-server installation, this will be
+  # whatever server the instance is running on.
+  server_url: https://api.parse.com
+
+  # The sub-URI on :server_url where the parse-server API is available. For hosted
+  # parse, this should be /1; for a default parse-server-example installation, this
+  # defaults to /parse.
+  mount_point: /1
+
   # Any communications done with parse will either be (true) displayed or (false) silenced
   log_network_responses: false
-    
+
 test:
   app_id: PARSE-TEST-APP-ID
   api_key: PARSE-TEST-API-KEY
   master_key: PARSE-TEST-MASTER-KEY
   webhook_key: PARSE-TEST-WEBHOOK-KEY
+  server_url: https://api.parse.com
+  mount_point: /1
   log_network_responses: true
 
 # You could hardcode the values for the production Parse app here, but it is suggested
@@ -29,4 +41,6 @@ production:
   api_key: <%= ENV['PARSE_API_KEY'] %>
   master_key: <%= ENV['PARSE_MASTER_KEY'] %>
   webhook_key: <%= ENV['PARSE_WEBHOOK_KEY'] %>
+  server_url: <%= ENV['PARSE_SERVER_URL'] %>
+  mount_point: <%= ENV['PARSE_MOUNT_POINT'] %>
   log_network_responses: false
