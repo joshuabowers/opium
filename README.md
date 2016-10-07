@@ -126,7 +126,26 @@ In the preceding example, an `Article` is never allowed to alter its `title`, wh
 
 #### Model associations
 
-Opium currently supports basic associations between models:
+Opium currently supports basic associations between models: an owning model can specify that it `has_many` of another model, which can specify that it `belongs_to` the former.
+
+```ruby
+class Player
+  # ...
+  has_many :high_scores
+  # ...
+end
+
+class HighScore
+  # ...
+  belongs_to :player
+  # ...
+end
+```
+
+##### Association options
+
+- `class_name`: Expects a string. In case the class name cannot be inferred from the association name, it can be provided by this option.
+- `inverse_of`: Expects a string or a symbol. In case the inverse method name cannot be inferred from the association name or its class name, it can be provided by this option.
 
 #### Model field metadata
 
@@ -141,6 +160,10 @@ Opium currently supports basic associations between models:
 ### Creating and updating models
 
 ### Querying data
+
+#### Find by id
+
+#### Criteria & Scopes
 
 #### Kaminari support
 
