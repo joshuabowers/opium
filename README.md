@@ -157,6 +157,27 @@ A set of utility class methods are provided to survey the defined fields and ass
 - `#has_field?` / `#field?`: expects a string or symbol, and returns a boolean value denoting whether the field is currently defined on the model.
 - `#relations`: returns a hash of all defined associations, keyed by the method name used to define the relationship on the current model. Each value is a [`Opium::Model::Relatable::Metadata`](lib/opium/model/relatable/metadata.rb), which contains details pertaining to what the association is being made between.
 
+Each of these methods would be called on the model you wish to inspect. In the following example, we ask the `Player` model if it has a `:name` field, get all of its readonly fields, and grab a list of its associations:
+
+```ruby
+class Player
+  include Opium::Model
+  field :name, type: String
+  field :gamer_score, type: Integer
+  has_many :high_scores
+  has_many :played_games, class_name: 'Game', inverse_of: :played_by
+end
+
+# Should output the message, as Player does define a field called "name"
+puts "'Player' has a name field!" if Player.has_field? :name
+
+# Winnows the collection of field definitions by selecting only those which are readonly.
+readonly_fields = Player.fields.select {|_, field| field.readonly?}
+
+# #relations is a hash, indexed by name; in this example, the output should include the text "high_scores, played_games".
+puts "'Player' defines the following associations: #{ Player.relations.keys.join(', ') }"
+```
+
 #### Validations
 
 #### Callback hooks
