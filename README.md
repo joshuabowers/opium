@@ -48,7 +48,7 @@ As of version 1.4.0, Opium should be able to communicate with these third-party 
 
 As the config file suggests, it is suggested that these values be provided in a server environment via environment variables.
 
-#### Model Generator
+### Model Generator
 
 A generator exists for creating new models; this should be invoked whenever `rails g model` gets invoked.
 
@@ -62,7 +62,7 @@ A separate generate is available for creating a model to wrap Parse's User model
 $ rails g opium:user
 ```
 
-#### Specifying a model
+### Specifying a model
 
 Models are defined by mixing in `Opium::Model` into a new class. Class names should match the names of the
 classes defined within Parse. You can define fields on your model which mirror the columns within a Parse
@@ -80,7 +80,7 @@ end
 All models automatically come with three fields: *:id*, *:created_at*, and *:updated_at*. Field names are
 converted from a native ruby snake_case naming convention to a Parse lowerCamel convention.
 
-### Field data types
+#### Field data types
 
 Opium comes with support for a variety of different data types for fields. These automatically will convert native ruby representations of the stored values to values supported by the parse backend, and conversely. At this time, Opium supports the following field types, where the first column is the type specified in ruby, and the second column is the type as stored in parse.
 
@@ -103,7 +103,7 @@ Field setters will generally attempt to convert any incoming value to a native r
 
 Setting the type for a field is done by specifying the `:type` option on the field method. If this option is not present, the field will default to a ruby type of `Object`, which acts as a pass-through of the values coming from and going to parse. In the example from the last section, the `Game` model has two fields, one which is specified as having a `String` type, while the other has a `Float` type.
 
-### Field options
+#### Field options
 
 Fields can be modified by a small set of options passed to their definition:
 
@@ -124,25 +124,25 @@ end
 
 In the preceding example, an `Article` is never allowed to alter its `title`, while its `last_edited` field is locally aliased as `edited_on`, and it will provide a default value for `published_at`, should none otherwise be provided.
 
-### Model associations
+#### Model associations
 
 Opium currently supports basic associations between models:
 
-### Model field metadata
+#### Model field metadata
 
-### Validations
+#### Validations
 
-### Callback hooks
+#### Callback hooks
 
-### Dirty attribute tracking
+#### Dirty attribute tracking
 
-### JSON serialization
+#### JSON serialization
 
-#### Creating and updating models
+### Creating and updating models
 
-#### Querying data
+### Querying data
 
-### Kaminari support
+#### Kaminari support
 
 Opium comes with support for [Kaminari](https://rubygems.org/gems/kaminari). To ensure that Opium loads itself correctly, please specify it _after_ Kaminari within your Gemfile:
 
