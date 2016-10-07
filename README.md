@@ -165,7 +165,7 @@ class Player
   field :name, type: String
   field :gamer_score, type: Integer
   has_many :high_scores
-  has_many :played_games, class_name: 'Game', inverse_of: :played_by
+  has_many :played_games, class_name: 'GameSave', inverse_of: :played_by
 end
 
 # Should output the message, as Player does define a field called "name"
@@ -178,13 +178,104 @@ readonly_fields = Player.fields.select {|_, field| field.readonly?}
 puts "'Player' defines the following associations: #{ Player.relations.keys.join(', ') }"
 ```
 
+Model metadata is readonly; it shouldn't be updated after the model has been defined. It might be useful, however, for writing model concerns or some sort of view decorator to help DRY up model usage in Rails.
+
 #### Validations
+
+Opium provides access to `ActiveModel::Validations` on a per model basis, so it is possible to validate the integrity of any data stored within an instance prior to saving it. Validations follow the normal ActiveModel format:
+
+```ruby
+class Article
+  include Opium::Model
+  field :title, type: String
+  # ...
+  validates :title, presence: true
+end
+
+article = Article.new
+article.valid?       # false, as .title is nil.
+article.errors       # Standard ActiveModel::Errors object
+article.title = 'Wibbly Wobbly Timey Wimey'
+article.valid?       # true, as .title has a value.
+```
+
+As is standard with `ActiveModel` compliant libraries, attempting to save an invalid model will either return false (and not trigger the save) or raise an exception, depending upon how the save was triggered.
 
 #### Callback hooks
 
+Each Opium model has a set of callback points which can be hooked into. Adhering to the standard of `ActiveModel::Callbacks`, these provide a model a means by which to tie into various parts of an instance's lifecycle.
+
+A full list of the available callbacks can be found by accessing the following constant:
+
+```ruby
+Opium::Model::Callbacks::CALLBACKS
+```
+
+Opium defines callbacks for the following events:
+
+| Event / Action | Supported hooks       |
+|----------------|-----------------------|
+| Save           | before, after, around |
+| Create         | before, after, around |
+| Update         | before, after, around |
+| Destroy        | before, after, around |
+| Initialize     | after                 |
+| Find           | after                 |
+| Touch          | after                 |
+| Validation     | before, after         |
+
+To define a callback, do something like in the following example. (This example uses Dirty attributes, which are discussed in the next section.)
+
+```ruby
+class Game
+  # ...
+  field :price, type: Float
+  has_many :on_wishlists, class_name: Wishlist
+  # ...
+
+  before_save :notify_price_drop
+
+  private
+
+  def notify_price_drop
+    if price_changed? && price_was > price
+      # Send a message to all players who have the game on their wishlist ...
+    end
+  end
+end
+```
+
+Please note that callbacks are only invokable within the context of Opium running in Ruby itself; these do not define Cloud Code JavaScript methods within the parse-server backend. If you need to tie into an instance's lifecycle outside the scope of a Ruby project, it is suggested that you look at using Cloud Code directly.
+
 #### Dirty attribute tracking
 
+Models will automatically gain attribute tracking, provided by `ActiveModel::Dirty`. As the fields of a model are altered, specialty events, of the form `<field-name>_will_change!` will be raised. At any point prior to saving, you can use the full suite of Dirty methods to query an instance about changes which have occurred to it. Dirty tracking follows a cycle: upon instance initialization, the model has no changes; upon a field changing, the current set of changes is updated; upon successfully saving the model, the current changes are cleared, and the previous changes get updated.
+
+```ruby
+class Article
+  include Opium::Model
+  field :title, type: String
+  field :body, type: String
+end
+
+article = Article.new
+article.changes        # Should be empty
+
+# As we are updating the .title, it'll flag the dirty tracking with its update;
+# as it has changed, some output denoting the alteration should be made.
+article.title = 'Something happen'
+puts article.title_change.inspect if article.title_changed?
+```
+
+Dirty tracking is provided for any attribute defined by the [`field`](#specifying-a-model) method.
+
 #### JSON serialization
+
+All Opium models should be serializable to JSON, using `ActiveModel::Serialization`. Note that a model instance does not include a root node.
+
+JSON serialization is built around an object's `attributes` hash, which is publicly accessible. By default, all fields of the model are included within this hash. You can also store non-field data within `attributes` and have it show up in the JSON output.
+
+Be aware that all Opium models use `ActiveModel::ForbiddenAttributesProtection` for mass assignment sanitization.
 
 ### Creating and updating models
 
