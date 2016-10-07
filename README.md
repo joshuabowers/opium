@@ -142,12 +142,20 @@ class HighScore
 end
 ```
 
-##### Association options
+Opium will attempt to infer the class name and inverse method of an association by standard Rails naming conventions: the singular, classified variant of the method name is taken to be the target class. In case naming conventions prohibit this inference from working properly, the following options are available:
 
 - `class_name`: Expects a string. In case the class name cannot be inferred from the association name, it can be provided by this option.
 - `inverse_of`: Expects a string or a symbol. In case the inverse method name cannot be inferred from the association name or its class name, it can be provided by this option.
 
+Associations will be covered in more detail in the sections covering [creating models](#creating-and-updating-models) and [querying data](#querying-data). For now, note that Opium will attempt to manage the relationships between associated models for you and provides a robust, Rails-centric approach to manipulating and querying them.
+
 #### Model field metadata
+
+A set of utility class methods are provided to survey the defined fields and associations on any given model:
+
+- `#fields`: returns a hash of all defined fields, keyed by the name of the field. Each value stored within the hash is an [`Opium::Model::Field`](lib/opium/model/field.rb) object, which has methods which reflect the settings discussed in [Field options](#field-options).
+- `#has_field?` / `#field?`: expects a string or symbol, and returns a boolean value denoting whether the field is currently defined on the model.
+- `#relations`: returns a hash of all defined associations, keyed by the method name used to define the relationship on the current model. Each value is a [`Opium::Model::Relatable::Metadata`](lib/opium/model/relatable/metadata.rb), which contains details pertaining to what the association is being made between.
 
 #### Validations
 
