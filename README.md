@@ -279,6 +279,108 @@ Be aware that all Opium models use `ActiveModel::ForbiddenAttributesProtection` 
 
 ### Creating and updating models
 
+After defining a model with Opium, you might want to create new instances of it, or update the data of an existing instance. Opium has been designed to be familiar to anyone who has used other Rails-centric ORMs, such as ActiveRecord. In this regard, object creation follows two patterns: delayed persistence, and immediate persistence.
+
+With delayed persistence, a model object is partially built and capable of being manipulated before being persisted. To finally create the model in parse-server, call its `save` method:
+
+```ruby
+class Player
+  include Opium::Model
+  field :name, type: String
+  field :gamer_score, type: Integer, default: 0
+end
+
+player = Player.new( name: 'The Doctor' )
+player.gamer_score = 1000
+
+player.persisted?     # false, as it has not yet been saved
+player.new_record?    # true, as it has not yet been saved
+
+if player.save
+  # persisted!  
+  player.persisted?   # true, as it has been saved
+else
+  # there was a problem!
+end
+```
+
+As this example suggests, you build a new model instance by calling its constructor, which accepts an attributes hash. The model may be altered and updated to taste. When ready to save, call the `save` method. `save` will run validations on the model, fire off any defined callbacks, update dirty tracking, and attempt to persist the model to parse-server. Should any of these steps fail, `save` will return false, and halt the operation at the point of failure. Otherwise, `save` will return true.
+
+Alternatively, you can use `save!`, which, in the event of a failure, will raise an exception.
+
+Note that the model's `id`, `created_at`, and `updated_at` fields will not have a value until it has been persisted.
+
+With immediate persistence, a model object is built and then immediately stored to parse-server. This is achieved using the `create` class method, which accepts an attributes hash:
+
+```ruby
+player = Player.create( name: 'The Doctor', gamer_score: 1000 )
+player.persisted?     # true, as it has been saved
+```
+
+`create` behaves like `save!`: if there was a failure at any point in the persistence process, an exception will be raised. If there is no failure, the object returned by the method is a persisted model within parse-server.
+
+Updating a model follows a similar set of patterns: at any time you wish to store changes to a persisted model, call `save` or `save!`:
+
+```ruby
+player.gamer_score += 50
+player.save!
+```
+
+Alternatively, if you want to update the attributes of a model and save it simultaneously, you can do so with either `update` or `update!`, which behave analogously to the save methods:
+
+```ruby
+if player.update( gamer_score: player.gamer_score + 50 )
+  # persisted!
+else
+  # There was a problem!
+end
+
+player.update!( gamer_score: 2000 )
+```
+
+`update` is aliased as `update_attributes`, and `update!` is aliased as `update_attributes!`; use whichever makes more semantic sense to you.
+
+If a model has any associations, it will attempt to persist the changes to the association, which might very well cause a cascade of persistence. Opium will attempt to only trigger a save call to a model if it needs to. Due to parse-server's unique way of representing model associations in its API, updating the association between two models does require a separate API call. Be wary when attempting to modify many models simultaneously.
+
+When you define an association between two models, one of those models receives a special collection field of type `Opium::Model::Relation` for storing instances of the other model. This collection has utility methods for building new instances of the associated model:
+
+```ruby
+class Player
+  # ...
+  has_many :high_scores
+  # ...
+end
+
+class HighScore
+  # ...
+  belongs_to :player
+  # ...
+end
+
+player = Player.new
+player.high_scores.class     # Opium::Model::Relation
+player.high_scores.count     # 0, as there are none, yet.
+
+score1 = player.high_scores.build
+score1.value = 200
+
+# .build is aliased as .new; either accepts an attributes hash.
+score2 = player.high_scores.new( value: 1000 )
+
+player.high_scores.count     # 2, from the previous actions
+
+fail "That shouldn't have happened" unless score1.player == player
+```
+
+As you might expect, using a relation's build method will automatically add the built associated model to the collection; using this method will also cause the built model to point at the owner of the collection. You can also update the owner of a particular model on that model directly:
+
+```ruby
+score3 = HighScore.new( value: 10000 )
+score3.player = player
+
+player.high_scores.include?( score3 )   # true, as the above setter updates player.
+```
+
 ### Querying data
 
 #### Find by id
