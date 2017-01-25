@@ -1,3 +1,7 @@
+## 1.5.0
+### New Features
+- Opium will now work with ActiveModel 5.* going forward. Use a version before 1.5 if ActiveModel 4.* compatibility is needed.
+
 ## 1.4.0
 ### New Features
 - #52: Opium should now be capable of easily connecting to a custom parse-server instance hosted on a third party server.
