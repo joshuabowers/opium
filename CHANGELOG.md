@@ -1,3 +1,7 @@
+## 1.5.1
+### Resolved Issues
+- Model::Criteria should now respond to #size correctly.
+
 ## 1.5.0
 ### New Features
 - Opium will now work with ActiveModel 5.* going forward. Use a version before 1.5 if ActiveModel 4.* compatibility is needed. As a side-effect, supported rubies moves to anything above 2.2.2
