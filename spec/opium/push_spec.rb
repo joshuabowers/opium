@@ -66,7 +66,7 @@ describe Opium::Push do
     before do
       stub_request(:post, "https://api.parse.com/1/push").
          with(body: "{\"channels\":[\"Penguins\",\"PolarBears\"],\"data\":{\"alert\":\"Zoo animals are fighting!\"}}",
-              headers: {'Content-Type'=>'application/json', 'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Rest-Api-Key'=>'PARSE_API_KEY'}).
+              headers: {'Content-Type'=>'application/json', 'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Master-Key' => 'PARSE_MASTER_KEY'}).
          to_return(:status => 200, :body => { result: true }.to_json, :headers => {content_type: 'application/json'})
     end
 

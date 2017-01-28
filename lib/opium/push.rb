@@ -4,6 +4,8 @@ module Opium
   class Push
     include Opium::Model::Connectable
 
+    requires_heightened_privileges!
+
     def initialize( attributes = {} )
       self.channels = []
       self.data = {}.with_indifferent_access

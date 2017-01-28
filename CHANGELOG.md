@@ -1,3 +1,7 @@
+## 1.5.2
+### Resolved Issues
+- Push should now use the master key for creating notifications, rather than the REST API key.
+
 ## 1.5.1
 ### Resolved Issues
 - Model::Criteria should now respond to #size correctly.
