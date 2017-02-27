@@ -5,7 +5,7 @@ describe Opium::Push do
 
   it { expect( described_class ).to respond_to(:to_ruby, :to_parse).with(1).argument }
 
-  it { is_expected.to respond_to( :create, :channels, :data, :alert, :badge, :sound, :content_available, :category, :uri, :title ) }
+  it { is_expected.to respond_to( :create, :channels, :data, :alert, :badge, :sound, :content_available, :category, :uri, :title, :expires_at, :push_at, :expiration_interval ) }
 
   shared_examples_for 'a push option getter' do |option, value|
     let(:result) do
@@ -73,13 +73,32 @@ describe Opium::Push do
 
   describe '#create' do
     let(:result) do
-      subject.tap do |push|
-        push.channels = channels
-        push.alert = alert
-      end.create
+      push.create
     end
 
+    let(:push) do
+      subject.tap do |p|
+        p.channels = channels
+        p.alert = alert
+        p.push_at = push_at if push_at
+        p.expires_at = expires_at if expires_at
+        p.expiration_interval = expiration_interval if expiration_interval
+      end
+    end
+
+    let(:push_post_data) { push.send(:post_data) }
+
     let(:alert) { 'Zoo animals are fighting!' }
+    let(:channels) { %w{ General } }
+    let(:push_at) { nil }
+    let(:expires_at) { nil }
+    let(:expiration_interval) { nil }
+
+    let(:one_day_ago) { Time.now - 86400 }
+    let(:one_day_from_now) { Time.now + 86400 }
+    let(:one_week) { 604800 }
+    let(:one_week_from_now) { Time.now + one_week }
+    let(:three_weeks_from_now) { Time.now + ( 3 * one_week ) }
 
     before do
       stub_request(:post, "https://api.parse.com/1/push").
@@ -99,6 +118,55 @@ describe Opium::Push do
 
       it { expect { result }.to_not raise_exception }
       it { expect( result ).to eq true }
+    end
+
+    context 'with a scheduled push' do
+      let(:push_at) { one_day_from_now }
+
+      it { expect { push_post_data }.not_to raise_exception }
+      it 'sets the proper push_time' do
+         expect( push_post_data ).to include( push_time: push_at.iso8601 )
+      end
+    end
+
+    context 'with a scheduled push before now' do
+      let(:push_at) { one_day_ago }
+
+      it { expect { result }.to raise_exception( ArgumentError ) }
+    end
+
+    context 'with a scheduled push too long from now' do
+      let(:push_at) { three_weeks_from_now }
+
+      it { expect { result }.to raise_exception( ArgumentError ) }
+    end
+
+    context 'with a scheduled push and an expiration inverval' do
+      let(:push_at) { one_day_from_now }
+      let(:expiration_interval) { one_week }
+
+      it { expect { push_post_data }.not_to raise_exception }
+      it 'sets the proper push_time' do
+        expect( push_post_data ).to include( push_time: push_at.iso8601 )
+      end
+      it 'sets the proper expiration_interval' do
+        expect( push_post_data ).to include( expiration_interval: expiration_interval )
+      end
+    end
+
+    context 'without a scheduled push and with an expiration inverval' do
+      let(:expiration_interval) { one_week }
+
+      it { expect { result }.to raise_exception( ArgumentError ) }
+    end
+
+    context 'with an expiry' do
+      let(:expires_at) { one_week_from_now }
+
+      it { expect { push_post_data }.not_to raise_exception }
+      it 'sets the proper expiration_time' do
+        expect( push_post_data ).to include( expiration_time: expires_at.iso8601 )
+      end
     end
   end
 end

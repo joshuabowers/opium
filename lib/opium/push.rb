@@ -35,7 +35,7 @@ module Opium
       self.data = {}.with_indifferent_access
     end
 
-    attr_accessor :channels, :data
+    attr_accessor :channels, :data, :push_at, :expires_at, :expiration_interval
 
     attr_hash_accessors :data, :alert, :badge, :sound, :content_available, :category, :uri, :title
 
@@ -50,10 +50,24 @@ module Opium
     private
 
     def post_data
-      {
-        channels: self.channels,
-        data: self.data
-      }
+      {}.tap do |pd|
+        pd[:channels] = channels
+        schedulize!( pd )
+        pd[:data] = data
+      end
+    end
+
+    def schedulize!( hash )
+      fail ArgumentError, 'No scheduled time for #push_at specified!' if expiration_interval && !push_at
+      if push_at
+        fail ArgumentError, 'Can only schedule a push up to 2 weeks in advance!' if push_at > ( Time.now + ( 2 * 604800 ) )
+        fail ArgumentError, 'Cannot schedule pushes in the past... unless you are the Doctor' if push_at < Time.now
+        hash[:push_time] = push_at.iso8601
+        hash[:expiration_interval] = expiration_interval
+      elsif expires_at
+        fail ArgumentError, 'Cannot schedule expiration in the past... unless you have a TARDIS' if expires_at < Time.now
+        hash[:expiration_time] = expires_at.iso8601
+      end
     end
   end
 end
