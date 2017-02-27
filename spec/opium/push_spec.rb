@@ -5,51 +5,69 @@ describe Opium::Push do
 
   it { expect( described_class ).to respond_to(:to_ruby, :to_parse).with(1).argument }
 
-  it { is_expected.to respond_to( :create, :channels, :data, :alert ) }
+  it { is_expected.to respond_to( :create, :channels, :data, :alert, :badge, :sound, :content_available, :category, :uri, :title ) }
 
-  describe '#alert' do
+  shared_examples_for 'a push option getter' do |option, value|
     let(:result) do
       subject.data = data
-      subject.alert
+      subject.send(option)
     end
 
     context 'with no data' do
       let(:data) { { } }
 
-      it 'equals data[:alert]' do
+      it "equals data[:#{ option }]" do
         expect( result ).to be_nil
       end
     end
 
-    context 'with alert data' do
-      let(:data) { { alert: 'The sky is blue.' } }
+    context "with a value" do
+      let(:data) { { option => value } }
 
-      it 'equals data[:alert]' do
-        expect( result ).to eq data[:alert]
+      it "equals data[:#{ option }]" do
+        expect( result ).to eq data[option]
       end
     end
   end
 
-  describe '#alert=' do
+  shared_examples_for 'a push option setter' do |option, value|
     let(:result) do
-      subject.alert = alert
-      subject.data[:alert]
+      subject.send( "#{ option }=".to_sym, option_value )
+      subject.data[option]
     end
 
     context 'with nothing' do
-      let(:alert) { nil }
+      let(:option_value) { nil }
 
-      it 'equals data[:alert]' do
+      it "equals data[:#{ option }]" do
         expect( result ).to be_nil
       end
     end
 
-    context 'with text' do
-      let(:alert) { 'The sky is blue.' }
+    context 'with a value' do
+      let(:option_value) { value }
 
-      it 'equals data[:alert]' do
-        expect( result ).to eq alert
+      it "equals data[:#{ option }]" do
+        expect( result ).to eq option_value
       end
+    end
+  end
+
+  {
+    alert: 'The sky is blue.',
+    badge: 'Increment',
+    sound: 'cheering.caf',
+    content_available: 1,
+    category: 'A category',
+    uri: 'https://example.com',
+    title: 'Current Weather'
+  }.each do |option, value|
+    describe "##{ option }" do
+      it_behaves_like 'a push option getter', option, value
+    end
+
+    describe "##{ option }=" do
+      it_behaves_like 'a push option setter', option, value
     end
   end
 
