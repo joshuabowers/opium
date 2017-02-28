@@ -5,7 +5,7 @@ describe Opium::Push do
 
   it { expect( described_class ).to respond_to(:to_ruby, :to_parse).with(1).argument }
 
-  it { is_expected.to respond_to( :create, :channels, :data, :alert, :badge, :sound, :content_available, :category, :uri, :title, :expires_at, :push_at, :expiration_interval ) }
+  it { is_expected.to respond_to( :create, :channels, :where, :data, :alert, :badge, :sound, :content_available, :category, :uri, :title, :expires_at, :push_at, :expiration_interval ) }
 
   shared_examples_for 'a push option getter' do |option, value|
     let(:result) do
@@ -78,7 +78,8 @@ describe Opium::Push do
 
     let(:push) do
       subject.tap do |p|
-        p.channels = channels
+        p.channels = channels if channels
+        p.where = criteria if criteria
         p.alert = alert
         p.push_at = push_at if push_at
         p.expires_at = expires_at if expires_at
@@ -90,6 +91,7 @@ describe Opium::Push do
 
     let(:alert) { 'Zoo animals are fighting!' }
     let(:channels) { %w{ General } }
+    let(:criteria) { nil }
     let(:push_at) { nil }
     let(:expires_at) { nil }
     let(:expiration_interval) { nil }
@@ -103,18 +105,98 @@ describe Opium::Push do
     before do
       stub_request(:post, "https://api.parse.com/1/push").
          with(body: "{\"channels\":[\"Penguins\",\"PolarBears\"],\"data\":{\"alert\":\"Zoo animals are fighting!\"}}",
-              headers: {'Content-Type'=>'application/json', 'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Master-Key' => 'PARSE_MASTER_KEY'}).
-         to_return(:status => 200, :body => { result: true }.to_json, :headers => {content_type: 'application/json'})
+          headers: {'Content-Type'=>'application/json', 'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Master-Key' => 'PARSE_MASTER_KEY'}).
+         to_return(status: 200, body: { result: true }.to_json, headers: {content_type: 'application/json'})
+
+      stub_request(:post, "https://api.parse.com/1/push").
+        with(body: "{\"where\":{\"deviceType\":\"ios\"},\"data\":{\"alert\":\"Zoo animals are fighting!\"}}",
+          headers: {'Content-Type'=>'application/json', 'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Master-Key'=>'PARSE_MASTER_KEY'}).
+        to_return(status: 200, body: { result: true }.to_json, headers: { content_type: 'application/json' })
+
+      stub_request(:post, "https://api.parse.com/1/push").
+        with(body: "{\"where\":{\"deviceType\":\"ios\",\"channels\":[\"Penguins\",\"PolarBears\"]},\"data\":{\"alert\":\"Zoo animals are fighting!\"}}",
+          headers: {'Content-Type'=>'application/json', 'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Master-Key'=>'PARSE_MASTER_KEY'}).
+        to_return(status: 200, body: { result: true }.to_json, headers: { content_type: 'application/json' })
+
+      stub_request(:post, "https://api.parse.com/1/push").
+        with(body: "{\"where\":{\"deviceType\":\"ios\",\"badge\":{\"$lte\":5},\"channels\":[\"Penguins\",\"PolarBears\"]},\"data\":{\"alert\":\"Zoo animals are fighting!\"}}",
+          headers: {'Content-Type'=>'application/json', 'X-Parse-Application-Id'=>'PARSE_APP_ID', 'X-Parse-Master-Key'=>'PARSE_MASTER_KEY'}).
+        to_return(status: 200, body: { result: true }.to_json, headers: { content_type: 'application/json' })
     end
 
-    context 'with no channels' do
+    context 'with no channels or criteria' do
       let(:channels) { [] }
+      let(:criteria) { nil }
 
       it { expect { result }.to raise_exception( ArgumentError ) }
     end
 
     context 'with channels' do
       let(:channels) { %w{ Penguins PolarBears } }
+
+      it 'sets the channels key' do
+        expect( push_post_data ).to include( channels: channels )
+      end
+      it 'does not set the where key' do
+        expect( push_post_data ).to_not include( :where )
+      end
+      it { expect { result }.to_not raise_exception }
+      it { expect( result ).to eq true }
+    end
+
+    context 'with a criteria' do
+      let(:channels) { nil }
+      let(:criteria) { { device_type: :ios } }
+
+      it 'does not set the channels key' do
+        expect( push_post_data ).to_not include( :channels )
+      end
+      it 'sets the where key' do
+        expect( push_post_data ).to include( :where )
+      end
+      it 'sets the where key to a parse-friendly version' do
+        expect( push_post_data[:where] ).to eq( { 'deviceType' => :ios } )
+      end
+
+      it { expect { result }.to_not raise_exception }
+      it { expect( result ).to eq true }
+    end
+
+    context 'with channels and a criteria' do
+      let(:channels) { %w{ Penguins PolarBears } }
+      let(:criteria) { { device_type: :ios } }
+
+      it 'does not set the channels key' do
+        expect( push_post_data ).to_not include( :channels )
+      end
+      it 'sets the where key' do
+        expect( push_post_data ).to include( :where )
+      end
+      it 'adds the channels to the criteria' do
+        expect( push_post_data[:where] ).to include( channels: channels )
+      end
+
+      it { expect { result }.to_not raise_exception }
+      it { expect( result ).to eq true }
+    end
+
+    context 'with an installation criteria and channels' do
+      let(:channels) { %w{ Penguins PolarBears } }
+      let(:criteria) { Opium::Installation.where( device_type: :ios ).lte( badge: 5 ) }
+
+      it 'does not set the channels key' do
+        expect( push_post_data ).to_not include( :channels )
+      end
+      it 'sets the where key' do
+        expect( push_post_data ).to include( :where )
+      end
+      it 'adds the channels to the criteria' do
+        expect( push_post_data[:where] ).to include( channels: channels )
+      end
+      it 'uses the installation criterias constraints' do
+        expect( push_post_data[:where] ).to include( :badge )
+        expect( push_post_data[:where][:badge] ).to include( '$lte' => 5 )
+      end
 
       it { expect { result }.to_not raise_exception }
       it { expect( result ).to eq true }

@@ -33,14 +33,17 @@ module Opium
     def initialize( attributes = {} )
       self.channels = []
       self.data = {}.with_indifferent_access
+      attributes.each {|k, v| self.send( "#{k}=", v )}
     end
 
-    attr_accessor :channels, :data, :push_at, :expires_at, :expiration_interval
+    attr_accessor :channels, :where, :data, :push_at, :expires_at, :expiration_interval
+
+    alias_method :criteria, :where
+    alias_method :criteria=, :where=
 
     attr_hash_accessors :data, :alert, :badge, :sound, :content_available, :category, :uri, :title
 
     def create
-      fail ArgumentError, 'No channels were specified!' if channels.empty?
       self.class.as_resource(:push) do
         result = self.class.http_post post_data
         result[:result]
@@ -51,9 +54,22 @@ module Opium
 
     def post_data
       {}.tap do |pd|
-        pd[:channels] = channels
+        targetize!( pd )
         schedulize!( pd )
         pd[:data] = data
+      end
+    end
+
+    def targetize!( hash )
+      if criteria
+        c = criteria
+        c = Installation.where( c ) unless c.is_a?( Opium::Model::Criteria )
+        c = c.and( channels: channels ) unless channels.empty?
+        hash[:where] = c.constraints[:where]
+      elsif !channels.empty?
+        hash[:channels] = channels
+      else
+        fail ArgumentError, 'No channels or criteria were specified!'
       end
     end
 
