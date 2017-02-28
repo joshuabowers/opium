@@ -56,11 +56,19 @@ A generator exists for creating new models; this should be invoked whenever `rai
 $ rails g model game title:string price:float
 ```
 
-A separate generate is available for creating a model to wrap Parse's User model:
+A separate generator is available for creating a model to wrap Parse's User model:
 
 ```bash
 $ rails g opium:user
 ```
+
+Finally, another generator is available to further customize Parse's Installation model:
+
+```bash
+$ rails g opium:installation
+```
+
+Both of these latter two generators otherwise accept the same arguments as the generic model generator.
 
 ### Specifying a model
 
