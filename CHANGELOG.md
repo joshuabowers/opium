@@ -1,3 +1,9 @@
+## 1.5.3
+### New Features
+- #54: Installation queries are now supported by Opium::Push to perform a more finely targeted push.
+- #55: Introduction of Opium::Installation, which allows for access and manipulation of Parse's Installation object.
+- Opium::Push has an expanded set of attributes which may be set to further customize a push, including the ability to schedule a push for a particular time and expire pushes.
+
 ## 1.5.2
 ### Resolved Issues
 - Push should now use the master key for creating notifications, rather than the REST API key.
