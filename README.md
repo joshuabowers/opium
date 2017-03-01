@@ -285,6 +285,80 @@ JSON serialization is built around an object's `attributes` hash, which is publi
 
 Be aware that all Opium models use `ActiveModel::ForbiddenAttributesProtection` for mass assignment sanitization.
 
+### Special Models: User and Installation
+
+Parse defines a couple of utility classes for each app, which require special access privileges. Amongst these are two models for dealing with users of the app and the devices the app are installed on.
+
+Opium provides wrappers around these constructs, in the form of `Opium::User` and `Opium::Installation`. For the most part, these two classes behave exactly like other models. Both classes are inheritable, so you can extend either of them with more information as necessary. Please be aware that the new subclasses will still be wrapping the core parse model, rather than being new models within the app; this means that you can still access their data via their superclasses, but would lose the convenient access to custom data.
+
+#### Opium::User
+
+The user model comes with the following data defined upon it:
+
+| Field          | Data type      |
+|----------------|----------------|
+| id             | String         |
+| created_at     | DateTime       |
+| updated_at     | DateTime       |
+| username       | String         |
+| password       | String         |
+| email          | String         |
+| email_verified | Opium::Boolean |
+| session_token  | String         |
+
+To further customize the User model with other fields, associations, or scopes, you can subclass `Opium::User`, as in the following example:
+
+```ruby
+class CustomUser < Opium::User
+  field :gamer_score, type: Integer
+  has_many :high_scores
+end
+```
+
+Note that as `Opium::User` is already an `Opium::Model`, you do not need to include that module into the custom user.
+
+`Opium::User` provides a set of utility methods at the class level for handling user authentication and session handling.
+
+- `authenticate[!]`: takes two parameters, being the `username` and `password` combo to test. Passwords are assumed to be in cleartext, so plan accordingly. The bang version of this method will raise an exception on failure, while the regular method will silently fail with nil. Otherwise, returns the instance of `Opium::User` associated with the provided credentials.
+- `find_by_session_token`: takes a single parameter, the token to search for. Should the token be found, the associated user object is returned. If the token is not found, raises an exception.
+
+At the instance level, `Opium::User` also provides a set of methods for reseting the users password:
+
+- `reset_password[!]`: requires the user have a set email address. The bang variant will raise an exception on failure, while the regular method sets an error in the instance's `errors` object. Requests that parse reset the password for this current user, who will then get information sent to them via their email address.
+
+#### Opium::Installation
+
+The `Opium::Installation` class comes with a number of different fields predefined upon it:
+
+| Field           | Data Type |
+|-----------------|-----------|
+| id              | String    |
+| created_at      | DateTime  |
+| updated_at      | DateTime  |
+| badge           | Integer   |
+| channels        | Array     |
+| time_zone       | String    |
+| device_type     | Symbol    |
+| push_type       | Symbol    |
+| gcm_sender_id   | Integer   |
+| installation_id | String    |
+| device_token    | String    |
+| channel_uris    | Array     |
+| app_name        | String    |
+| app_version     | String    |
+| parse_version   | String    |
+| app_identifier  | String    |
+
+Like `Opium::User`, the `Installation` class may be extended to provide access to more information stored within the parse database:
+
+```ruby
+class CustomInstallation < Opium::Installation
+  field :notify_on_score_change, type: Opium::Boolean
+end
+```
+
+Installations provide a convenient method to perform advanced targeting when sending [push notifications](#push-notifications).
+
 ### Creating and updating models
 
 After defining a model with Opium, you might want to create new instances of it, or update the data of an existing instance. Opium has been designed to be familiar to anyone who has used other Rails-centric ORMs, such as ActiveRecord. In this regard, object creation follows two patterns: delayed persistence, and immediate persistence.
@@ -405,6 +479,35 @@ gem 'opium'
 ```
 
 Models and Criteria will gain the methods defined by Kaminari, and should be compatible with Kaminari's pagination partials.
+
+## Push Notifications
+
+Opium provides support for Parse's push endpoint via the `Opium::Push` class. The following attributes may be configured on a push before it is created:
+
+- `channels`: an array of strings, indicating the channels to send the push to.
+- `where`: used to perform an installation query. See [advanced targeting](#advanced-targeting) for more details.
+- `data`: a payload hash to be delivered as part of the push.
+- `expires_at`: the DateTime when the push expires; Parse will no longer attempt to send the notification after this time.
+- `push_at`: used to schedule the notification for some point in the future.
+- `exiration_interval`: used with `push_at`; specifies an interval, expressed in seconds relative to `push_at`, to attempt to send the notification for.
+
+Note that `expires_at` and `push_at` are mutually exclusive; Opium prioritizes `push_at`. `push_at` can only be a value within a two week window of Time.now.
+
+Furthermore, the `data` payload has some common fields which are accessible from the push object itself:
+
+- `alert`: A message payload to send. Assumed to be a string.
+- `badge`: (iOS only) can be either a string value of "Increment" to increase the badge count by 1 on the receiving device, or a number indicating the new badge count.
+- `sound`: (iOS only) a string indicating the file within the app bundle to play upon receiving the notification.
+- `content_available`: (iOS only) will cause the app to trigger a background download if set to a value of 1.
+- `category`: (iOS only) the identifier of the UIUserNotificationCategory of this notification.
+- `uri`: (android only) specifies an Activity to be activated associated with the provided value.
+- `title`: (android only) the value displayed in for the push in the system tray.
+
+Note that note all of these data are supported on all platforms.
+
+Once the push has be configured as desired, it can be sent out by triggering the `create` method, which will either raise an error on failure or return true on success. Note that a truthy return value does not necessarily indicate that Parse has successfully sent any notifications; rather it merely indicates that Parse has successfully received the push request and did not find anything egregious in it.
+
+### Advanced Targeting
 
 ## Contributing
 
