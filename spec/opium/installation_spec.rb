@@ -6,7 +6,7 @@ describe Opium::Installation do
 
   it { should be_an( Opium::Model ) }
 
-  it { expect( described_class ).to have_heightened_privileges }
+  it { expect( described_class ).to have_a_master_complex }
 
   describe '#object_prefix' do
     it { expect( described_class.object_prefix ).to be_empty }
@@ -41,7 +41,8 @@ describe Opium::Installation do
     it { is_expected.to respond_to( :field, :fields ) }
     it { expect( subject.fields.keys ).to include( 'badge', 'device_token', 'has_web_access' ) }
 
-    it { expect( subject ).to have_heightened_privileges }
+    # it { expect( subject ).to have_heightened_privileges }
+    it { expect( subject ).to have_a_master_complex }
 
     describe '#object_prefix' do
       it { expect( subject.object_prefix ).to be_empty }

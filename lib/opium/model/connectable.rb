@@ -103,6 +103,10 @@ module Opium
           @always_heightened_privileges = true
         end
 
+        def has_a_master_complex?
+          !@always_heightened_privileges.nil?
+        end
+
         private
 
         def http( method, options, &block )

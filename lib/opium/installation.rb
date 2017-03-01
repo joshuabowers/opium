@@ -3,7 +3,12 @@ module Opium
     include Opium::Model
 
     no_object_prefix!
-    requires_heightened_privileges!
+    no_really_i_need_master!
+
+    def self.inherited( subclass )
+      subclass.no_really_i_need_master!
+      super
+    end
 
     field :badge, type: Integer
     field :channels, type: Array

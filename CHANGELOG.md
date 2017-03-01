@@ -1,3 +1,7 @@
+## 1.5.4
+### Resolved Issues
+- #55: Opium::Installation was not properly using the master key for performing queries. Parse requires the presence of the master key to perform any sort of non-id query on installations.
+
 ## 1.5.3
 ### New Features
 - #54: Installation queries are now supported by Opium::Push to perform a more finely targeted push.
