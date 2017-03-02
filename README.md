@@ -465,9 +465,21 @@ player.high_scores.include?( score3 )   # true, as the above setter updates play
 
 ### Querying data
 
+Models can be searched for via one of two different methods: by their associated `id` field value, or by criteria defining the attributes a model must have to be part of a match set.
+
 #### Find by id
 
+IDs in Parse should be unique within a given model class. As such, finding by id always returns, at most, one result: the model instance associated with the provided id.
+
+`Opium::Model` provides a single class method, `find` for performing an id search. It accepts a single parameter, `id`, being a string representing the id to look for. Should a matching model exist, it will be the return value of the method; otherwise, an exception is raised. Any class which mixes in `Opium::Model` has access to this method.
+
+```ruby
+score = HighScore.find( 'd3ADb3Ef' )
+```
+
 #### Criteria & Scopes
+
+While `find` is useful if a model id is already available, it is more often desirable to perform a query across more and varied content stored within the model. This is where criteria come into play.
 
 #### Kaminari support
 
@@ -506,6 +518,18 @@ Furthermore, the `data` payload has some common fields which are accessible from
 Note that note all of these data are supported on all platforms.
 
 Once the push has be configured as desired, it can be sent out by triggering the `create` method, which will either raise an error on failure or return true on success. Note that a truthy return value does not necessarily indicate that Parse has successfully sent any notifications; rather it merely indicates that Parse has successfully received the push request and did not find anything egregious in it.
+
+In the following example, a push is scheduled for a day in the future which targets some channels.
+
+```ruby
+p = Opium::Push.new(
+  alert: 'Be sure to watch our eSports tournament on Twitch!',
+  push_at: 1.day.from_now,
+  expiration_interval: 1.day,
+  channels: %w[ Gaming eSports Tournaments ]
+)
+p.create
+```
 
 ### Advanced Targeting
 
