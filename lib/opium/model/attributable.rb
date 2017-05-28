@@ -18,13 +18,10 @@ module Opium
       def attributes=(values)
         sanitize_for_mass_assignment( rubyize_field_names( values ) ).each do |k, v|
           field_info, setter = self.class.fields[k], :"#{k}="
-          self.class.send(:attr_accessor, k) unless field_info.present? || self.respond_to?( setter )
-          if field_info.present? || self.respond_to?( setter )
-            send( setter, v )
-          # else
-          #   self.class.send(:attr_accessor, k)
-          #   attributes[k] = v
+          unless field_info.present? || self.respond_to?( setter )
+            self.class.send(:attr_accessor, k)
           end
+          send( setter, v )
         end
       end
 
