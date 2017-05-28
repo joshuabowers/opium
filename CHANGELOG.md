@@ -1,3 +1,7 @@
+## 1.5.6
+### Resolved Issues
+- User.find_by_session_token was clobbering most of the values passed to it. Its behavior has slightly modified to prevent this, albeit at the cost of not being as restrictive on which fields it attempts to whitelist.
+
 ## 1.5.5
 ### Resolved Issues
 - Attributable no longer stores unknown fields within the attributes hash of the object; rather, a new accessor is created on the fly for the class to store that data. This should prevent serialization from breaking on unknown fields with more recent versions of ActiveModel.

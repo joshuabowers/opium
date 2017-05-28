@@ -26,7 +26,7 @@ module Opium
 
       def find_by_session_token( token )
         data = http_get id: 'me', headers: { x_parse_session_token: token }
-        new( data.slice( *fields.keys ) )
+        new( data.except( '__type', 'className' ) )
       end
     end
 

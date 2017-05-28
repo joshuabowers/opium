@@ -41,6 +41,7 @@ describe Opium::User do
           createdAt: '2014-11-01T12:00:30Z',
           updatedAt: '2015-02-10T16:37:23Z',
           objectId: 'abcd1234',
+          sessionToken: 'super-secret-session-id',
           __type: 'Object',
           className: '_User'
         }.to_json,
@@ -119,6 +120,7 @@ describe Opium::User do
       it { expect { current_user }.to_not raise_exception }
       it { current_user.should be_a( described_class ) }
       it { expect( current_user ).to_not respond_to( :__type, :className ) }
+      it { expect( current_user.attributes ).to include( username: 'username', id: 'abcd1234' ) }
     end
 
     context 'with an invalid token' do
