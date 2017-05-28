@@ -1,3 +1,8 @@
+## 1.5.5
+### Resolved Issues
+- Attributable no longer stores unknown fields within the attributes hash of the object; rather, a new accessor is created on the fly for the class to store that data. This should prevent serialization from breaking on unknown fields with more recent versions of ActiveModel.
+- User should not be storing any data other than its known fields. This was primarily an issue with the find by session token endpoint, which is now mysteriously embedding `__type` and `className` into the results.
+
 ## 1.5.4
 ### Resolved Issues
 - #55: Opium::Installation was not properly using the master key for performing queries. Parse requires the presence of the master key to perform any sort of non-id query on installations.
